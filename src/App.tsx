@@ -1,7 +1,10 @@
+import "./styles/global.css";
+import LoginPage from "./components/pages/LoginPage";
+
 function App() {
   return (
     <>
-      <h1>Todo app 만들기</h1>
+      <LoginPage />
     </>
   );
 }

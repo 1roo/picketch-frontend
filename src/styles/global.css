@@ -1,0 +1,8 @@
+@import "./reset.css";
+@import url("https://fastly.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css");
+
+body {
+  background-color: #101010;
+  color: #d8ff91;
+  font-family: "Galmuri", sans-serif;
+}
