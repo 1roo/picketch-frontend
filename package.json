@@ -12,6 +12,7 @@
     "@types/react-dom": "^19.0.3",
     "axios": "^1.7.9",
     "cra-template": "1.2.0",
+    "cross-env": "^7.0.3",
     "konva": "^9.3.18",
     "peer": "^1.0.2",
     "react": "^19.0.0",
