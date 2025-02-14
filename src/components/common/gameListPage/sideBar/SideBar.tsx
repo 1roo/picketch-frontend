@@ -5,7 +5,7 @@ import {
   faBell,
   faX,
 } from "@fortawesome/free-solid-svg-icons";
-import * as S from "../../styles/sideBar";
+import * as S from "../../../../styles/sideBar";
 import { useEffect, useRef, useState } from "react";
 import DmChat from "./DmChat";
 
@@ -47,7 +47,8 @@ export default function Sidebar() {
           justifyContent: "flex-end",
           fontSize: "25px",
           padding: "15px",
-        }}>
+        }}
+      >
         <FontAwesomeIcon
           icon={faBell}
           style={{ cursor: "pointer" }}
@@ -61,7 +62,8 @@ export default function Sidebar() {
               display: "flex",
               justifyContent: "flex-end",
               marginBottom: "10px",
-            }}>
+            }}
+          >
             <FontAwesomeIcon
               icon={faX}
               style={{ cursor: "pointer" }}
