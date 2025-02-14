@@ -1,9 +1,10 @@
 //import "./styles/global.css";
 import GlobalStyle from "./styles/GlobalStyle";
-import LoginPage from "./components/pages/LoginPage";
+//import LoginPage from "./components/pages/LoginPage";
 import { GameRoom } from "./components/interfaces/GameRoom";
 import GameRoomBox from "./components/common/GameRoomBox";
 import ActionButtons from "./components/common/ActionButtons";
+import { Outlet } from "react-router-dom";
 import {
   ButtonContainer,
   GameListContainer,
@@ -25,6 +26,7 @@ function App() {
   return (
     <>
       <GlobalStyle />
+      <Outlet />
       <GameListContainer>
         <ButtonContainer>
           <ActionButtons
@@ -41,5 +43,4 @@ function App() {
     </>
   );
 }
-
 export default App;
