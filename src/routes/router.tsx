@@ -2,17 +2,15 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 import React, { Suspense } from "react";
 
-const LoginPage = React.lazy(
-  () => import("../components/common/mainPage/LoginPage")
-);
+const LoginPage = React.lazy(() => import("../components/pages/LoginPage"));
 const SideBar = React.lazy(
   () => import("../components/common/gameListPage/sideBar/SideBar")
 );
 const GameList = React.lazy(
-  () => import("../components/common/gameListPage/gameRoomList/GameList")
+  () => import("../components/layouts/gameListLayout/GameList")
 );
 const GameListPage = React.lazy(
-  () => import("../components/common/gameListPage/GameListPage")
+  () => import("../components/pages/GameListPage")
 );
 
 export const router = createBrowserRouter([

@@ -1,5 +1,5 @@
 import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
-import * as M from "../../../styles/loginPage/mainPageStyle";
+import * as M from "../../styles/loginPage/mainPageStyle";
 
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
 const kakaoRestApiKey = process.env.REACT_APP_KAKAO_REST_API_KEY;

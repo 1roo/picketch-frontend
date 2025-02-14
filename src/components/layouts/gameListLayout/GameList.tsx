@@ -1,11 +1,11 @@
 import React from "react";
 import GameRoomBox from "./GameRoomBox";
-import ActionButtons from "./ActionButtons";
+import ActionButtons from "../ActionButtons";
 import {
   ButtonContainer,
   GameListContainer,
   GameRoomsContainer,
-} from "../../../../styles/gameRoomStyle";
+} from "../../../styles/gameRoomStyle";
 
 const gameRooms = [
   {
