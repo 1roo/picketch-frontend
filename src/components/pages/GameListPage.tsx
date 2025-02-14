@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import Sidebar from "../ui/gameListPage/sideBar/SideBar";
-import GameRoomPage from "../layouts/gameListLayout/GameList";
+import GameRoomList from "../layouts/gameListLayout/GameList";
+import TabBar from "../ui/gameListPage/TabBar/TabBar";
 const LayoutContainer = styled.div`
   display: flex;
   height: 100vh;
@@ -34,8 +35,9 @@ const GameListPage: React.FC = () => {
         <Sidebar />
       </SidebarContainer>
       <ContentContainer>
-        <GameRoomPage />
+        <GameRoomList />
       </ContentContainer>
+      <TabBar />
     </LayoutContainer>
   );
 };
