@@ -17,7 +17,7 @@ export const LogoBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50vw;
+  width: 50%;
   height: 100vh;
   @media (max-width: 700px) {
     height: 50vh;
@@ -48,7 +48,7 @@ export const LoginBox = styled.div`
   padding: 30px 20px;
   border: 2px solid #d8ff91;
   border-radius: 5px;
-  width: 100%;
+  width: 70%;
   justify-content: center;
   align-items: center;
   @media (max-width: 700px) {
