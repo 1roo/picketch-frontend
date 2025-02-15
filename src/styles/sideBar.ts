@@ -81,21 +81,48 @@ export const RankDiv = styled.div`
 
 export const FriendNick = styled.div`
   background: #101010;
-  margin-top: 10px;
+  border-bottom: 1px solid #d8ff91;
 `;
 
-export const ChatContainer = styled.div`
-  position: absolute;
-  left: 0;
-  top: 40px;
-  width: 360px;
-  height: 50vh;
+export const ChatDiv = styled.div`
   border: 1px solid #d8ff91;
   background-color: #101010;
   padding: 10px;
   display: flex;
   flex-direction: column;
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 360px;
+  height: 52.5vh;
+`;
+
+export const ChatContainer = styled.div`
+  position: absolute;
+  left: 0;
+  top: 45px;
+  width: 358px;
+  height: 78%;
+  background-color: #101010;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
+
+  /* 스크롤바 스타일 */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(136, 136, 136, 0.11);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(136, 136, 136, 0.5);
+  }
 `;
 
 export const ChatMessageWrapper = styled.div<{ isMyMessage: boolean }>`
@@ -108,7 +135,7 @@ export const ChatMessageWrapper = styled.div<{ isMyMessage: boolean }>`
 
 export const ChatBubble = styled.div<{ isMyMessage: boolean }>`
   max-width: 60%;
-  padding: 10px;
+  padding: 5px;
   border-radius: 10px;
   color: ${({ isMyMessage }) => (isMyMessage ? "#101010" : "#d8ff91")};
   border: ${({ isMyMessage }) => (isMyMessage ? "none" : "1px solid #d8ff91")};
@@ -133,9 +160,10 @@ export const ChatInput = styled.input`
 `;
 
 export const ChatInputBox = styled.div`
-  position: absolute;
+  position: fixed;
   width: 330px;
-  bottom: 10px;
+  top: 385px;
+  left: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
