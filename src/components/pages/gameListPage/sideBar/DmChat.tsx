@@ -2,7 +2,7 @@ import * as S from "../../../../styles/sideBar";
 import { ChatMessage } from "../../../../interfaces/chat";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function DmChat() {
   const [inputMessage, setInputMessage] = useState("");
@@ -32,6 +32,8 @@ export default function DmChat() {
     { id: 5, userNick: "야야", message: "좋아!", timestamp: "02월 14일 14:04" },
   ]);
 
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
+
   const getCurrentTimestamp = () => {
     const now = new Date();
     const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -41,7 +43,6 @@ export default function DmChat() {
     return `${month}월 ${day}일 ${hours}:${minutes}`;
   };
 
-  // ✅ 메시지 전송 함수 (엔터 키 or 버튼 클릭 시 실행)
   const sendMessage = () => {
     if (inputMessage.trim() === "") return;
 
@@ -52,14 +53,31 @@ export default function DmChat() {
       timestamp: getCurrentTimestamp(),
     };
 
-    setMessages([...messages, newMessage]);
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
     setInputMessage("");
   };
 
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      const chatBox = chatContainerRef.current;
+      const shouldScroll =
+        chatBox.scrollTop + chatBox.clientHeight + 100 >= chatBox.scrollHeight;
+
+      if (shouldScroll) {
+        setTimeout(() => {
+          chatBox.scrollTop = chatBox.scrollHeight - 100;
+        }, 100);
+      }
+    }
+  }, [messages]);
+
   return (
-    <>
+    <S.ChatDiv>
       <S.FriendNick>{otherNick}</S.FriendNick>
-      <S.ChatContainer>
+      <S.ChatContainer
+        ref={chatContainerRef}
+        style={{ overflowY: "auto", maxHeight: "400px" }}
+      >
         {messages.map((msg) => (
           <S.ChatMessageWrapper
             key={msg.id}
@@ -73,22 +91,22 @@ export default function DmChat() {
             </S.Timestamp>
           </S.ChatMessageWrapper>
         ))}
-
-        <S.ChatInputBox>
-          <S.ChatInput
-            type="text"
-            placeholder="채팅 입력"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          />
-          <FontAwesomeIcon
-            icon={faPaperPlane}
-            style={{ cursor: "pointer" }}
-            onClick={sendMessage}
-          />
-        </S.ChatInputBox>
       </S.ChatContainer>
-    </>
+
+      <S.ChatInputBox>
+        <S.ChatInput
+          type="text"
+          placeholder="채팅 입력"
+          value={inputMessage}
+          onChange={(e) => setInputMessage(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        />
+        <FontAwesomeIcon
+          icon={faPaperPlane}
+          style={{ cursor: "pointer" }}
+          onClick={sendMessage}
+        />
+      </S.ChatInputBox>
+    </S.ChatDiv>
   );
 }

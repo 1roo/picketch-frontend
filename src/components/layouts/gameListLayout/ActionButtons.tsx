@@ -1,7 +1,7 @@
 import React from "react";
 
-import RandomJoinButton from "../../ui/gameListPage/gameRoomList/RandomJoinButton";
-import CreateRoomButton from "../../ui/gameListPage/gameRoomList/CreateRoomButton";
+import RandomJoinButton from "../../pages/gameListPage/gameRoomList/RandomJoinButton";
+import CreateRoomButton from "../../pages/gameListPage/gameRoomList/CreateRoomButton";
 
 interface ActionButtonsProps {
   onRandomJoin: () => void;
