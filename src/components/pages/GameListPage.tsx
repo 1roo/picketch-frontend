@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Sidebar from "./gameListPage/sideBar/SideBar";
 import GameRoomList from "../layouts/gameListLayout/GameList";
 import TabBar from "./gameListPage/TabBar/TabBar";
+
 const LayoutContainer = styled.div`
   display: flex;
   height: 100vh;
