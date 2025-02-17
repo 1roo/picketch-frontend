@@ -5,6 +5,9 @@ import LoadingAnimaation from "../components/etc/LoadingAnimation";
 
 const LoginPage = React.lazy(() => import("../pages/LoginPage"));
 const SideBar = React.lazy(() => import("../components/sideBar/SideBar"));
+const MakeNewGame = React.lazy(
+  () => import("../components/newGame/MakeNewGame")
+);
 
 const GameList = React.lazy(
   () => import("../components/gameListPage/layout/GameList")
@@ -32,7 +35,14 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
       },
-
+      {
+        path: "/newGame",
+        element: (
+          <Suspense fallback={<LoadingAnimaation />}>
+            <MakeNewGame />
+          </Suspense>
+        ),
+      },
       {
         path: "/game-list",
         element: (
