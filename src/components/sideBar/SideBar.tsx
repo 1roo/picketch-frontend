@@ -1,23 +1,19 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCircle,
-  faPlus,
-  faBell,
-  faX,
-} from "@fortawesome/free-solid-svg-icons";
+import { faBell, faX } from "@fortawesome/free-solid-svg-icons";
 import * as S from "../../styles/sideBar";
 import { useEffect, useRef, useState } from "react";
 import DmChat from "./DmChat";
 import Rank from "./Rank";
+import Friends from "./Friends";
 
 export default function Sidebar() {
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isDmOpen, setIsDmOpen] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+
   const alertRef = useRef<HTMLDivElement>(null);
   const toggleAlerts = () => {
     setIsAlertOpen(!isAlertOpen);
   };
-
   const toggleDmChat = () => {
     setIsDmOpen(!isDmOpen);
   };
@@ -73,21 +69,7 @@ export default function Sidebar() {
           <p>초 대: 홍길동님의 초대</p>
         </S.AlertDiv>
       )}
-      <S.FriendsDiv>
-        <p>친구목록</p>
-        <S.FrindDiv>
-          <span>감자가돌아</span>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <button type="button" onClick={toggleDmChat}>
-              DM
-            </button>
-            <FontAwesomeIcon icon={faCircle} style={{ fontSize: "10px" }} />
-          </div>
-        </S.FrindDiv>
-        <button type="button">
-          <FontAwesomeIcon icon={faPlus} size="xs" /> 친구추가
-        </button>
-      </S.FriendsDiv>
+      <Friends toggleDmChat={toggleDmChat} />
       <S.Line>
         {isDmOpen && <DmChat />}
         <Rank />
