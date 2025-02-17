@@ -4,7 +4,7 @@ import React, { Suspense } from "react";
 
 const LoginPage = React.lazy(() => import("../components/pages/LoginPage"));
 const SideBar = React.lazy(
-  () => import("../components/ui/gameListPage/sideBar/SideBar")
+  () => import("../components/pages/gameListPage/sideBar/SideBar")
 );
 const GameList = React.lazy(
   () => import("../components/layouts/gameListLayout/GameList")
