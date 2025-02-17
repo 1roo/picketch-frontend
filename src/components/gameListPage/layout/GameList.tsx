@@ -1,6 +1,6 @@
 import React from "react";
 import GameRoomBox from "./GameRoomBox";
-import ActionButtons from "../../layouts/gameListLayout/ActionButtons";
+import ActionButtons from "./ActionButtons";
 import {
   ButtonContainer,
   GameListContainer,

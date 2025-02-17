@@ -1,5 +1,5 @@
-import * as S from "../../../../styles/sideBar";
-import { ChatMessage } from "../../../../interfaces/chat";
+import * as S from "../../styles/sideBar";
+import { ChatMessage } from "../../interfaces/chat";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
@@ -76,13 +76,11 @@ export default function DmChat() {
       <S.FriendNick>{otherNick}</S.FriendNick>
       <S.ChatContainer
         ref={chatContainerRef}
-        style={{ overflowY: "auto", maxHeight: "400px" }}
-      >
+        style={{ overflowY: "auto", maxHeight: "400px" }}>
         {messages.map((msg) => (
           <S.ChatMessageWrapper
             key={msg.id}
-            isMyMessage={msg.userNick === myNick}
-          >
+            isMyMessage={msg.userNick === myNick}>
             <S.ChatBubble isMyMessage={msg.userNick === myNick}>
               <span>{msg.message}</span>
             </S.ChatBubble>
