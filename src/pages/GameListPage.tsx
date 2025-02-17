@@ -1,9 +1,15 @@
 import React from "react";
 import styled from "styled-components";
+<<<<<<< HEAD:src/components/pages/GameListPage.tsx
 import Sidebar from "./gameListPage/sideBar/SideBar";
 import GameRoomList from "../layouts/gameListLayout/GameList";
 import TabBar from "./gameListPage/TabBar/TabBar";
 
+=======
+import Sidebar from "../components/sideBar/SideBar";
+import GameRoomList from "../components/gameListPage/layout/GameList";
+import TabBar from "../components/TabBar/TabBar";
+>>>>>>> 9c46a0ed04a9d542e9bfdfa6afc4223cc60e0097:src/pages/GameListPage.tsx
 const LayoutContainer = styled.div`
   display: flex;
   height: 100vh;

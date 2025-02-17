@@ -11,21 +11,74 @@ export const AlertDiv = styled.div`
   position: absolute;
   width: 300px;
   height: 300px;
-  right: -290px;
+  right: -310px;
   top: 10px;
   padding: 10px;
   background-color: #101010;
   border: 1px solid #d8ff91;
   border-radius: 5px;
-  z-index: 9999;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 18px;
+    right: 99%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-width: 10px 18px 10px 0;
+    border-style: solid;
+    border-color: transparent #101010 transparent transparent;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 18px;
+    right: 99%;
+    transform: translateY(-50%) translateX(-3px);
+    width: 0;
+    height: 0;
+    border-width: 9px 18px 9px 0;
+    border-style: solid;
+    border-color: transparent #d8ff91 transparent transparent;
+  }
 `;
 
+export const Line = styled.div`
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 3px;
+  width: 360px;
+  background-color: #d8ff91;
+  border-radius: 5px;
+`;
+
+//----------rank--------------
+
+export const RankDiv = styled.div`
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  color: white;
+  p {
+    font-weight: bold;
+    font-size: 23px;
+  }
+`;
+
+// ---------------------Friends-----------------------------------
+
 export const FriendsDiv = styled.div`
+  position: relative;
   padding: 20px 40px;
   display: flex;
   flex-direction: column;
   color: white;
   font-weight: normal;
+  height: 35%;
   p {
     font-weight: bold;
     font-size: 23px;
@@ -56,26 +109,9 @@ export const FrindDiv = styled.div`
   }
 `;
 
-export const Line = styled.div`
+export const AddFriend = styled.button`
   position: absolute;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  height: 3px;
-  width: 360px;
-  background-color: #d8ff91;
-  border-radius: 5px;
-`;
-
-export const RankDiv = styled.div`
-  padding: 20px 40px;
-  display: flex;
-  flex-direction: column;
-  color: white;
-  p {
-    font-weight: bold;
-    font-size: 23px;
-  }
+  bottom: 0;
 `;
 
 // ---------------------chatting-----------------------------------
@@ -126,7 +162,9 @@ export const ChatContainer = styled.div`
   }
 `;
 
-export const ChatMessageWrapper = styled.div<{ isMyMessage: boolean }>`
+export const ChatMessageWrapper = styled("div").withConfig({
+  shouldForwardProp: (prop) => prop !== "isMyMessage",
+})<{ isMyMessage: boolean }>`
   display: flex;
   align-items: center;
   justify-content: ${({ isMyMessage }) =>
@@ -134,7 +172,9 @@ export const ChatMessageWrapper = styled.div<{ isMyMessage: boolean }>`
   margin: 5px 0;
 `;
 
-export const ChatBubble = styled.div<{ isMyMessage: boolean }>`
+export const ChatBubble = styled("div").withConfig({
+  shouldForwardProp: (prop) => prop !== "isMyMessage",
+})<{ isMyMessage: boolean }>`
   max-width: 60%;
   padding: 5px;
   border-radius: 10px;
@@ -145,7 +185,9 @@ export const ChatBubble = styled.div<{ isMyMessage: boolean }>`
   text-align: ${({ isMyMessage }) => (isMyMessage ? "right" : "left")};
 `;
 
-export const Timestamp = styled.span<{ isMyMessage: boolean }>`
+export const Timestamp = styled("span").withConfig({
+  shouldForwardProp: (prop) => prop !== "isMyMessage",
+})<{ isMyMessage: boolean }>`
   font-size: 12px;
   color: #aaa;
   margin: 0 10px;
@@ -163,7 +205,7 @@ export const ChatInput = styled.input`
 export const ChatInputBox = styled.div`
   position: fixed;
   width: 330px;
-  top: 385px;
+  top: 48vh;
   left: 10px;
   display: flex;
   align-items: center;
