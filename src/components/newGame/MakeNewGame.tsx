@@ -46,6 +46,7 @@ export default function MakeNewGame() {
             type="text"
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
+            style={{ width: "75%" }}
           />
         </InputWrapper>
         <InputWrapper style={{ display: "flex" }}>
@@ -104,8 +105,8 @@ export default function MakeNewGame() {
 
 const Wrapper = styled.div`
   display: flex;
-  justify-content: center; /* 가로 중앙 */
-  align-items: center; /* 세로 중앙 */
+  justify-content: center;
+  align-items: center;
   width: 100vw;
   height: 100vh;
   background-color: rgba(21, 21, 21, 0.5);
