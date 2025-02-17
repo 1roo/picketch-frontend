@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { TabBarButton } from "../../../../interfaces/tabBar";
+import { TabBarButton } from "../../interfaces/tabBar";
 
 const ButtonWrapper = styled.button`
   display: flex;

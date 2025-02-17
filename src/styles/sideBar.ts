@@ -11,12 +11,38 @@ export const AlertDiv = styled.div`
   position: absolute;
   width: 300px;
   height: 300px;
-  right: -290px;
+  right: -310px;
   top: 10px;
   padding: 10px;
   background-color: #101010;
   border: 1px solid #d8ff91;
   border-radius: 5px;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 18px;
+    right: 99%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-width: 10px 18px 10px 0;
+    border-style: solid;
+    border-color: transparent #101010 transparent transparent;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 18px;
+    right: 99%;
+    transform: translateY(-50%) translateX(-3px);
+    width: 0;
+    height: 0;
+    border-width: 9px 18px 9px 0;
+    border-style: solid;
+    border-color: transparent #d8ff91 transparent transparent;
+  }
 `;
 
 export const FriendsDiv = styled.div`
