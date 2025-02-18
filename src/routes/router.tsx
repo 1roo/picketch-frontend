@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 import React, { Suspense } from "react";
 import LoadingAnimaation from "../components/etc/LoadingAnimation";
+import UserSettingPage from "../pages/UserSettingPage";
 
 const LoginPage = React.lazy(() => import("../pages/LoginPage"));
 const SideBar = React.lazy(() => import("../components/sideBar/SideBar"));
@@ -65,6 +66,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingAnimaation />}>
             <GameListPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/user-setting-page",
+        element: (
+          <Suspense fallback={<LoadingAnimaation />}>
+            <UserSettingPage />
           </Suspense>
         ),
       },
