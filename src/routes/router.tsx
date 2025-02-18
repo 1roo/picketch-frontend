@@ -8,6 +8,7 @@ const SideBar = React.lazy(() => import("../components/sideBar/SideBar"));
 const MakeNewGame = React.lazy(
   () => import("../components/newGame/MakeNewGame")
 );
+const GamePlayPage = React.lazy(() => import("../pages/GamePlayPage"));
 
 const GameList = React.lazy(
   () => import("../components/gameListPage/GameList")
@@ -40,6 +41,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingAnimaation />}>
             <MakeNewGame />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/gamePage",
+        element: (
+          <Suspense fallback={<LoadingAnimaation />}>
+            <GamePlayPage />
           </Suspense>
         ),
       },
