@@ -102,24 +102,24 @@ const GameDrawing: React.FC = () => {
         backgroundImage: `url(${IMAGE_URL})`,
         backgroundSize: "cover",
         display: "flex",
-        height: "100%",
-        width: "80%",
-        paddingTop: "100px",
+        height: "70%",
+        width: "70%",
+        paddingTop: "90px",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
       }}
     >
       <Stage
-        width={800}
-        height={500}
+        width={600}
+        height={400}
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
         style={{ border: "1px solid black", backgroundColor: "white" }}
       >
         <Layer>
-          <Rect width={800} height={500} fill="white" />
+          <Rect width={600} height={400} fill="white" />
           {lines.map((line, i) => (
             <Line
               key={i}
