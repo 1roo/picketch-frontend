@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import Sidebar from "../components/sideBar/SideBar";
-import GameRoomList from "../components/gameListPage/layout/GameList";
+import GameRoomList from "../components/gameListPage/GameList";
 import TabBar from "../components/TabBar/TabBar";
 const LayoutContainer = styled.div`
   display: flex;

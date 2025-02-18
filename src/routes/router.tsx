@@ -10,7 +10,7 @@ const MakeNewGame = React.lazy(
 );
 
 const GameList = React.lazy(
-  () => import("../components/gameListPage/layout/GameList")
+  () => import("../components/gameListPage/GameList")
 );
 const GameListPage = React.lazy(() => import("../pages/GameListPage"));
 

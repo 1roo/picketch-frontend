@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { GameRoom } from "../../../interfaces/gameRoom";
+import { GameRoom } from "../../interfaces/gameRoom";
 
 const GameRoomContainer = styled.div`
   position: relative;

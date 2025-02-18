@@ -1,11 +1,11 @@
 import React from "react";
 import GameRoomBox from "./GameRoomBox";
-import ActionButtons from "../../layouts/gameListLayout/ActionButtons";
+import ActionButtons from "./ActionButtons";
 import {
   ButtonContainer,
   GameListContainer,
   GameRoomsContainer,
-} from "../../../styles/gameRoomStyle";
+} from "../../styles/gameRoomStyle";
 
 const gameRooms = [
   {
@@ -14,15 +14,6 @@ const gameRooms = [
     isPrivate: true,
     playerCount: 4,
   },
-  { id: 2, title: "퀴즈 마스터", isPrivate: false, playerCount: 6 },
-  { id: 3, title: "전략의 달인", isPrivate: true, playerCount: 3 },
-  { id: 2, title: "퀴즈 마스터", isPrivate: false, playerCount: 6 },
-  { id: 3, title: "전략의 달인", isPrivate: true, playerCount: 3 },
-  { id: 2, title: "퀴즈 마스터", isPrivate: false, playerCount: 6 },
-  { id: 3, title: "전략의 달인", isPrivate: true, playerCount: 3 },
-  { id: 3, title: "전략의 달인", isPrivate: true, playerCount: 3 },
-  { id: 2, title: "퀴즈 마스터", isPrivate: false, playerCount: 6 },
-  { id: 3, title: "전략의 달인", isPrivate: true, playerCount: 3 },
   { id: 2, title: "퀴즈 마스터", isPrivate: false, playerCount: 6 },
   { id: 3, title: "전략의 달인", isPrivate: true, playerCount: 3 },
 ];

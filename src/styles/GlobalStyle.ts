@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 
-const GlobalStyle = createGlobalStyle`
+const globalStyle = createGlobalStyle`
   /* 기본적인 Reset CSS */
   * {
     margin: 0;
@@ -59,4 +59,4 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-export default GlobalStyle;
+export default globalStyle;

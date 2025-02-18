@@ -39,10 +39,10 @@ const useGameStore = create<GameState>((set, get) => ({
   setPlayers: (players) => set({ players }),
   setDrawer: (drawer) => set({ drawer }),
 
-  setPlayerReady: (playerId, ready) =>
+  setPlayerReady: (playerNickname, ready) =>
     set((state) => ({
       players: state.players.map((player) =>
-        player.id === playerId ? { ...player, ready } : player
+        player.nickname === playerNickname ? { ...player, ready } : player
       ),
     })),
 
