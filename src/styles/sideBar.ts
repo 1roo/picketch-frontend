@@ -59,14 +59,69 @@ export const Line = styled.div`
 //----------rank--------------
 
 export const RankDiv = styled.div`
-  padding: 20px 40px;
+  position: relative;
+  padding: 20px 20px;
   display: flex;
   flex-direction: column;
   color: white;
+  font-weight: normal;
+  height: 35%;
   p {
     font-weight: bold;
     font-size: 23px;
   }
+`;
+
+export const RankContainer = styled.div`
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #101010;
+  border: 2px solid #d8ff91;
+  border-radius: 5px;
+  margin: 50px auto 0;
+  padding: 20px;
+  width: 300px;
+`;
+
+export const RankItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  position: relative;
+  span {
+    margin: 10px 0 20px;
+  }
+  b {
+    color: #d8ff91;
+  }
+`;
+
+export const TriangleWrapper = styled.div`
+  position: relative;
+  width: 60px;
+  height: 100px;
+`;
+
+export const CylinderBase = styled.div`
+  width: 40px;
+  height: 100px;
+  background: #d8d8d8;
+  border-radius: 20px 20px 0 0;
+  position: relative;
+  overflow: hidden;
+`;
+
+export const CylinderFill = styled.div<{ fillPercentage: number }>`
+  width: 40px;
+  height: ${(props) => props.fillPercentage}%;
+  background: #ff6666;
+  border-radius: 20px 20px 0 0;
+  position: absolute;
+  bottom: 0;
 `;
 
 // ---------------------Friends-----------------------------------
