@@ -163,7 +163,7 @@ export default function Character() {
             중복검사
           </CH.NickNameAvailability>
         </CH.NickNameContainer>
-        {/* 각 오류메세지 출력 */}
+        {/* 각 오류메세지 출력 : errorMessage가 있을 때만 출력*/}
         {errorMessage && (
           <CH.NickNameMessage>{errorMessage}</CH.NickNameMessage>
         )}
@@ -217,6 +217,3 @@ export default function Character() {
     </>
   );
 }
-
-// 유효성 검사 마무리 짓기 사용가능한 닉네임인지 확인.
-// 위에 선택한 데이터들 저장해서 넘기는거꺼지 확인하고 깃 머지
