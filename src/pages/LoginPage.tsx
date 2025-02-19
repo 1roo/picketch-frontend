@@ -3,7 +3,7 @@ import * as M from "../styles/loginPage/mainPageStyle";
 
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
 const kakaoRestApiKey = process.env.REACT_APP_KAKAO_REST_API_KEY;
-const kakaoRedirectUri = process.env.REACT_APP_KAKAO_APP_REDIRECT_URL;
+const kakaoRedirectUri = process.env.REACT_APP_KAKAO_REDIRECT_URL;
 const naverClientId = process.env.REACT_APP_NAVER_CLIENT_ID;
 const naverRedirectUri = process.env.REACT_APP_NAVER_REDIRECT_URI;
 const naverGenerateState = () => Math.random().toString(36).substring(2, 15);
@@ -59,8 +59,14 @@ function LoginPageContent() {
   const handleNaverLogin = () => {
     const state = naverGenerateState();
     sessionStorage.setItem("naver_state", state);
-    const naverLoginUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naverClientId}&redirect_uri=${naverRedirectUri}&state=${state}`;
+    const safeNaverRedirectUri = naverRedirectUri ?? "";
+
+    const naverLoginUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naverClientId}&redirect_uri=${encodeURIComponent(
+      safeNaverRedirectUri
+    )}&state=${state}`;
     console.log("✅ 네이버 로그인 시작!");
+    console.log("네이버 uri???", naverLoginUrl);
+
     window.location.href = naverLoginUrl;
   };
 

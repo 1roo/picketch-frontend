@@ -6,7 +6,7 @@ interface RandomJoinButtonProps {
 }
 
 const Button = styled.button`
-  background-color: #d1ff52;
+  background-color: #d8ff91;
   color: black;
   border: none;
   padding: 10px 15px;
@@ -18,8 +18,8 @@ const Button = styled.button`
 
   &:hover {
     background-color: black;
-    color: #d1ff52;
-    border: 1px solid #d1ff52;
+    color: #d8ff91;
+    border: 1px solid #d8ff91;
   }
 `;
 

@@ -4,12 +4,14 @@ export const Container = styled.div`
   display: flex;
   width: 100vw;
   max-width: 1500px;
-  height: 100vh;
+  height: auto;
   margin: 0 auto;
+  align-items: center;
+  justify-content: center;
 
-  @media (max-width: 700px) {
+  @media (max-width: 900px) {
     flex-direction: column;
-    align-items: center;
+    height: auto;
   }
 `;
 
@@ -17,16 +19,31 @@ export const LogoBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50%;
-  height: 100vh;
-  @media (max-width: 700px) {
-    height: 50vh;
-    align-items: flex-end;
+  flex: 1;
+  min-height: auto;
+  @media (max-width: 900px) {
+    width: 100%;
+    height: auto;
   }
 `;
 
 export const MainLogo = styled.img`
-  width: 600px;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  margin: 50px;
+
+  @media (max-width: 1024px) {
+    max-width: 350px;
+  }
+
+  @media (max-width: 768px) {
+    max-width: 300px;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 250px;
+  }
 `;
 
 export const LoginContainer = styled.div`
@@ -35,7 +52,7 @@ export const LoginContainer = styled.div`
   align-items: center;
   justify-content: center;
   width: 50vw;
-  height: 100vh;
+  height: auto;
   @media (max-width: 700px) {
     height: 50vh;
     justify-content: flex-start;
@@ -57,13 +74,26 @@ export const LoginBox = styled.div`
 `;
 
 export const SocialLogo = styled.img`
-  width: 80px;
-  height: 80px;
-  margin: 0 10px;
   cursor: pointer;
-  @media (max-width: 700px) {
+  width: 100%;
+  max-width: 80px;
+  max-height: 80px;
+  height: auto;
+  margin: 0 10px;
+
+  @media (max-width: 1024px) {
     width: 50px;
     height: 50px;
+  }
+
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+  }
+
+  @media (max-width: 480px) {
+    width: 30px;
+    height: 30px;
   }
 `;
 

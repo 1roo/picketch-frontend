@@ -11,7 +11,7 @@ const TabBarContainer = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-top: 2px solid #d1ff52;
+  border-top: 2px solid #d8ff91;
   z-index: 1000;
 
   @media (min-width: 768px) {
@@ -31,6 +31,11 @@ const TabBar = () => {
         imgSrc="/images/chat.png"
         label="디엠"
         onClick={() => alert("디엠")}
+      />
+      <TabBarButton
+        imgSrc="/images/gameList.png"
+        label="홈"
+        onClick={() => alert("홈 게임 리스트")}
       />
       <TabBarButton
         imgSrc="/images/mail.png"

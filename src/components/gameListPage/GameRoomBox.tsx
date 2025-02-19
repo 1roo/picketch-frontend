@@ -3,7 +3,7 @@ import { GameRoom } from "../../interfaces/gameRoom";
 
 const GameRoomContainer = styled.div`
   position: relative;
-  border: 2px solid #bada55;
+  border: 2px solid #d8ff91;
   padding: 10px;
   border-radius: 12px;
   display: flex;
@@ -17,7 +17,7 @@ const GameRoomContainer = styled.div`
   justify-content: space-between;
 
   &:hover {
-    background-color: #bada55;
+    background-color: #d8ff91;
     color: black;
   }
 
@@ -54,7 +54,11 @@ const GameRoomBox: React.FC<GameRoom> = ({
     <GameRoomContainer>
       <RoomHeader>
         <span>{title}</span>
-        {isPrivate && <LockIcon>🔒</LockIcon>}
+        {isPrivate && (
+          <LockIcon>
+            <img src="/images/lock.png" alt="lock" />
+          </LockIcon>
+        )}
       </RoomHeader>
       <PlayerInfo>
         <span>👥 {playerCount}</span>

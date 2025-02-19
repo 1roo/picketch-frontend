@@ -24,8 +24,9 @@ const containerStyle: React.CSSProperties = {
 };
 
 const lottieStyle: React.CSSProperties = {
-  width: 350,
-  height: 350,
+  width: "clamp(150px, 30vw, 350px)",
+  height: "clamp(150px, 30vw, 350px)",
+  transform: "scaleX(-1)"
 };
 
 export default LoadingAnimation;
