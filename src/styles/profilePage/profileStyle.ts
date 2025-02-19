@@ -36,6 +36,7 @@ export const ProfileContainer = styled.div`
   flex-grow: 1;
   overflow-y: auto;
   padding-bottom: 70px;
+  border-radius: 10px;
 
   @media (max-width: 1024px) {
     width: 80%;
@@ -62,6 +63,7 @@ export const CharacterSelectorContainer = styled.div`
   gap: clamp(5px, 3vw, 20px);
   justify-content: center;
   transition: all 0.3s ease-in-out;
+  border-radius: 10px;
 
   @media (max-width: 1024px) {
     padding: 15px;
@@ -104,6 +106,7 @@ export const SelectedCharacterContainer = styled.div`
   padding: 15px;
   width: 120px;
   height: 120px;
+  border-radius: 10px;
 `;
 
 export const SelectedImage = styled.img`
@@ -125,6 +128,7 @@ export const CharacterGridContainer = styled.div`
   align-items: center;
   padding: 10px;
   min-height: 120px;
+  border-radius: 10px;
 
   @media (max-width: 1024px) {
     grid-template-columns: repeat(3, 1fr);
@@ -147,6 +151,7 @@ export const CharacterImage = styled.img<{ selected: boolean }>`
   width: 60px;
   height: 60px;
   object-fit: contain;
+  border-radius: 10px;
   border: ${(props) =>
     props.selected ? "2px solid #d8ff91" : "1px solid transparent"};
   cursor: pointer;
@@ -169,6 +174,7 @@ export const ProfileWrapper = styled.div`
   position: relative;
   flex-grow: 1;
   overflow-y: auto;
+  border-radius: 10px;
 `;
 
 export const TitleContainer = styled.div`
@@ -200,6 +206,7 @@ export const SelectBox = styled.select`
   color: #d8ff91;
   border: 1px solid #d8ff91;
   padding: 10px;
+  border-radius: 10px;
 `;
 
 export const SaveButton = styled.button`
@@ -211,6 +218,7 @@ export const SaveButton = styled.button`
   border: 2px solid #d8ff91;
   cursor: pointer;
   margin-top: 20px;
+  border-radius: 10px;
 
   &:hover {
     background: #d8ff91;

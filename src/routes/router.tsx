@@ -15,7 +15,7 @@ const GameList = React.lazy(
   () => import("../components/gameListPage/GameList")
 );
 const GameListPage = React.lazy(() => import("../pages/GameListPage"));
-const ProfilePage = React.lazy(() => import("../pages/ProfilePage"));
+const ProfilePage = React.lazy(() => import("../pages/EditProfilePage"));
 
 export const router = createBrowserRouter([
   {

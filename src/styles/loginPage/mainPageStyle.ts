@@ -57,13 +57,26 @@ export const LoginBox = styled.div`
 `;
 
 export const SocialLogo = styled.img`
-  width: 80px;
-  height: 80px;
-  margin: 0 10px;
   cursor: pointer;
-  @media (max-width: 700px) {
+  width: 100%;
+  max-width: 80px;
+  max-height: 80px;
+  height: auto;
+  margin: 0 10px;
+
+  @media (max-width: 1024px) {
     width: 50px;
     height: 50px;
+  }
+
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+  }
+
+  @media (max-width: 480px) {
+    width: 30px;
+    height: 30px;
   }
 `;
 
