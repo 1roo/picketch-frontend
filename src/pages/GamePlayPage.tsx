@@ -1,5 +1,15 @@
+import io from "socket.io-client";
+import ChatBox from "../components/gamePlayPage/ChatBox";
 import GameDrawing from "../components/gamePlayPage/GameDrawing";
+import TopComponents from "../components/gamePlayPage/TopComponent";
 import UserList from "../components/gamePlayPage/UserList";
+
+const socket = io(
+  process.env.NODE_ENV === "production"
+    ? process.env.REACT_APP_SOCKET_SERVER_URL
+    : "http://localhost:4000",
+  { transports: ["websocket"] }
+);
 
 const users = [
   {
@@ -57,16 +67,28 @@ export default function GamePlayPage() {
     <div
       style={{
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "##101010",
-        padding: "20px",
-      }}
-    >
-      <UserList users={users.slice(0, 4)} />
-      <GameDrawing />
-      <UserList users={users.slice(4, 8)} />
+        border: "1px solid tomato",
+      }}>
+      {/* 소켓을 Props로 전달 */}
+      <TopComponents socket={socket} />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-start",
+          backgroundColor: "#101010",
+          padding: "20px",
+          width: "90%",
+          margin: "0 auto",
+          border: "1px solid violet",
+        }}>
+        <UserList users={users.slice(0, 4)} />
+        <GameDrawing socket={socket} />
+        <UserList users={users.slice(4, 8)} />
+      </div>
+      <ChatBox socket={socket} />
     </div>
   );
 }

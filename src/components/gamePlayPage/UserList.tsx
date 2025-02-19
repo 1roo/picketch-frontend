@@ -13,12 +13,13 @@ const UserList: React.FC<UserListProps> = ({ users }) => {
   return (
     <div
       style={{
-        width: "200px",
+        width: "30%",
+        marginTop: "5%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-      }}
-    >
+        border: "1px solid pink",
+      }}>
       {users.map((user) => (
         <UserCard
           key={user.nickname}
