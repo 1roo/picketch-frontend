@@ -4,10 +4,10 @@ export const Container = styled.div`
   display: flex;
   width: 100vw;
   max-width: 1500px;
-  height: 100vh;
+  height: auto;
   margin: 0 auto;
-  align-items: center; 
-  justify-content: center; 
+  align-items: center;
+  justify-content: center;
 
   @media (max-width: 900px) {
     flex-direction: column;
@@ -20,7 +20,7 @@ export const LogoBox = styled.div`
   align-items: center;
   justify-content: center;
   flex: 1;
-  min-height: 100vh;
+  min-height: auto;
   @media (max-width: 900px) {
     width: 100%;
     height: auto;
@@ -31,6 +31,7 @@ export const MainLogo = styled.img`
   width: 100%;
   max-width: 400px;
   height: auto;
+  margin: 50px;
 
   @media (max-width: 1024px) {
     max-width: 350px;
@@ -51,7 +52,7 @@ export const LoginContainer = styled.div`
   align-items: center;
   justify-content: center;
   width: 50vw;
-  height: 100vh;
+  height: auto;
   @media (max-width: 700px) {
     height: 50vh;
     justify-content: flex-start;
