@@ -15,6 +15,7 @@ const GameList = React.lazy(
   () => import("../components/gameListPage/GameList")
 );
 const GameListPage = React.lazy(() => import("../pages/GameListPage"));
+const ProfilePage = React.lazy(() => import("../pages/ProfilePage"));
 
 export const router = createBrowserRouter([
   {
@@ -74,6 +75,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingAnimaation />}>
             <UserSettingPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/profile",
+        element: (
+          <Suspense fallback={<LoadingAnimaation />}>
+            <ProfilePage />
           </Suspense>
         ),
       },

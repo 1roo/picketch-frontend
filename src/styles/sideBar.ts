@@ -5,6 +5,21 @@ export const Container = styled.div`
   width: 400px;
   height: 100vh;
   border-right: 3px solid #d8ff91;
+  @media (max-width: 1024px) {
+    width: 300px;
+  }
+
+  @media (max-width: 900px) {
+    width: 250px;
+  }
+
+  @media (max-width: 800px) {
+    width: 200px;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 export const AlertDiv = styled.div`
@@ -54,6 +69,21 @@ export const Line = styled.div`
   width: 360px;
   background-color: #d8ff91;
   border-radius: 5px;
+  @media (max-width: 1024px) {
+    width: 300px;
+  }
+
+  @media (max-width: 900px) {
+    width: 250px;
+  }
+
+  @media (max-width: 800px) {
+    width: 200px;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 //----------rank--------------
@@ -142,25 +172,60 @@ export const FriendsDiv = styled.div`
   div {
     margin: 10px 0;
   }
+  @media (max-width: 900px) {
+    padding: 8px 15px;
+  }
+
+  @media (max-width: 800px) {
+    padding: 5px 10px;
+  }
 `;
 
 export const FrindDiv = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  flex-wrap: wrap;
+
+  font-size: clamp(12px, 1.8vw, 16px);
 
   button {
-    margin: 0 15px;
+    margin: 0 10px;
     padding: 3px 10px;
     color: #d8ff91;
     border: 2px solid #d8ff91;
     border-radius: 10px;
+    font-size: inherit;
   }
 
   button:hover {
     background-color: #d8ff91;
     color: #101010;
     font-weight: bold;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 14px;
+    button {
+      padding: 3px 8px;
+    }
+  }
+
+  @media (max-width: 800px) {
+    font-size: 13px;
+    button {
+      padding: 2px 6px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    font-size: 12px;
+    justify-content: center;
+    button {
+      margin: 5px 0;
+      padding: 2px 5px;
+    }
   }
 `;
 
