@@ -49,7 +49,7 @@ const ProfilePage: React.FC = () => {
       </SidebarContainer>
       <PageContainer>
         <ProfileContainer>
-          <ProfileEditor isSetupMode={false} />;
+          <ProfileEditor isSetupMode={false} />
         </ProfileContainer>
       </PageContainer>
       <TabBar />

@@ -54,7 +54,11 @@ const GameRoomBox: React.FC<GameRoom> = ({
     <GameRoomContainer>
       <RoomHeader>
         <span>{title}</span>
-        {isPrivate && <LockIcon>🔒</LockIcon>}
+        {isPrivate && (
+          <LockIcon>
+            <img src="/images/lock.png" alt="lock" />
+          </LockIcon>
+        )}
       </RoomHeader>
       <PlayerInfo>
         <span>👥 {playerCount}</span>
