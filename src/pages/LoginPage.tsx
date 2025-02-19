@@ -3,7 +3,7 @@ import * as M from "../styles/loginPage/mainPageStyle";
 
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
 const kakaoRestApiKey = process.env.REACT_APP_KAKAO_REST_API_KEY;
-const kakaoRedirectUri = process.env.REACT_APP_KAKAO_APP_REDIRECT_URL;
+const kakaoRedirectUri = process.env.REACT_APP_KAKAO_REDIRECT_URL;
 const naverClientId = process.env.REACT_APP_NAVER_CLIENT_ID;
 const naverRedirectUri = process.env.REACT_APP_NAVER_REDIRECT_URI;
 const naverGenerateState = () => Math.random().toString(36).substring(2, 15);
