@@ -219,95 +219,9 @@ export const SaveButton = styled.button`
   cursor: pointer;
   margin-top: 20px;
   border-radius: 5px;
-  font-size: 16px;
-  font-weight: bold;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center; /* 텍스트 가운데 정렬 */
 
   &:hover {
     background: #d8ff91;
     color: #101010;
   }
-`;
-
-// 유효성 검사
-export const InputContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  max-width: 300px;
-
-  @media (max-width: 600px) {
-    flex-direction: column;
-    gap: 5px;
-  }
-`;
-
-export const NicknameContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  width: 100%;
-  max-width: 400px;
-`;
-
-export const NicknameWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
-export const NicknameLabel = styled.h3`
-  font-size: 20px;
-  font-weight: bold;
-  color: #d8ff91;
-  white-space: nowrap;
-  margin: 0;
-`;
-
-export const NickNameInput = styled.input`
-  flex-grow: 1;
-  padding: 8px;
-  border: 2px solid #d8ff91;
-  border-radius: 5px;
-  background-color: transparent;
-  color: white;
-  font-size: 14px;
-  height: 45px;
-
-  &::placeholder {
-    color: gray;
-  }
-`;
-
-export const CheckButton = styled.button`
-  padding: 8px 12px;
-  background-color: transparent;
-  color: #d8ff91;
-  border: 2px solid #d8ff91;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 14px;
-  height: 30px;
-  white-space: nowrap;
-
-  &:hover {
-    background-color: #d8ff91;
-    color: #101010;
-  }
-`;
-
-export const ErrorMessage = styled.p`
-  color: red;
-  font-size: 12px;
-  margin-left: 65px;
-`;
-
-export const SuccessMessage = styled.p`
-  color: #d8ff91;
-  font-size: 14px;
 `;

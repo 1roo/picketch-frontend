@@ -6,10 +6,12 @@ export const Container = styled.div`
   max-width: 1500px;
   height: 100vh;
   margin: 0 auto;
+  align-items: center; 
+  justify-content: center; 
 
-  @media (max-width: 700px) {
+  @media (max-width: 900px) {
     flex-direction: column;
-    align-items: center;
+    height: auto;
   }
 `;
 
@@ -17,16 +19,30 @@ export const LogoBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50%;
-  height: 100vh;
-  @media (max-width: 700px) {
-    height: 50vh;
-    align-items: flex-end;
+  flex: 1;
+  min-height: 100vh;
+  @media (max-width: 900px) {
+    width: 100%;
+    height: auto;
   }
 `;
 
 export const MainLogo = styled.img`
-  width: 600px;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+
+  @media (max-width: 1024px) {
+    max-width: 350px;
+  }
+
+  @media (max-width: 768px) {
+    max-width: 300px;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 250px;
+  }
 `;
 
 export const LoginContainer = styled.div`

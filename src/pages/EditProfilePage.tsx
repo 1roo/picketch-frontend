@@ -1,6 +1,6 @@
 import React from "react";
 import Sidebar from "../components/sideBar/SideBar";
-import ProfileEditor from "../components/profilePage/ProfileEditor";
+import ProfileEditor from "../components/userSetting/ProfileEditor";
 import {
   PageContainer,
   ProfileContainer,
@@ -49,7 +49,7 @@ const ProfilePage: React.FC = () => {
       </SidebarContainer>
       <PageContainer>
         <ProfileContainer>
-          <ProfileEditor />
+          <ProfileEditor isSetupMode={false} />;
         </ProfileContainer>
       </PageContainer>
       <TabBar />
