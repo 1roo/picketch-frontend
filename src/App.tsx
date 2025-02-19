@@ -1,6 +1,5 @@
 //import "./styles/global.css";
-import UserSettingPage from "./pages/UserSettingPage";
-import GlobalStyle from "./styles/GlobalStyle";
+import GlobalStyle from "./styles/globalStyle";
 import { Outlet } from "react-router-dom";
 
 function App() {

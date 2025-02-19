@@ -32,15 +32,16 @@ export default UserCard;
 const Container = styled.div`
   border: 2px solid #d8ff91;
   border-radius: 5px;
+  width: 80%;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 5px;
+  margin: 10px;
   padding: 3px;
 `;
 
 const ProfileImgContainer = styled.div`
-  flex: 1.2;
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -50,7 +51,7 @@ const ProfileImgContainer = styled.div`
 `;
 
 const UserInfo = styled.div`
-  flex: 0.8;
+  flex: 1;
 
   display: flex;
   flex-direction: column;

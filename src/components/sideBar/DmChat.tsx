@@ -10,26 +10,23 @@ export default function DmChat() {
   const otherNick = "친구nick";
 
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: 1, userNick: "야야", message: "안녕!", timestamp: "02월 14일 14:00" },
+    { userNick: "야야", message: "안녕!", timestamp: "02월 14일 14:00" },
     {
-      id: 2,
       userNick: myNick,
       message: "반가워!",
       timestamp: "02월 14일 14:01",
     },
     {
-      id: 3,
       userNick: "야야",
       message: "DM 테스트 중이야",
       timestamp: "02월 14일 14:02",
     },
     {
-      id: 4,
       userNick: myNick,
       message: "잘 나오네!",
       timestamp: "02월 14일 14:03",
     },
-    { id: 5, userNick: "야야", message: "좋아!", timestamp: "02월 14일 14:04" },
+    { userNick: "야야", message: "좋아!", timestamp: "02월 14일 14:04" },
   ]);
 
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
@@ -47,7 +44,6 @@ export default function DmChat() {
     if (inputMessage.trim() === "") return;
 
     const newMessage: ChatMessage = {
-      id: messages.length + 1,
       userNick: myNick,
       message: inputMessage,
       timestamp: getCurrentTimestamp(),
@@ -72,7 +68,7 @@ export default function DmChat() {
           const isMyMessage = msg.userNick === myNick; // ✅ 변수로 선언하여 가독성 향상
 
           return (
-            <S.ChatMessageWrapper key={msg.id} isMyMessage={isMyMessage}>
+            <S.ChatMessageWrapper key={msg.userNick} isMyMessage={isMyMessage}>
               <S.ChatBubble isMyMessage={isMyMessage}>
                 <span>{msg.message}</span>
               </S.ChatBubble>

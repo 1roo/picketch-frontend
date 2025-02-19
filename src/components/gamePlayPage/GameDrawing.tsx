@@ -1,43 +1,81 @@
 import Konva from "konva";
-import React, { useEffect, useState } from "react";
-import { Stage, Layer, Line, Rect } from "react-konva";
-import io from "socket.io-client";
-
-// 소켓 연결
-const socket = io(
-  process.env.NODE_ENV === "production"
-    ? process.env.REACT_APP_SOCKET_SERVER_URL
-    : "http://localhost:4000",
-  { transports: ["websocket"] }
-);
+import { useEffect, useState } from "react";
+import { Stage, Layer, Line, Rect } from "react-konva"; // Rect 추가 (캔버스 배경)
+import * as G from "../../styles/gameplayPage/gameplayPageStyle";
+import styled from "styled-components";
 
 interface LineData {
   points: number[];
   color: string;
 }
 
-// 12가지 색상 팔레트
-const COLORS = [
-  "#FFFFFF",
-  "#000000",
-  "#FF0000",
-  "#00FF00",
-  "#0000FF",
-  "#FFFF00",
-  "#FF00FF",
-  "#00FFFF",
-  "#800000",
-  "#808000",
-  "#008000",
-  "#800080",
-];
+interface GameDrawingProps {
+  socket: any;
+}
 
-const IMAGE_URL = "/images/sketchbook.png";
+// 🎨 팔레트 & 도구 스타일
+const ControlsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+`;
 
-const GameDrawing: React.FC = () => {
+const PaletteContainer = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const PaletteColor = styled.button<{ color: string; $isSelected: boolean }>`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: ${(props) => props.color};
+  border: ${(props) =>
+    props.$isSelected ? "3px solid black" : "1px solid #ccc"};
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+`;
+
+const ClearButton = styled.button`
+  background-color: red;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-weight: bold;
+
+  &:hover {
+    background-color: darkred;
+  }
+`;
+
+const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
   const [lines, setLines] = useState<LineData[]>([]);
-  const [drawing, setDrawing] = useState<boolean>(false);
-  const [color, setColor] = useState<string>("#000000");
+  const [selectedColor, setSelectedColor] = useState<string>("#000000");
+  const [drawing, setDrawing] = useState<boolean>(false); // 🎨 현재 그리고 있는 상태
+
+  const COLORS = [
+    "#FFFFFF",
+    "#000000",
+    "#FF0000",
+    "#00FF00",
+    "#0000FF",
+    "#FFFF00",
+    "#FF00FF",
+    "#00FFFF",
+    "#808080",
+    "#A52A2A",
+    "#800080",
+    "#008080",
+  ];
 
   useEffect(() => {
     socket.on("draw", (newLine: LineData) => {
@@ -52,7 +90,7 @@ const GameDrawing: React.FC = () => {
       socket.off("draw");
       socket.off("clear");
     };
-  }, []);
+  }, [socket]);
 
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     setDrawing(true);
@@ -63,12 +101,13 @@ const GameDrawing: React.FC = () => {
 
     setLines((prevLines) => [
       ...prevLines,
-      { points: [point.x, point.y], color },
+      { points: [point.x, point.y], color: selectedColor }, // 🎨 선택한 색상 적용
     ]);
   };
 
   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
     if (!drawing) return;
+
     const stage = e.target.getStage();
     if (!stage) return;
     const point = stage.getPointerPosition();
@@ -76,93 +115,62 @@ const GameDrawing: React.FC = () => {
 
     setLines((prevLines) => {
       const newLines = [...prevLines];
-      newLines[newLines.length - 1].points = newLines[
-        newLines.length - 1
-      ].points.concat([point.x, point.y]);
+      const lastLine = newLines[newLines.length - 1];
+      lastLine.points = [...lastLine.points, point.x, point.y];
       return newLines;
     });
-
-    socket.emit("draw", lines[lines.length - 1]);
   };
 
   const handleMouseUp = () => {
     setDrawing(false);
+    socket.emit("draw", lines[lines.length - 1]); // 🎨 최종 선 서버로 전송
   };
 
+  // 🧹 클리어 버튼 기능
   const handleClear = () => {
     setLines([]);
-    socket.emit("clear");
+    socket.emit("clear"); // 서버에도 클리어 이벤트 전송
   };
 
   return (
-    <div
-      style={{
-        textAlign: "center",
-        padding: "20px",
-        backgroundImage: `url(${IMAGE_URL})`,
-        backgroundSize: "cover",
-        display: "flex",
-        height: "70%",
-        width: "70%",
-        paddingTop: "90px",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <G.SketchbookContainer>
       <Stage
         width={600}
         height={400}
         onMouseDown={handleMouseDown}
-        onMousemove={handleMouseMove}
-        onMouseup={handleMouseUp}
-        style={{ border: "1px solid black", backgroundColor: "white" }}
+        onMouseMove={handleMouseMove} // 🎨 마우스 이동 추가
+        onMouseUp={handleMouseUp} // 🎨 마우스를 떼면 선을 마무리
       >
         <Layer>
+          {/* 🖌 캔버스(도화지) 배경 추가 */}
           <Rect width={600} height={400} fill="white" />
+
           {lines.map((line, i) => (
             <Line
               key={i}
               points={line.points}
               stroke={line.color}
               strokeWidth={3}
-              lineCap="round"
-              lineJoin="round"
             />
           ))}
         </Layer>
       </Stage>
 
-      <div
-        style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}
-      >
-        {COLORS.map((paletteColor) => (
-          <div
-            key={paletteColor}
-            onClick={() => setColor(paletteColor)}
-            style={{
-              width: "30px",
-              height: "30px",
-              backgroundColor: paletteColor,
-              margin: "5px",
-              borderRadius: "50%",
-              cursor: "pointer",
-              border:
-                color === paletteColor ? "3px solid #000" : "1px solid #ccc",
-            }}
-          />
-        ))}
-      </div>
-
-      <div style={{ marginTop: "10px" }}>
-        <button
-          onClick={handleClear}
-          style={{ marginRight: "10px", color: "#101010" }}
-        >
-          🗑️ CLEAR
-        </button>
-      </div>
-    </div>
+      {/* 🎨 컬러 팔레트 & 클리어 버튼 */}
+      <ControlsContainer>
+        <PaletteContainer>
+          {COLORS.map((color) => (
+            <PaletteColor
+              key={color}
+              color={color}
+              $isSelected={selectedColor === color}
+              onClick={() => setSelectedColor(color)}
+            />
+          ))}
+        </PaletteContainer>
+        <ClearButton onClick={handleClear}>🧹 CLEAR</ClearButton>
+      </ControlsContainer>
+    </G.SketchbookContainer>
   );
 };
 
