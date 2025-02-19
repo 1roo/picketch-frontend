@@ -78,22 +78,23 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
         onSelectCharacter={setSelectedCharacter}
       />
 
-      {/* 닉네임 입력 (회원가입 안 된 경우에만 보이도록) */}
+      {/* 닉네임 입력 */}
+
+      <NicknameInput
+        nickName={nickName}
+        setNickName={setNickName}
+        errorMessage={errorMessage}
+        isAvailable={isAvailable}
+        handleCheckDuplicate={handleCheckDuplicate}
+      />
+
+      {/* 지역 선택  (회원가입 안 된 경우에만 보이도록)*/}
       {isSetupMode && (
-        <NicknameInput
-          nickName={nickName}
-          setNickName={setNickName}
-          errorMessage={errorMessage}
-          isAvailable={isAvailable}
-          handleCheckDuplicate={handleCheckDuplicate}
+        <RegionSelector
+          selectedRegion={selectedRegion}
+          onChange={(e) => setSelectedRegion(e.target.value)}
         />
       )}
-
-      {/* 지역 선택 */}
-      <RegionSelector
-        selectedRegion={selectedRegion}
-        onChange={(e) => setSelectedRegion(e.target.value)}
-      />
 
       {/* 저장 버튼 */}
       <P.SaveButton onClick={handleSave}>저장</P.SaveButton>
