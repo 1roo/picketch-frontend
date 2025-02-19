@@ -59,8 +59,14 @@ function LoginPageContent() {
   const handleNaverLogin = () => {
     const state = naverGenerateState();
     sessionStorage.setItem("naver_state", state);
-    const naverLoginUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naverClientId}&redirect_uri=${naverRedirectUri}&state=${state}`;
+    const safeNaverRedirectUri = naverRedirectUri ?? "";
+
+    const naverLoginUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naverClientId}&redirect_uri=${encodeURIComponent(
+      safeNaverRedirectUri
+    )}&state=${state}`;
     console.log("✅ 네이버 로그인 시작!");
+    console.log("네이버 uri???", naverLoginUrl);
+
     window.location.href = naverLoginUrl;
   };
 
