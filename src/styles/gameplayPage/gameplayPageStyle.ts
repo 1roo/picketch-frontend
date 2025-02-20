@@ -1,5 +1,28 @@
 import styled from "styled-components";
 
+// --------------page container---------
+export const PageContainer = styled.div`
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid tomato;
+`;
+
+// --------------CenterComponents----------------
+export const CenterComponents = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: #101010;
+  padding: 20px;
+  width: 80%;
+  height: 93vh;
+  margin: 0 auto;
+  border: 1px solid violet;
+`;
+
 // -------------sketch components--------------
 export const SketchbookContainer = styled.div`
   text-align: center;
@@ -8,7 +31,8 @@ export const SketchbookContainer = styled.div`
   background-size: cover;
   display: flex;
   height: 70vh;
-  width: 70%;
+  width: 100%;
+  min-height: 300px;
   padding-top: 90px;
   flex-direction: column;
   justify-content: center;
@@ -26,14 +50,62 @@ export const PaletteButton = styled.div<{
   selected: boolean;
   paletteColor: string;
 }>`
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
   background-color: ${(props) => props.paletteColor};
   margin: 5px;
   border-radius: 50%;
   cursor: pointer;
-  border: ${(props) => (props.selected ? "3px solid #000" : "1px solid #ccc")};
+  border: ${(props) => (props.selected ? "2px solid #000" : "1px solid #ccc")};
   transition: border 0.2s ease-in-out;
+`;
+
+// --------------userList --------------------
+export const UserListContainer = styled.div`
+  width: 100%;
+  max-width: 300px;
+  height: 80vh;
+  margin: 5% 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  border: 1px solid pink;
+`;
+
+// --------------userCard------------------------
+export const UserCardContainer = styled.div`
+  border: 2px solid #d8ff91;
+  border-radius: 5px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 10px;
+  padding: 3px;
+`;
+
+export const ProfileImgContainer = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #d8ff91;
+  border-radius: 5px;
+  margin-right: 5px;
+`;
+
+export const UserInfo = styled.div`
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  span {
+    border: 1px solid #d8ff91;
+    border-radius: 5px;
+    margin: 2px 0;
+    font-size: 0.8em;
+  }
 `;
 
 // --------------chatting box-------------------
@@ -44,8 +116,9 @@ export const ChatContainer = styled.div`
   justify-content: center;
   align-items: flex-start;
   border-radius: 5px;
-  width: 644px;
-  height: 150px;
+  width: 52.5vw;
+  height: 18vh;
+  max-height: 150px;
   margin: 0 auto;
   border: 2px solid #d8ff91;
   background-color: rgba(217, 217, 217, 0.36);
@@ -63,16 +136,16 @@ export const ChatContainer = styled.div`
 
 export const InputDiv = styled.div`
   position: absolute;
-  bottom: 30px;
+  bottom: 3vh;
   border: 1px solid #d8ff91;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 620px;
+  width: 51vw;
   padding: 0 10px;
 
   input {
-    width: 95%;
+    width: 96%;
     color: white;
   }
 `;

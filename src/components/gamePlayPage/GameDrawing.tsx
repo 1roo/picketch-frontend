@@ -43,9 +43,9 @@ const PaletteColor = styled.button<{ color: string; $isSelected: boolean }>`
 `;
 
 const ClearButton = styled.button`
-  background-color: red;
+  background-color: #101010;
   color: white;
-  padding: 8px 15px;
+  padding: 5px 10px 5px 5px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -60,7 +60,9 @@ const ClearButton = styled.button`
 const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
   const [lines, setLines] = useState<LineData[]>([]);
   const [selectedColor, setSelectedColor] = useState<string>("#000000");
-  const [drawing, setDrawing] = useState<boolean>(false); // 🎨 현재 그리고 있는 상태
+  const [drawing, setDrawing] = useState<boolean>(false);
+  const [canvasWidth, setCanvasWidth] = useState(window.innerWidth * 0.4);
+  const [canvasHeight, setCanvasHeight] = useState(window.innerHeight * 0.45);
 
   const COLORS = [
     "#FFFFFF",
@@ -76,6 +78,16 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
     "#800080",
     "#008080",
   ];
+
+  // 창 크기 변경
+  useEffect(() => {
+    const handleResize = () => {
+      setCanvasWidth(Math.max(400, window.innerWidth * 0.4));
+      setCanvasHeight(Math.max(window.innerHeight * 0.45));
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     socket.on("draw", (newLine: LineData) => {
@@ -101,7 +113,7 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
 
     setLines((prevLines) => [
       ...prevLines,
-      { points: [point.x, point.y], color: selectedColor }, // 🎨 선택한 색상 적용
+      { points: [point.x, point.y], color: selectedColor },
     ]);
   };
 
@@ -123,27 +135,25 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
 
   const handleMouseUp = () => {
     setDrawing(false);
-    socket.emit("draw", lines[lines.length - 1]); // 🎨 최종 선 서버로 전송
+    socket.emit("draw", lines[lines.length - 1]);
   };
 
-  // 🧹 클리어 버튼 기능
   const handleClear = () => {
     setLines([]);
-    socket.emit("clear"); // 서버에도 클리어 이벤트 전송
+    socket.emit("clear");
   };
 
   return (
     <G.SketchbookContainer>
       <Stage
-        width={600}
-        height={400}
+        width={canvasWidth}
+        height={canvasHeight}
         onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove} // 🎨 마우스 이동 추가
-        onMouseUp={handleMouseUp} // 🎨 마우스를 떼면 선을 마무리
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
       >
         <Layer>
-          {/* 🖌 캔버스(도화지) 배경 추가 */}
-          <Rect width={600} height={400} fill="white" />
+          <Rect width={canvasWidth} height={canvasHeight} fill="white" />
 
           {lines.map((line, i) => (
             <Line
@@ -156,7 +166,6 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
         </Layer>
       </Stage>
 
-      {/* 🎨 컬러 팔레트 & 클리어 버튼 */}
       <ControlsContainer>
         <PaletteContainer>
           {COLORS.map((color) => (

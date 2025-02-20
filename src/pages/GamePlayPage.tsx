@@ -3,6 +3,10 @@ import ChatBox from "../components/gamePlayPage/ChatBox";
 import GameDrawing from "../components/gamePlayPage/GameDrawing";
 import TopComponents from "../components/gamePlayPage/TopComponent";
 import UserList from "../components/gamePlayPage/UserList";
+import {
+  PageContainer,
+  CenterComponents,
+} from "../styles/gameplayPage/gameplayPageStyle";
 
 const socket = io(
   process.env.NODE_ENV === "production"
@@ -64,31 +68,16 @@ const users = [
 
 export default function GamePlayPage() {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        border: "1px solid tomato",
-      }}>
-      {/* 소켓을 Props로 전달 */}
+    <PageContainer>
       <TopComponents socket={socket} />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          backgroundColor: "#101010",
-          padding: "20px",
-          width: "90%",
-          margin: "0 auto",
-          border: "1px solid violet",
-        }}>
+      <CenterComponents>
         <UserList users={users.slice(0, 4)} />
-        <GameDrawing socket={socket} />
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <GameDrawing socket={socket} />
+          <ChatBox socket={socket} />
+        </div>
         <UserList users={users.slice(4, 8)} />
-      </div>
-      <ChatBox socket={socket} />
-    </div>
+      </CenterComponents>
+    </PageContainer>
   );
 }

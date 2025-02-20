@@ -9,19 +9,18 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 1000px;
+  width: 80%;
   margin: 0 auto;
   padding: 10px;
-  border-bottom: 2px solid #ddd;
 `;
 
 const RoomTitle = styled.span`
   font-weight: bold;
-  font-size: 1.5em;
+  font-size: 1.3em;
 `;
 
 const TimerDisplay = styled.div<{ $isRunning: boolean }>`
-  font-size: 16px;
+  font-size: 1.5em;
   font-weight: bold;
   color: #d8ff91;
 `;
@@ -61,7 +60,7 @@ const ReadyButton = styled.button<{ $isReady: boolean }>`
 
 const ExitButton = styled.span`
   cursor: pointer;
-  color: red;
+  color: white;
   font-weight: bold;
   &:hover {
     text-decoration: underline;
@@ -74,6 +73,8 @@ export default function TopComponents({ socket }: TopComponentsProps) {
   const [isReady, setIsReady] = useState(false);
   const [readyPlayers, setReadyPlayers] = useState<number>(0);
   const totalPlayers = 4;
+
+  const exitGame = () => {};
 
   useEffect(() => {
     const handleUpdateReady = (readyCount: number) => {
@@ -121,11 +122,11 @@ export default function TopComponents({ socket }: TopComponentsProps) {
   return (
     <Container>
       <RoomTitle>방제: 너가 그림을 그렇게 잘그려?</RoomTitle>
-      <TimerDisplay $isRunning={isRunning}>{`${timeLeft}`}</TimerDisplay>
+      <TimerDisplay $isRunning={isRunning}>{`${timeLeft} `}초</TimerDisplay>
       <ReadyButton $isReady={isReady} onClick={handleReadyToggle}>
         READY
       </ReadyButton>
-      <ExitButton>나가기</ExitButton>
+      <ExitButton onClick={exitGame}>나가기</ExitButton>
     </Container>
   );
 }
