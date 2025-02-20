@@ -16,6 +16,7 @@ const GameList = React.lazy(
 const GameListPage = React.lazy(() => import("../pages/GameListPage"));
 const ProfilePage = React.lazy(() => import("../pages/EditProfilePage"));
 const UserSetupPage = React.lazy(() => import("../pages/UserSetupPage"));
+const KakaoLogin = React.lazy(() => import("../components/KakaoLogin"));
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +76,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingAnimaation />}>
             <UserSetupPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/kakaoLogin",
+        element: (
+          <Suspense fallback={<LoadingAnimaation />}>
+            <KakaoLogin />
           </Suspense>
         ),
       },
