@@ -2,13 +2,15 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 import React, { Suspense } from "react";
 import LoadingAnimaation from "../components/etc/LoadingAnimation";
+import NaverCallback from "../pages/Login/NaverCallback";
+import KakaoCallback from "../components/KakaoCallback";
 
 const LoginPage = React.lazy(() => import("../pages/LoginPage"));
 const SideBar = React.lazy(() => import("../components/sideBar/SideBar"));
 const MakeNewGame = React.lazy(
   () => import("../components/newGame/MakeNewGame")
 );
-const GamePlayPage = React.lazy(() => import("../pages/GamePlayPage"));
+// const GamePlayPage = React.lazy(() => import("../pages/GamePlayPage"));
 
 const GameList = React.lazy(
   () => import("../components/gameListPage/GameList")
@@ -17,12 +19,11 @@ const GameListPage = React.lazy(() => import("../pages/GameListPage"));
 const ProfilePage = React.lazy(() => import("../pages/EditProfilePage"));
 const UserSetupPage = React.lazy(() => import("../pages/UserSetupPage"));
 
-const KakaoLogin = React.lazy(() => import("../components/KakaoLogin"));
+const KakaoLogin = React.lazy(() => import("../components/KakaoCallback"));
 
 const VictoryAlert = React.lazy(
   () => import("../components/gamePlayPage/VictoryAlert")
 );
-
 
 export const router = createBrowserRouter([
   {
@@ -53,14 +54,14 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
       },
-      {
-        path: "/gamePage",
-        element: (
-          <Suspense fallback={<LoadingAnimaation />}>
-            <GamePlayPage />
-          </Suspense>
-        ),
-      },
+      // {
+      //   path: "/gamePage",
+      //   element: (
+      //     <Suspense fallback={<LoadingAnimaation />}>
+      //       <GamePlayPage />
+      //     </Suspense>
+      //   ),
+      // },
       {
         path: "/game-list",
         element: (
@@ -111,6 +112,22 @@ export const router = createBrowserRouter([
               onPlayAgain={() => console.log("한 판 더!")}
               onGoToGameList={() => console.log("게임 리스트로 이동!")}
             />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/auth/naver/callback",
+        element: (
+          <Suspense fallback={<LoadingAnimaation />}>
+            <NaverCallback />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/auth/kakao/callback",
+        element: (
+          <Suspense fallback={<LoadingAnimaation />}>
+            <KakaoCallback />
           </Suspense>
         ),
       },

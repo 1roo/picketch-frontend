@@ -63,7 +63,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
     );
 
     // 저장 후 이동할 페이지 설정
-    window.location.href = isSetupMode ? "/game-list" : "/profile";
+    window.location.href = isSetupMode ? "/game-list-page" : "/profile";
   };
 
   return (

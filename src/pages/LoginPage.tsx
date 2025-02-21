@@ -76,33 +76,33 @@ function LoginPageContent() {
     window.location.href = kakaoLoginUrl;
   };
 
-  const handleKakaoCallback = async () => {
-    const code = new URL(window.location.href).searchParams.get("code");
-    if (!code) {
-      console.error("❌ 카카오 인가 코드 없음");
-      return;
-    }
+  // const handleKakaoCallback = async () => {
+  //   const code = new URL(window.location.href).searchParams.get("code");
+  //   if (!code) {
+  //     console.error("❌ 카카오 인가 코드 없음");
+  //     return;
+  //   }
 
-    console.log("📡 백엔드로 카카오 인가 코드 전송:", code);
+  //   console.log("📡 백엔드로 카카오 인가 코드 전송:", code);
 
-    try {
-      const { data } = await axios.post(`${BACKEND_URL}/api/auth/kakao`, {
-        code,
-      });
+  //   try {
+  //     const { data } = await axios.post(`${BACKEND_URL}/api/auth/kakao`, {
+  //       code,
+  //     });
 
-      console.log("✅ 카카오 로그인 성공:", data);
-    } catch (err: any) {
-      console.error(
-        "❌ 카카오 로그인 실패:",
-        err.response?.data || err.message
-      );
-    }
-  };
+  //     console.log("✅ 카카오 로그인 성공:", data);
+  //   } catch (err: any) {
+  //     console.error(
+  //       "❌ 카카오 로그인 실패:",
+  //       err.response?.data || err.message
+  //     );
+  //   }
+  // };
 
-  // ✅ 컴포넌트가 마운트되면 카카오 로그인 처리
-  useEffect(() => {
-    handleKakaoCallback();
-  }, []);
+  // // ✅ 컴포넌트가 마운트되면 카카오 로그인 처리
+  // useEffect(() => {
+  //   handleKakaoCallback();
+  // }, []);
 
   /*
    *  3. 네이버 로그인
