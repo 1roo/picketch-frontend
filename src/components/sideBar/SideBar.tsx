@@ -3,8 +3,8 @@ import { faBell, faX } from "@fortawesome/free-solid-svg-icons";
 import * as S from "../../styles/sideBar";
 import { useEffect, useRef, useState } from "react";
 import DmChat from "./DmChat";
-import Rank from "./Rank";
 import Friends from "./Friends";
+import Rank from "./Rank";
 
 export default function Sidebar() {
   const [isDmOpen, setIsDmOpen] = useState(false);
@@ -74,7 +74,7 @@ export default function Sidebar() {
       <Friends toggleDmChat={toggleDmChat} />
       <S.Line>
         {isDmOpen && <DmChat />}
-        <Rank />
+        <Rank />;
       </S.Line>
     </S.Container>
   );

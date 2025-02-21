@@ -32,7 +32,7 @@ export const AlertDiv = styled.div`
   background-color: #101010;
   border: 1px solid #d8ff91;
   border-radius: 5px;
-  z-index: 9999;
+   z-index: 9999;
 
   &::after {
     content: "";
