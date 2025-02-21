@@ -1,7 +1,15 @@
 import Konva from "konva";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Stage, Layer, Line, Rect } from "react-konva";
 import io from "socket.io-client";
+import {
+  Container,
+  SketchbookWrapper,
+  StyledStageContainer,
+  ColorPalette,
+  ColorButton,
+  ClearButton,
+} from "../../styles/gameDrawingStyle";
 
 // 소켓 연결
 const socket = io(
@@ -14,6 +22,8 @@ const socket = io(
 interface LineData {
   points: number[];
   color: string;
+  originalWidth: number;
+  originalHeight: number;
 }
 
 // 12가지 색상 팔레트
@@ -32,28 +42,46 @@ const COLORS = [
   "#800080",
 ];
 
-const IMAGE_URL = "/images/sketchbook.png";
-
 const GameDrawing: React.FC = () => {
   const [lines, setLines] = useState<LineData[]>([]);
   const [drawing, setDrawing] = useState<boolean>(false);
   const [color, setColor] = useState<string>("#000000");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 600, height: 400 });
 
+  // 창 크기 변경 시 Stage와 그림 크기 조정
+  const handleResize = () => {
+    if (containerRef.current) {
+      const newWidth = containerRef.current.clientWidth * 0.9;
+      const newHeight = newWidth / 1.5; // 1.5:1 비율 유지
+
+      // 기존 그림 크기에 맞춰 비율 조정
+      setLines((prevLines) =>
+        prevLines.map((line) => ({
+          ...line,
+          points: line.points.map(
+            (point, index) =>
+              index % 2 === 0
+                ? (point / line.originalWidth) * newWidth // X 좌표 비율 조정
+                : (point / line.originalHeight) * newHeight // Y 좌표 비율 조정
+          ),
+          originalWidth: newWidth,
+          originalHeight: newHeight,
+        }))
+      );
+
+      setDimensions({ width: newWidth, height: newHeight });
+    }
+  };
+
+  // 창 크기 변경 감지 후 handleResize 실행
   useEffect(() => {
-    socket.on("draw", (newLine: LineData) => {
-      setLines((prevLines) => [...prevLines, newLine]);
-    });
-
-    socket.on("clear", () => {
-      setLines([]);
-    });
-
-    return () => {
-      socket.off("draw");
-      socket.off("clear");
-    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // 마우스를 눌렀을 때 선을 새로 추가
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     setDrawing(true);
     const stage = e.target.getStage();
@@ -63,10 +91,16 @@ const GameDrawing: React.FC = () => {
 
     setLines((prevLines) => [
       ...prevLines,
-      { points: [point.x, point.y], color },
+      {
+        points: [point.x, point.y],
+        color,
+        originalWidth: dimensions.width,
+        originalHeight: dimensions.height,
+      },
     ]);
   };
 
+  // 마우스 이동 시 선을 업데이트
   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
     if (!drawing) return;
     const stage = e.target.getStage();
@@ -85,84 +119,58 @@ const GameDrawing: React.FC = () => {
     socket.emit("draw", lines[lines.length - 1]);
   };
 
+  // 마우스 버튼을 떼면 그리기 종료
   const handleMouseUp = () => {
     setDrawing(false);
   };
 
+  // 클리어 버튼 클릭 시 그림 초기화
   const handleClear = () => {
     setLines([]);
     socket.emit("clear");
   };
 
   return (
-    <div
-      style={{
-        textAlign: "center",
-        padding: "20px",
-        backgroundImage: `url(${IMAGE_URL})`,
-        backgroundSize: "cover",
-        display: "flex",
-        height: "70%",
-        width: "70%",
-        paddingTop: "90px",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Stage
-        width={600}
-        height={400}
-        onMouseDown={handleMouseDown}
-        onMousemove={handleMouseMove}
-        onMouseup={handleMouseUp}
-        style={{ border: "1px solid black", backgroundColor: "white" }}
-      >
-        <Layer>
-          <Rect width={600} height={400} fill="white" />
-          {lines.map((line, i) => (
-            <Line
-              key={i}
-              points={line.points}
-              stroke={line.color}
-              strokeWidth={3}
-              lineCap="round"
-              lineJoin="round"
-            />
-          ))}
-        </Layer>
-      </Stage>
+    <Container ref={containerRef}>
+      <SketchbookWrapper>
+        <StyledStageContainer>
+          <Stage
+            width={dimensions.width}
+            height={dimensions.height}
+            onMouseDown={handleMouseDown}
+            onMousemove={handleMouseMove}
+            onMouseup={handleMouseUp}
+          >
+            <Layer>
+              <Rect width={dimensions.width} height={dimensions.height} />
+              {lines.map((line, i) => (
+                <Line
+                  key={i}
+                  points={line.points}
+                  stroke={line.color}
+                  strokeWidth={3}
+                  lineCap="round"
+                  lineJoin="round"
+                />
+              ))}
+            </Layer>
+          </Stage>
+        </StyledStageContainer>
+      </SketchbookWrapper>
 
-      <div
-        style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}
-      >
+      <ColorPalette>
         {COLORS.map((paletteColor) => (
-          <div
+          <ColorButton
             key={paletteColor}
+            color={paletteColor}
+            selected={color === paletteColor}
             onClick={() => setColor(paletteColor)}
-            style={{
-              width: "30px",
-              height: "30px",
-              backgroundColor: paletteColor,
-              margin: "5px",
-              borderRadius: "50%",
-              cursor: "pointer",
-              border:
-                color === paletteColor ? "3px solid #000" : "1px solid #ccc",
-            }}
           />
         ))}
-      </div>
+      </ColorPalette>
 
-      <div style={{ marginTop: "10px" }}>
-        <button
-          onClick={handleClear}
-          style={{ marginRight: "10px", color: "#101010" }}
-        >
-          🗑️ CLEAR
-        </button>
-      </div>
-    </div>
+      <ClearButton onClick={handleClear}>🗑️ CLEAR</ClearButton>
+    </Container>
   );
 };
 
