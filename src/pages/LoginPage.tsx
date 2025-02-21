@@ -1,6 +1,10 @@
 import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import * as M from "../styles/loginPage/mainPageStyle";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
+const BACKEND_URL = process.env.REACT_APP_API_BASE_URL;
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
 const kakaoRestApiKey = process.env.REACT_APP_KAKAO_REST_API_KEY;
 const kakaoRedirectUri = process.env.REACT_APP_KAKAO_REDIRECT_URL;
@@ -17,28 +21,47 @@ export default function LoginPage() {
 }
 
 function LoginPageContent() {
+  const navigate = useNavigate();
   /*
    * 1. 구글 로그인
    */
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      if (tokenResponse.access_token) {
-        console.log("✅ 구글 로그인 성공!", tokenResponse);
 
-        try {
-          const res = await fetch(
-            `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokenResponse.access_token}`
-          );
-          const userInfo = await res.json();
-          console.log("✅ 유저 정보:", userInfo);
-        } catch (err) {
-          console.error("❌ 유저 정보 가져오기 실패:", err);
+  const googleLogin = useGoogleLogin({
+    flow: "implicit",
+    onSuccess: async (response) => {
+      if (!response.access_token) {
+        console.error("Access Token 없음");
+        return;
+      }
+
+      try {
+        const { data } = await axios.post(
+          `${BACKEND_URL}/api/auth/google`,
+          {
+            accessToken: response.access_token,
+          },
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (data.code === "SU") {
+          if (!data.hasProfile) {
+            console.log("프로필 없음! 등록화면으로 이동");
+            navigate("/user-setting-page");
+          }
+        } else {
+          console.error("백엔드 로그인 실패:", data.message);
         }
-      } else {
-        console.error("❌ 구글 로그인 실패: access_token 없음");
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          console.error("서버 요청 실패:", err.response?.data || err.message);
+        } else {
+          console.error("알 수 없는 오류 발생:", err);
+        }
       }
     },
-    onError: () => console.error("❌ 구글 로그인 실패"),
+    onError: () => console.error("구글 로그인 실패"),
   });
 
   const handleGoogleLogin = () => googleLogin();
@@ -52,6 +75,34 @@ function LoginPageContent() {
     console.log("✅ 카카오 로그인 시작!");
     window.location.href = kakaoLoginUrl;
   };
+
+  const handleKakaoCallback = async () => {
+    const code = new URL(window.location.href).searchParams.get("code");
+    if (!code) {
+      console.error("❌ 카카오 인가 코드 없음");
+      return;
+    }
+
+    console.log("📡 백엔드로 카카오 인가 코드 전송:", code);
+
+    try {
+      const { data } = await axios.post(`${BACKEND_URL}/api/auth/kakao`, {
+        code,
+      });
+
+      console.log("✅ 카카오 로그인 성공:", data);
+    } catch (err: any) {
+      console.error(
+        "❌ 카카오 로그인 실패:",
+        err.response?.data || err.message
+      );
+    }
+  };
+
+  // ✅ 컴포넌트가 마운트되면 카카오 로그인 처리
+  useEffect(() => {
+    handleKakaoCallback();
+  }, []);
 
   /*
    *  3. 네이버 로그인

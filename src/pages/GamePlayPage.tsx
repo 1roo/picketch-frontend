@@ -1,5 +1,19 @@
+import io from "socket.io-client";
+import ChatBox from "../components/gamePlayPage/ChatBox";
 import GameDrawing from "../components/gamePlayPage/GameDrawing";
+import TopComponents from "../components/gamePlayPage/TopComponent";
 import UserList from "../components/gamePlayPage/UserList";
+import {
+  PageContainer,
+  CenterComponents,
+} from "../styles/gameplayPage/gameplayPageStyle";
+
+const socket = io(
+  process.env.NODE_ENV === "production"
+    ? process.env.REACT_APP_SOCKET_SERVER_URL
+    : "http://localhost:4000",
+  { transports: ["websocket"] }
+);
 
 const users = [
   {
@@ -54,19 +68,16 @@ const users = [
 
 export default function GamePlayPage() {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "##101010",
-        padding: "20px",
-      }}
-    >
-      <UserList users={users.slice(0, 4)} />
-      <GameDrawing />
-      <UserList users={users.slice(4, 8)} />
-    </div>
+    <PageContainer>
+      <TopComponents socket={socket} />
+      <CenterComponents>
+        <UserList users={users.slice(0, 4)} />
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <GameDrawing socket={socket} />
+          <ChatBox socket={socket} />
+        </div>
+        <UserList users={users.slice(4, 8)} />
+      </CenterComponents>
+    </PageContainer>
   );
 }

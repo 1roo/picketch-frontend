@@ -1,4 +1,4 @@
-import Konva from "konva";
+
 import React, { useEffect, useState, useRef } from "react";
 import { Stage, Layer, Line, Rect } from "react-konva";
 import io from "socket.io-client";
@@ -19,12 +19,14 @@ const socket = io(
   { transports: ["websocket"] }
 );
 
+
 interface LineData {
   points: number[];
   color: string;
   originalWidth: number;
   originalHeight: number;
 }
+
 
 // 12가지 색상 팔레트
 const COLORS = [
@@ -43,8 +45,11 @@ const COLORS = [
 ];
 
 const GameDrawing: React.FC = () => {
+
   const [lines, setLines] = useState<LineData[]>([]);
+  const [selectedColor, setSelectedColor] = useState<string>("#000000");
   const [drawing, setDrawing] = useState<boolean>(false);
+
   const [color, setColor] = useState<string>("#000000");
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 600, height: 400 });
@@ -74,12 +79,14 @@ const GameDrawing: React.FC = () => {
     }
   };
 
+
   // 창 크기 변경 감지 후 handleResize 실행
-  useEffect(() => {
+
     window.addEventListener("resize", handleResize);
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
 
   // 마우스를 눌렀을 때 선을 새로 추가
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -91,18 +98,21 @@ const GameDrawing: React.FC = () => {
 
     setLines((prevLines) => [
       ...prevLines,
+
       {
         points: [point.x, point.y],
         color,
         originalWidth: dimensions.width,
         originalHeight: dimensions.height,
       },
+
     ]);
   };
 
   // 마우스 이동 시 선을 업데이트
   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
     if (!drawing) return;
+
     const stage = e.target.getStage();
     if (!stage) return;
     const point = stage.getPointerPosition();
@@ -110,18 +120,16 @@ const GameDrawing: React.FC = () => {
 
     setLines((prevLines) => {
       const newLines = [...prevLines];
-      newLines[newLines.length - 1].points = newLines[
-        newLines.length - 1
-      ].points.concat([point.x, point.y]);
+      const lastLine = newLines[newLines.length - 1];
+      lastLine.points = [...lastLine.points, point.x, point.y];
       return newLines;
     });
-
-    socket.emit("draw", lines[lines.length - 1]);
   };
 
   // 마우스 버튼을 떼면 그리기 종료
   const handleMouseUp = () => {
     setDrawing(false);
+    socket.emit("draw", lines[lines.length - 1]);
   };
 
   // 클리어 버튼 클릭 시 그림 초기화
@@ -131,6 +139,7 @@ const GameDrawing: React.FC = () => {
   };
 
   return (
+
     <Container ref={containerRef}>
       <SketchbookWrapper>
         <StyledStageContainer>
@@ -171,6 +180,7 @@ const GameDrawing: React.FC = () => {
 
       <ClearButton onClick={handleClear}>🗑️ CLEAR</ClearButton>
     </Container>
+
   );
 };
 

@@ -1,4 +1,5 @@
 import UserCard from "./UserCard";
+import { UserListContainer } from "../../styles/gameplayPage/gameplayPageStyle";
 
 interface UserListProps {
   users: {
@@ -11,14 +12,7 @@ interface UserListProps {
 
 const UserList: React.FC<UserListProps> = ({ users }) => {
   return (
-    <div
-      style={{
-        width: "200px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
+    <UserListContainer>
       {users.map((user) => (
         <UserCard
           key={user.nickname}
@@ -28,7 +22,7 @@ const UserList: React.FC<UserListProps> = ({ users }) => {
           profileImg={user.profileImg}
         />
       ))}
-    </div>
+    </UserListContainer>
   );
 };
 
