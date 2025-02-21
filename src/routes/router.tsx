@@ -16,7 +16,13 @@ const GameList = React.lazy(
 const GameListPage = React.lazy(() => import("../pages/GameListPage"));
 const ProfilePage = React.lazy(() => import("../pages/EditProfilePage"));
 const UserSetupPage = React.lazy(() => import("../pages/UserSetupPage"));
+
 const KakaoLogin = React.lazy(() => import("../components/KakaoLogin"));
+
+const VictoryAlert = React.lazy(
+  () => import("../components/gamePlayPage/VictoryAlert")
+);
+
 
 export const router = createBrowserRouter([
   {
@@ -92,6 +98,19 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingAnimaation />}>
             <ProfilePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/victory",
+        element: (
+          <Suspense fallback={<LoadingAnimaation />}>
+            <VictoryAlert
+              username="너구리"
+              profileImg="/images/dog.png"
+              onPlayAgain={() => console.log("한 판 더!")}
+              onGoToGameList={() => console.log("게임 리스트로 이동!")}
+            />
           </Suspense>
         ),
       },

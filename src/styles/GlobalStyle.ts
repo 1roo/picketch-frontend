@@ -1,23 +1,27 @@
 import { createGlobalStyle } from "styled-components";
 
-const globalStyle = createGlobalStyle`
+const GlobalStyle = createGlobalStyle`
   /* 기본적인 Reset CSS */
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
   }
+@font-face {
+  font-family: "Galmuri11";
+  src: url("/fonts/Galmuri11-Bold.ttf") format("truetype");
+  font-weight: bold;
+}
 
-  html, body {
-    width: 100%;
-    height: 100%;
-    font-family: "Galmuri11", sans-serif;
-    font-weight: bold;
-    src: url("/fonts/Galmuri11.ttf") format("truetype");
-    line-height: 1.5;
-    background-color: #101010;
-    color: #d8ff91; 
-  }
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: "Galmuri11", sans-serif;
+  font-weight: bold;
+  line-height: 1.5;
+  background-color: #101010;
+  color: #d8ff91; 
+}
 
   /* 링크 스타일 초기화 */
   a {
@@ -59,4 +63,4 @@ const globalStyle = createGlobalStyle`
   }
 `;
 
-export default globalStyle;
+export default GlobalStyle;
