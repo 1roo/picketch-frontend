@@ -30,7 +30,7 @@ const seoulDistricts = [
 ];
 
 interface RegionSelectorProps {
-  selectedRegion: string;
+  selectedRegion: number; // string -> number로 수정
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
@@ -41,9 +41,11 @@ const RegionSelector: React.FC<RegionSelectorProps> = ({
   return (
     <P.SelectContainer>
       <h3>지역</h3>
-      <P.SelectBox value={selectedRegion} onChange={onChange}>
-        {seoulDistricts.map((district) => (
-          <option key={district} value={district}>
+      <P.SelectBox value={selectedRegion.toString()} onChange={onChange}>
+        {/* selectedRegion을 string으로 변환 */}
+        {seoulDistricts.map((district, index) => (
+          <option key={district} value={index + 1}>
+            {/* 지역에 대응하는 id값을 설정 */}
             {district}
           </option>
         ))}
@@ -53,4 +55,3 @@ const RegionSelector: React.FC<RegionSelectorProps> = ({
 };
 
 export default RegionSelector;
-

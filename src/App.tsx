@@ -39,6 +39,16 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
         .then((res) => res.json())
         .then((data) => {
           console.log(`${provider} 로그인 성공!`, data);
+
+          if (data.data && data.data.accessToken) {
+            localStorage.setItem("accessToken", data.data.accessToken);
+            localStorage.setItem("refreshToken", data.data.refreshToken);
+            console.log("✅ 액세스 토큰 저장 완료:", data.data.accessToken);
+            console.log("✅ 리프레시 토큰 저장 완료:", data.data.refreshToken);
+          } else {
+            console.error("❌ 로그인 응답에 토큰 없음:", data);
+          }
+
           navigate("/user-setting-page");
         })
         .catch((error) => {

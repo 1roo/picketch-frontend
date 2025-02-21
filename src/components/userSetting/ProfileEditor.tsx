@@ -3,6 +3,7 @@ import CharacterSelectorBox from "../profilePage/CharacterSelectorBox";
 import RegionSelector from "../profilePage/RegionSelector";
 import NicknameInput from "./NickNameInput";
 import * as P from "../../styles/profilePage/profileStyle";
+import axios from "axios";
 
 interface ProfileEditorProps {
   isSetupMode: boolean; // 회원가입 모드 여부
@@ -14,10 +15,16 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
   const [selectedCharacter, setSelectedCharacter] = useState(
     "/images/chicken.png"
   );
-  const [selectedRegion, setSelectedRegion] = useState("강남구");
+  const [selectedRegion, setSelectedRegion] = useState<number>(1); // number로 초기값 설정
   const [nickName, setNickName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+
+  const handleRegionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const regionId = parseInt(event.target.value);
+    // event.target.value는 string이므로, 이를 number로 변환하여 상태 업데이트
+    setSelectedRegion(regionId); // regionId를 상태로 업데이트
+  };
 
   // 닉네임 중복 검사
   const handleCheckDuplicate = () => {
@@ -50,20 +57,48 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
   };
 
   // 저장 핸들러
-  const handleSave = () => {
-    if (isSetupMode && (!nickName || isAvailable === false)) {
-      setErrorMessage("닉네임을 확인해주세요.");
+  const handleSave = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+      console.error("❌ accessToken이 없습니다.");
+      alert("로그인이 필요합니다.");
       return;
     }
 
-    alert(
-      `저장됨! ${
-        isSetupMode ? `닉네임: ${nickName}, ` : ""
-      }캐릭터: ${selectedCharacter}, 지역: ${selectedRegion}`
-    );
+    const userData = {
+      nickname: nickName,
+      regionId: selectedRegion,
+      character: selectedCharacter,
+    };
 
-    // 저장 후 이동할 페이지 설정
-    window.location.href = isSetupMode ? "/game-list-page" : "/profile";
+    console.log(
+      "📡 요청 URL:",
+      `${process.env.REACT_APP_API_BASE_URL}/api/user/profile`
+    );
+    console.log("📡 요청 데이터:", userData);
+    console.log("📡 요청 헤더 - Authorization:", `Bearer ${token}`);
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/api/user/profile`,
+        userData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("✅ 프로필 저장 성공:", response.data);
+      alert("프로필이 저장되었습니다!");
+      window.location.href = isSetupMode ? "/game-list-page" : "/profile";
+    } catch (error) {
+      console.error("❌ 프로필 저장 실패:", error);
+
+      alert("프로필 저장에 실패했습니다.");
+    }
   };
 
   return (
@@ -92,7 +127,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
       {isSetupMode && (
         <RegionSelector
           selectedRegion={selectedRegion}
-          onChange={(e) => setSelectedRegion(e.target.value)}
+          onChange={handleRegionChange}
         />
       )}
 
