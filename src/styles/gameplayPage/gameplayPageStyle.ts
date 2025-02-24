@@ -7,7 +7,6 @@ export const PageContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 1px solid tomato;
 `;
 
 // --------------CenterComponents----------------
@@ -20,14 +19,13 @@ export const CenterComponents = styled.div`
   width: 80%;
   height: 93vh;
   margin: 0 auto;
-  border: 1px solid violet;
 `;
 
 // -------------sketch components--------------
 export const SketchbookContainer = styled.div`
   text-align: center;
   padding: 20px;
-  background-image: url(/images/sketchbook.png);
+  background-image: url(/images/sketchbook3.png);
   background-size: cover;
   display: flex;
   height: 70vh;
@@ -37,7 +35,6 @@ export const SketchbookContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 1px solid blue;
 `;
 
 export const PaletteDiv = styled.div`
@@ -66,11 +63,14 @@ export const UserListContainer = styled.div`
   max-width: 300px;
   height: 80vh;
   margin: 5% 10px;
+  padding: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  border: 1px solid pink;
+  @media (max-width: 768px) {
+    display: none; /
+  }
 `;
 
 // --------------userCard------------------------
@@ -82,29 +82,55 @@ export const UserCardContainer = styled.div`
   justify-content: center;
   align-items: center;
   margin: 0 10px;
-  padding: 3px;
+  padding: 10px;
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 export const ProfileImgContainer = styled.div`
-  flex: 1;
+  width: 80px;
+  height: 80px;
   display: flex;
   justify-content: center;
   align-items: center;
   border: 1px solid #d8ff91;
   border-radius: 5px;
   margin-right: 5px;
+  background-color: black;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 export const UserInfo = styled.div`
   flex: 1;
-
   display: flex;
   flex-direction: column;
+  align-items: center;
+
   span {
     border: 1px solid #d8ff91;
     border-radius: 5px;
     margin: 2px 0;
-    font-size: 0.8em;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 3px;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    span {
+      font-size: 0.8rem;
+      padding: 2px;
+    }
   }
 `;
 
@@ -113,53 +139,70 @@ export const UserInfo = styled.div`
 export const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+  justify-content: flex-end; /* 채팅 입력창이 항상 아래에 위치 */
+  align-items: center;
   border-radius: 5px;
   width: 52.5vw;
-  height: 18vh;
-  max-height: 150px;
+  height: 20vh;
+  max-height: calc(100vh - 150px); /* 화면 크기에 맞춰 자동 조정 */
   margin: 0 auto;
   border: 2px solid #d8ff91;
   background-color: rgba(217, 217, 217, 0.36);
   padding: 0 10px;
 
-  span {
-    color: white;
+  @media (max-width: 1024px) {
+    width: 65vw;
+    height: 18vh;
   }
-  .nickname {
-    max-width: 80px;
-    font-size: 1.1em;
-    padding-right: 10px;
+
+  @media (max-width: 768px) {
+    width: 80vw;
+    height: 16vh;
+  }
+
+  @media (max-width: 480px) {
+    width: 90vw;
+    height: 14vh;
   }
 `;
 
 export const InputDiv = styled.div`
-  position: absolute;
-  bottom: 3vh;
   border: 1px solid #d8ff91;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 51vw;
-  padding: 0 10px;
+  width: 100%;
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  background-color: rgba(255, 255, 255, 0.1); /* 배경색 조정 */
+  border-radius: 5px;
 
   input {
-    width: 96%;
+    flex: 1;
     color: white;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    padding: 5px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 3px 8px;
+    font-size: 0.9em;
   }
 `;
 
 export const ChatMessageWrapper = styled.div`
   width: 100%;
-  height: 80%;
-  margin: 5px 0;
-  overflow-y: scroll;
-  margin-bottom: 30px;
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  max-height: calc(100% - 40px); /* 입력창 높이 제외한 영역 */
 
   /* 스크롤바 스타일 */
   &::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-thumb {
@@ -179,10 +222,16 @@ export const ChatBubble = styled.div`
   width: 100%;
   border-radius: 10px;
   color: white;
-  font-size: 13px;
+  font-size: 14px;
+  padding: 5px;
 
   span {
     margin-left: 10px;
-    font-size: 13px;
+    font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    padding: 3px;
   }
 `;
