@@ -2,6 +2,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import React, { Suspense, useEffect } from "react";
 import GlobalStyle from "./styles/GlobalStyle";
 import LoadingAnimation from "./components/etc/LoadingAnimation";
+import useLoginStore from "./store/useLoginStore";
 
 const LoginPage = React.lazy(() => import("./pages/LoginPage"));
 const MakeNewGame = React.lazy(
@@ -23,6 +24,7 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { setAccessToken, setRefreshToken } = useLoginStore();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -31,32 +33,33 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
     if (code) {
       fetch(`${process.env.REACT_APP_API_BASE_URL}/api/auth/${provider}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
       })
         .then((res) => res.json())
         .then((data) => {
           console.log(`${provider} 로그인 성공!`, data);
 
-          if (data.data && data.data.accessToken) {
-            localStorage.setItem("accessToken", data.data.accessToken);
-            localStorage.setItem("refreshToken", data.data.refreshToken);
-            console.log("✅ 액세스 토큰 저장 완료:", data.data.accessToken);
-            console.log("✅ 리프레시 토큰 저장 완료:", data.data.refreshToken);
+          if (data.data && data.data.accessToken && data.data.refreshToken) {
+            setAccessToken(data.data.accessToken);
+            setRefreshToken(data.data.refreshToken);
+
+            if (!data.data.hasProfile) {
+              navigate("/user-setting-page");
+            } else {
+              navigate("/game-list-page");
+            }
           } else {
             console.error("❌ 로그인 응답에 토큰 없음:", data);
+            navigate("/");
           }
-
-          navigate("/user-setting-page");
         })
         .catch((error) => {
           console.error(`${provider} 로그인 실패:`, error);
-          navigate("/login");
+          navigate("/");
         });
     }
-  }, [provider, location, navigate]);
+  }, [provider, location, navigate, setAccessToken, setRefreshToken]);
 
   return null;
 };
@@ -67,7 +70,7 @@ function App() {
       <GlobalStyle />
       <Suspense fallback={<LoadingAnimation />}>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<LoginPage />} />
           <Route path="/newGame" element={<MakeNewGame />} />
           <Route path="/game-list-page" element={<GameListPage />} />
           <Route path="/user-setting-page" element={<UserSetupPage />} />
