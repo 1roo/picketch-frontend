@@ -46,14 +46,14 @@ const PlayerInfo = styled.div`
 
 const GameRoomBox: React.FC<GameRoom> = ({
   id,
-  title,
+  roomName,
   isPrivate,
   playerCount,
 }) => {
   return (
     <GameRoomContainer>
       <RoomHeader>
-        <span>{title}</span>
+        <span>{roomName}</span>
         {isPrivate && (
           <LockIcon>
             <img src="/images/lock.png" alt="lock" />

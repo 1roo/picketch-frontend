@@ -2,11 +2,17 @@ import { useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 
-export default function MakeNewGame() {
+interface MakeNewGameProps {
+  onClose: () => void;
+}
+
+export default function MakeNewGame({ onClose }: MakeNewGameProps) {
   const [isLocked, setIsLocked] = useState(false);
   const [roomName, setRoomName] = useState("");
   const [turns, setTurns] = useState<number>(1);
   const [password, setPassword] = useState("");
+
+  const BACKEND_URL = process.env.REACT_APP_API_BASE_URL;
 
   const handleLockChange = () => {
     setIsLocked((prev) => !prev);
@@ -14,19 +20,25 @@ export default function MakeNewGame() {
   };
 
   const handleCreateGame = async () => {
+    const accessToken = localStorage.getItem("accessToken");
     const gameData = {
       roomName,
       round: turns,
       isLock: isLocked,
-      password: isLocked ? password : null,
+      pw: isLocked ? password : null,
     };
 
     try {
-      const response = await axios.post("/api/game-room", gameData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.post(
+        `${BACKEND_URL}/api/game-room`,
+        gameData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       console.log("방 생성 성공:", response.data);
       alert("방이 생성되었습니다!");
@@ -111,7 +123,9 @@ export default function MakeNewGame() {
           <Button type="make" onClick={handleCreateGame}>
             생성
           </Button>
-          <Button type="cancel">취소</Button>
+          <Button type="cancel" onClick={onClose}>
+            취소
+          </Button>
         </ButtonContainer>
       </Container>
     </Wrapper>

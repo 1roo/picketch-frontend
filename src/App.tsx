@@ -2,12 +2,10 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import React, { Suspense, useEffect } from "react";
 import GlobalStyle from "./styles/GlobalStyle";
 import LoadingAnimation from "./components/etc/LoadingAnimation";
-import useLoginStore from "./store/useLoginStore";
+import useAuthStore from "./store/useAuthStore";
 
 const LoginPage = React.lazy(() => import("./pages/LoginPage"));
-const MakeNewGame = React.lazy(
-  () => import("./components/newGame/MakeNewGame")
-);
+
 const GameListPage = React.lazy(() => import("./pages/GameListPage"));
 const ProfilePage = React.lazy(() => import("./pages/EditProfilePage"));
 const UserSetupPage = React.lazy(() => import("./pages/UserSetupPage"));
@@ -24,7 +22,7 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setAccessToken, setRefreshToken } = useLoginStore();
+  const { setAccessToken, setRefreshToken, setLogin } = useAuthStore();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -43,12 +41,11 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
           if (data.data && data.data.accessToken && data.data.refreshToken) {
             setAccessToken(data.data.accessToken);
             setRefreshToken(data.data.refreshToken);
+            setLogin();
 
-            if (!data.data.hasProfile) {
-              navigate("/user-setting-page");
-            } else {
-              navigate("/game-list-page");
-            }
+            navigate(
+              data.data.hasProfile ? "/game-list-page" : "/user-setting-page"
+            );
           } else {
             console.error("❌ 로그인 응답에 토큰 없음:", data);
             navigate("/");
@@ -59,7 +56,7 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
           navigate("/");
         });
     }
-  }, [provider, location, navigate, setAccessToken, setRefreshToken]);
+  }, [provider, location, navigate, setAccessToken, setRefreshToken, setLogin]);
 
   return null;
 };
@@ -71,7 +68,6 @@ function App() {
       <Suspense fallback={<LoadingAnimation />}>
         <Routes>
           <Route path="/" element={<LoginPage />} />
-          <Route path="/newGame" element={<MakeNewGame />} />
           <Route path="/game-list-page" element={<GameListPage />} />
           <Route path="/user-setting-page" element={<UserSetupPage />} />
           <Route path="/profile" element={<ProfilePage />} />
