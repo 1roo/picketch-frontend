@@ -2,7 +2,7 @@ import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import * as M from "../styles/loginPage/mainPageStyle";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import useLoginStore from "../store/useLoginStore";
+import useAuthStore from "../store/useAuthStore";
 
 const BACKEND_URL = process.env.REACT_APP_API_BASE_URL;
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
@@ -21,7 +21,7 @@ export default function LoginPage() {
 }
 
 function LoginPageContent() {
-  const { setAccessToken, setRefreshToken } = useLoginStore();
+  const { setAccessToken, setRefreshToken, setLogin } = useAuthStore();
   const navigate = useNavigate();
   /*
    * 1. 구글 로그인
@@ -47,17 +47,13 @@ function LoginPageContent() {
         );
 
         if (data.code === "SU") {
-          console.log("data: ", data);
-
           setAccessToken(data.data.accessToken);
           setRefreshToken(data.data.refreshToken);
+          setLogin();
 
-          if (!data.data.hasProfile) {
-            console.log("프로필 없음! 등록화면으로 이동");
-            navigate("/user-setting-page");
-          } else {
-            navigate("/game-list-page");
-          }
+          navigate(
+            data.data.hasProfile ? "/game-list-page" : "/user-setting-page"
+          );
         } else {
           console.error("백엔드 로그인 실패:", data.message);
         }
