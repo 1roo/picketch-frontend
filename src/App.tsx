@@ -72,7 +72,7 @@ function App() {
           <Route path="/game-list-page" element={<GameListPage />} />
           <Route path="/user-setting-page" element={<UserSetupPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/game-page" element={<GamePlayPage />} />
+          <Route path="/game-page/:gameId" element={<GamePlayPage />} />
           <Route
             path="/victory"
             element={

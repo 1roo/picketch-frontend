@@ -7,11 +7,12 @@ import {
   PageContainer,
   CenterComponents,
 } from "../styles/gameplayPage/gameplayPageStyle";
+import { useLocation, useParams } from "react-router-dom";
 
 const socket = io(
   process.env.NODE_ENV === "production"
     ? process.env.REACT_APP_SOCKET_SERVER_URL
-    : "http://localhost:4000",
+    : "http://localhost:8080",
   { transports: ["websocket"] }
 );
 
@@ -67,6 +68,13 @@ const users = [
 ];
 
 export default function GamePlayPage() {
+  const { gameId } = useParams();
+  console.log("받은 gameId는:", gameId);
+  const location = useLocation();
+
+  console.log(gameId); // URL의 gameId 잘 전달되는지 확인
+  console.log(location.state); // navigate로 전달한 state 확인
+
   return (
     <PageContainer>
       <TopComponents socket={socket} />

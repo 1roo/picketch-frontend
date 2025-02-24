@@ -1,5 +1,12 @@
 import styled from "styled-components";
-import { GameRoom } from "../../interfaces/gameRoom";
+
+interface GameRoomBoxProps {
+  roomId: number;
+  roomName: string;
+  isLock: boolean;
+  playerCount: number;
+  onClick?: () => void;
+}
 
 const GameRoomContainer = styled.div`
   position: relative;
@@ -15,6 +22,7 @@ const GameRoomContainer = styled.div`
   width: 100%;
   min-height: 40px;
   justify-content: space-between;
+  cursor: pointer;
 
   &:hover {
     background-color: #d8ff91;
@@ -44,17 +52,17 @@ const PlayerInfo = styled.div`
   width: 100%;
 `;
 
-const GameRoomBox: React.FC<GameRoom> = ({
-  id,
+const GameRoomBox: React.FC<GameRoomBoxProps> = ({
   roomName,
-  isPrivate,
+  isLock,
   playerCount,
+  onClick,
 }) => {
   return (
-    <GameRoomContainer>
+    <GameRoomContainer onClick={onClick}>
       <RoomHeader>
         <span>{roomName}</span>
-        {isPrivate && (
+        {isLock && (
           <LockIcon>
             <img src="/images/lock.png" alt="lock" />
           </LockIcon>
