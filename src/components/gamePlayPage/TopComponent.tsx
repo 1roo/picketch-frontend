@@ -10,52 +10,104 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 80%;
+  width: 70%;
   margin: 0 auto;
   padding: 10px;
+  background-color: #101010;
+  border-radius: 10px;
+  flex-wrap: nowrap;
+  gap: 5px;
+
+  @media (max-width: 768px) {
+    width: 90%;
+    padding: 8px;
+    gap: 3px;
+  }
+
+  @media (max-width: 540px) {
+    width: 95%;
+    padding: 5px;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 `;
 
 const RoomTitle = styled.span`
+  flex-grow: 1;
+  text-align: center;
   font-weight: bold;
-  font-size: 1.3em;
+  font-size: 1.2em;
+  color: #d8ff91;
+  min-width: 140px;
+  max-width: 50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 768px) {
+    font-size: 1em;
+    max-width: 55%;
+  }
+
+  @media (max-width: 540px) {
+    font-size: 0.8em;
+    max-width: 60%;
+  }
+
+  @media (max-width: 400px) {
+    font-size: 0.7em;
+    max-width: 65%;
+  }
 `;
 
 const TimerDisplay = styled.div<{ $isRunning: boolean }>`
-  font-size: 1.5em;
+  font-size: 1.2em;
   font-weight: bold;
-  color: #d8ff91;
+  color: ${(props) => (props.$isRunning ? "#d8ff91" : "#ccc")};
+  min-width: 40px;
+
+  @media (max-width: 768px) {
+    font-size: 1em;
+  }
+
+  @media (max-width: 540px) {
+    font-size: 0.8em;
+    min-width: 30px;
+  }
 `;
 
 const ReadyButton = styled.button<{ $isReady: boolean }>`
-  position: relative;
-  width: 110px;
-  height: 30px;
+  width: 90px;
+  height: 32px;
   background-color: ${(props) => (props.$isReady ? "#d8ff91" : "gray")};
-  text-align: ${(props) => (props.$isReady ? "start" : "end")};
   color: ${(props) => (props.$isReady ? "#101010" : "#d8ff91")};
   border: none;
   border-radius: 25px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  &::before {
-    content: "";
-    position: absolute;
-    width: 22px;
-    height: 22px;
-    background: white;
-    border-radius: 50%;
-    top: 50%;
-    left: ${(props) => (props.$isReady ? "calc(100% - 26px)" : "4px")};
-    transform: translateY(-50%);
-    transition: left 0.3s ease;
-  }
+  min-width: 80px;
 
   &:hover {
     opacity: 0.8;
+  }
+
+  @media (max-width: 768px) {
+    width: 75px;
+    height: 28px;
+    font-size: 0.8em;
+  }
+
+  @media (max-width: 540px) {
+    width: 65px;
+    height: 25px;
+    font-size: 0.7em;
   }
 `;
 
@@ -63,8 +115,22 @@ const ExitButton = styled.span`
   cursor: pointer;
   color: white;
   font-weight: bold;
+  font-size: 1em;
+  transition: color 0.3s ease;
+  min-width: 50px;
+
   &:hover {
-    text-decoration: underline;
+    color: #d8ff91;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.9em;
+    min-width: 40px;
+  }
+
+  @media (max-width: 540px) {
+    font-size: 0.8em;
+    min-width: 35px;
   }
 `;
 
@@ -72,6 +138,7 @@ export default function TopComponents({ socket }: TopComponentsProps) {
   const [timeLeft, setTimeLeft] = useState(60);
   const [isRunning, setIsRunning] = useState(false);
   const [isReady, setIsReady] = useState(false);
+
   const [isAllReady, setIsAllReady] = useState<boolean>(false);
   const [managerId, setManagerId] = useState<number | null>(null);
 
@@ -89,20 +156,22 @@ export default function TopComponents({ socket }: TopComponentsProps) {
       setIsReady(true);
     };
 
+
     const handleStartTimer = () => {
       setIsRunning(true);
     };
+
 
     const handleUpdateGameInfo = (response: any) => {
       setManagerId(response.data.managerId);
     };
 
     socket.on("update_ready", handleUpdateReady);
+
     socket.on("start_timer", handleStartTimer);
     socket.on("updateGameInfo", handleUpdateGameInfo);
 
     return () => {
-      socket.off("update_ready", handleUpdateReady);
       socket.off("start_timer", handleStartTimer);
       socket.off("updateGameInfo", handleUpdateGameInfo);
     };
@@ -128,6 +197,7 @@ export default function TopComponents({ socket }: TopComponentsProps) {
   }, [isRunning, socket]);
 
   const handleReadyToggle = () => {
+
     if (userId === managerId) {
       socket.emit("game_start");
     } else {
@@ -135,16 +205,18 @@ export default function TopComponents({ socket }: TopComponentsProps) {
       setIsReady(newReadyState);
       socket.emit("player_ready", newReadyState);
     }
+
+
   };
 
   return (
     <Container>
-      <RoomTitle>방제: 너가 그림을 그렇게 잘그려?</RoomTitle>
+      <RoomTitle>방제: 너가 그림을 그렇게 잘 그려?</RoomTitle>
       <TimerDisplay $isRunning={isRunning}>{`${timeLeft} `}초</TimerDisplay>
       <ReadyButton $isReady={isReady} onClick={handleReadyToggle}>
         {isAllReady && userId === managerId ? "START" : "READY"}
       </ReadyButton>
-      <ExitButton onClick={exitGame}>나가기</ExitButton>
+      <ExitButton>나가기</ExitButton>
     </Container>
   );
 }

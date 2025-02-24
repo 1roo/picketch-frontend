@@ -1,6 +1,6 @@
 import Konva from "konva";
 import { useEffect, useState } from "react";
-import { Stage, Layer, Line, Rect } from "react-konva"; // Rect 추가 (캔버스 배경)
+import { Stage, Layer, Line, Rect } from "react-konva";
 import * as G from "../../styles/gameplayPage/gameplayPageStyle";
 import styled from "styled-components";
 
@@ -18,13 +18,34 @@ const ControlsContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin-top: 10px;
-`;
+  z-index: 10;
 
+  @media (max-width: 768px) {
+    gap: 5px;
+  }
+`;
 const PaletteContainer = styled.div`
   display: flex;
   gap: 10px;
+  margin-left: 50px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 120px; /* 기본 값 */
+
+  @media (max-width: 1024px) {
+    padding-bottom: 0px;
+  }
+
+  @media (max-width: 768px) {
+    padding-bottom: 0px;
+  }
+
+  @media (max-width: 480px) {
+    padding-bottom: 0px;
+  }
 `;
 
 const PaletteColor = styled.button<{ color: string; $isSelected: boolean }>`
@@ -40,20 +61,36 @@ const PaletteColor = styled.button<{ color: string; $isSelected: boolean }>`
   &:hover {
     transform: scale(1.1);
   }
+
+  @media (max-width: 768px) {
+    width: 24px;
+    height: 24px;
+  }
+
+  @media (max-width: 480px) {
+    width: 18px;
+    height: 18px;
+  }
 `;
 
-const ClearButton = styled.button`
-  background-color: #101010;
-  color: white;
-  padding: 5px 10px 5px 5px;
-  border: none;
-  border-radius: 8px;
+const ClearButton = styled.img`
+  width: 35px;
+  height: 35px;
   cursor: pointer;
-  transition: 0.2s ease;
-  font-weight: bold;
+  transition: transform 0.2s ease;
 
   &:hover {
-    background-color: darkred;
+    transform: scale(1.1);
+  }
+
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+  }
+
+  @media (max-width: 480px) {
+    width: 22px;
+    height: 22px;
   }
 `;
 
@@ -61,8 +98,12 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
   const [lines, setLines] = useState<LineData[]>([]);
   const [selectedColor, setSelectedColor] = useState<string>("#000000");
   const [drawing, setDrawing] = useState<boolean>(false);
-  const [canvasWidth, setCanvasWidth] = useState(window.innerWidth * 0.4);
-  const [canvasHeight, setCanvasHeight] = useState(window.innerHeight * 0.45);
+  const [canvasSize, setCanvasSize] = useState({
+    width: Math.max(460, window.innerWidth * 0.5),
+    height: Math.max(306, (window.innerWidth * 0.5) / 1.5),
+  });
+
+  const [prevCanvasSize, setPrevCanvasSize] = useState(canvasSize);
 
   const COLORS = [
     "#FFFFFF",
@@ -79,15 +120,31 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
     "#008080",
   ];
 
-  // 창 크기 변경
+  // ✅ 창 크기 변경 감지 및 비율 유지
   useEffect(() => {
     const handleResize = () => {
-      setCanvasWidth(Math.max(400, window.innerWidth * 0.4));
-      setCanvasHeight(Math.max(window.innerHeight * 0.45));
+      const newWidth = Math.max(300, window.innerWidth * 0.5);
+      const newHeight = newWidth / 1.5;
+
+      const widthRatio = newWidth / prevCanvasSize.width;
+      const heightRatio = newHeight / prevCanvasSize.height;
+
+      setLines((prevLines) =>
+        prevLines.map((line) => ({
+          ...line,
+          points: line.points.map((point, index) =>
+            index % 2 === 0 ? point * widthRatio : point * heightRatio
+          ),
+        }))
+      );
+
+      setPrevCanvasSize({ width: newWidth, height: newHeight });
+      setCanvasSize({ width: newWidth, height: newHeight });
     };
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [prevCanvasSize]);
 
   useEffect(() => {
     socket.on("draw", (newLine: LineData) => {
@@ -104,6 +161,7 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
     };
   }, [socket]);
 
+  // ✨ 그림 그리기 기능 추가
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     setDrawing(true);
     const stage = e.target.getStage();
@@ -119,7 +177,6 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
 
   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
     if (!drawing) return;
-
     const stage = e.target.getStage();
     if (!stage) return;
     const point = stage.getPointerPosition();
@@ -138,23 +195,21 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
     socket.emit("draw", lines[lines.length - 1]);
   };
 
-  const handleClear = () => {
-    setLines([]);
-    socket.emit("clear");
-  };
-
   return (
     <G.SketchbookContainer>
       <Stage
-        width={canvasWidth}
-        height={canvasHeight}
+        width={canvasSize.width}
+        height={canvasSize.height}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       >
         <Layer>
-          <Rect width={canvasWidth} height={canvasHeight} fill="white" />
-
+          <Rect
+            width={canvasSize.width}
+            height={canvasSize.height}
+            fill="transparent"
+          />
           {lines.map((line, i) => (
             <Line
               key={i}
@@ -176,8 +231,12 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
               onClick={() => setSelectedColor(color)}
             />
           ))}
+          <ClearButton
+            src="/images/eraser.png"
+            alt="Clear"
+            onClick={() => setLines([])}
+          />
         </PaletteContainer>
-        <ClearButton onClick={handleClear}>🧹 CLEAR</ClearButton>
       </ControlsContainer>
     </G.SketchbookContainer>
   );

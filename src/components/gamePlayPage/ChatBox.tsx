@@ -49,7 +49,8 @@ export default function ChatBox({ socket }: ChatBoxProps) {
         {messages.map((msg, index) => (
           <G.ChatBubble
             key={index}
-            ref={index === messages.length - 1 ? lastMessageRef : null}>
+            ref={index === messages.length - 1 ? lastMessageRef : null}
+          >
             <span className="nickname">{msg.userNick}</span>
             <span> {msg.message}</span>
           </G.ChatBubble>
