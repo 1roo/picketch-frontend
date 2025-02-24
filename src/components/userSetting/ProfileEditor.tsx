@@ -4,6 +4,7 @@ import RegionSelector from "../profilePage/RegionSelector";
 import NicknameInput from "./NickNameInput";
 import * as P from "../../styles/profilePage/profileStyle";
 import axios, { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileEditorProps {
   isSetupMode: boolean; // 회원가입 모드 여부
@@ -18,6 +19,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [isChecking, setIsChecking] = useState(false);
+  const navigate = useNavigate();
 
   const handleRegionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const regionId = parseInt(event.target.value);
@@ -66,6 +68,10 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
         } else {
           setErrorMessage(`서버 오류 발생 (${error.response?.status})`);
           setIsAvailable(false);
+          alert(
+            "세션이 만료되었거나 오류가 발생했습니다. 다시 로그인해주세요."
+          );
+          navigate("/");
         }
       } else {
         setErrorMessage("🚨 알 수 없는 오류가 발생했습니다.");
@@ -83,6 +89,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
     if (!token) {
       console.error("❌ accessToken이 없습니다.");
       alert("로그인이 필요합니다.");
+      navigate("/");
       return;
     }
 
@@ -121,7 +128,8 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
       window.location.href = isSetupMode ? "/game-list-page" : "/profile";
     } catch (error) {
       console.error("❌ 프로필 저장 실패:", error);
-      alert("프로필 저장에 실패했습니다.");
+      alert("프로필 저장에 실패했습니다. 다시 로그인해주세요.");
+      navigate("/");
     }
   };
 
