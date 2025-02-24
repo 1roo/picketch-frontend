@@ -1,182 +1,186 @@
-// import React, { useEffect, useState, useRef } from "react";
-// import { Stage, Layer, Line, Rect } from "react-konva";
-// import io from "socket.io-client";
-// import {
-//   Container,
-//   SketchbookWrapper,
-//   StyledStageContainer,
-//   ColorPalette,
-//   ColorButton,
-//   ClearButton,
-// } from "../../styles/gameDrawingStyle";
+import Konva from "konva";
+import { useEffect, useState } from "react";
+import { Stage, Layer, Line, Rect } from "react-konva"; // Rect 추가 (캔버스 배경)
+import * as G from "../../styles/gameplayPage/gameplayPageStyle";
+import styled from "styled-components";
 
-// // 소켓 연결
-// const socket = io(
-//   process.env.NODE_ENV === "production"
-//     ? process.env.REACT_APP_SOCKET_SERVER_URL
-//     : "http://localhost:4000",
-//   { transports: ["websocket"] }
-// );
+interface LineData {
+  points: number[];
+  color: string;
+}
 
-// interface LineData {
-//   points: number[];
-//   color: string;
-//   originalWidth: number;
-//   originalHeight: number;
-// }
+interface GameDrawingProps {
+  socket: any;
+}
 
-// // 12가지 색상 팔레트
-// const COLORS = [
-//   "#FFFFFF",
-//   "#000000",
-//   "#FF0000",
-//   "#00FF00",
-//   "#0000FF",
-//   "#FFFF00",
-//   "#FF00FF",
-//   "#00FFFF",
-//   "#800000",
-//   "#808000",
-//   "#008000",
-//   "#800080",
-// ];
+// 🎨 팔레트 & 도구 스타일
+const ControlsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+`;
 
-// const GameDrawing: React.FC = () => {
+const PaletteContainer = styled.div`
+  display: flex;
+  gap: 10px;
+`;
 
-//   const [lines, setLines] = useState<LineData[]>([]);
-//   const [selectedColor, setSelectedColor] = useState<string>("#000000");
-//   const [drawing, setDrawing] = useState<boolean>(false);
+const PaletteColor = styled.button<{ color: string; $isSelected: boolean }>`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: ${(props) => props.color};
+  border: ${(props) =>
+    props.$isSelected ? "3px solid black" : "1px solid #ccc"};
+  cursor: pointer;
+  transition: transform 0.2s ease;
 
-//   const [color, setColor] = useState<string>("#000000");
-//   const containerRef = useRef<HTMLDivElement>(null);
-//   const [dimensions, setDimensions] = useState({ width: 600, height: 400 });
+  &:hover {
+    transform: scale(1.1);
+  }
+`;
 
-//   // 창 크기 변경 시 Stage와 그림 크기 조정
-//   const handleResize = () => {
-//     if (containerRef.current) {
-//       const newWidth = containerRef.current.clientWidth * 0.9;
-//       const newHeight = newWidth / 1.5; // 1.5:1 비율 유지
+const ClearButton = styled.button`
+  background-color: #101010;
+  color: white;
+  padding: 5px 10px 5px 5px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-weight: bold;
 
-//       // 기존 그림 크기에 맞춰 비율 조정
-//       setLines((prevLines) =>
-//         prevLines.map((line) => ({
-//           ...line,
-//           points: line.points.map(
-//             (point, index) =>
-//               index % 2 === 0
-//                 ? (point / line.originalWidth) * newWidth // X 좌표 비율 조정
-//                 : (point / line.originalHeight) * newHeight // Y 좌표 비율 조정
-//           ),
-//           originalWidth: newWidth,
-//           originalHeight: newHeight,
-//         }))
-//       );
+  &:hover {
+    background-color: darkred;
+  }
+`;
 
-//       setDimensions({ width: newWidth, height: newHeight });
-//     }
-//   };
+const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
+  const [lines, setLines] = useState<LineData[]>([]);
+  const [selectedColor, setSelectedColor] = useState<string>("#000000");
+  const [drawing, setDrawing] = useState<boolean>(false);
+  const [canvasWidth, setCanvasWidth] = useState(window.innerWidth * 0.4);
+  const [canvasHeight, setCanvasHeight] = useState(window.innerHeight * 0.45);
 
-//   // 창 크기 변경 감지 후 handleResize 실행
+  const COLORS = [
+    "#FFFFFF",
+    "#000000",
+    "#FF0000",
+    "#00FF00",
+    "#0000FF",
+    "#FFFF00",
+    "#FF00FF",
+    "#00FFFF",
+    "#808080",
+    "#A52A2A",
+    "#800080",
+    "#008080",
+  ];
 
-//     window.addEventListener("resize", handleResize);
-//     handleResize();
-//     return () => window.removeEventListener("resize", handleResize);
-//   }, []);
+  // 창 크기 변경
+  useEffect(() => {
+    const handleResize = () => {
+      setCanvasWidth(Math.max(400, window.innerWidth * 0.4));
+      setCanvasHeight(Math.max(window.innerHeight * 0.45));
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-//   // 마우스를 눌렀을 때 선을 새로 추가
-//   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
-//     setDrawing(true);
-//     const stage = e.target.getStage();
-//     if (!stage) return;
-//     const point = stage.getPointerPosition();
-//     if (!point) return;
+  useEffect(() => {
+    socket.on("draw", (newLine: LineData) => {
+      setLines((prevLines) => [...prevLines, newLine]);
+    });
 
-//     setLines((prevLines) => [
-//       ...prevLines,
+    socket.on("clear", () => {
+      setLines([]);
+    });
 
-//       {
-//         points: [point.x, point.y],
-//         color,
-//         originalWidth: dimensions.width,
-//         originalHeight: dimensions.height,
-//       },
+    return () => {
+      socket.off("draw");
+      socket.off("clear");
+    };
+  }, [socket]);
 
-//     ]);
-//   };
+  const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    setDrawing(true);
+    const stage = e.target.getStage();
+    if (!stage) return;
+    const point = stage.getPointerPosition();
+    if (!point) return;
 
-//   // 마우스 이동 시 선을 업데이트
-//   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
-//     if (!drawing) return;
+    setLines((prevLines) => [
+      ...prevLines,
+      { points: [point.x, point.y], color: selectedColor },
+    ]);
+  };
 
-//     const stage = e.target.getStage();
-//     if (!stage) return;
-//     const point = stage.getPointerPosition();
-//     if (!point) return;
+  const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (!drawing) return;
 
-//     setLines((prevLines) => {
-//       const newLines = [...prevLines];
-//       const lastLine = newLines[newLines.length - 1];
-//       lastLine.points = [...lastLine.points, point.x, point.y];
-//       return newLines;
-//     });
-//   };
+    const stage = e.target.getStage();
+    if (!stage) return;
+    const point = stage.getPointerPosition();
+    if (!point) return;
 
-//   // 마우스 버튼을 떼면 그리기 종료
-//   const handleMouseUp = () => {
-//     setDrawing(false);
-//     socket.emit("draw", lines[lines.length - 1]);
-//   };
+    setLines((prevLines) => {
+      const newLines = [...prevLines];
+      const lastLine = newLines[newLines.length - 1];
+      lastLine.points = [...lastLine.points, point.x, point.y];
+      return newLines;
+    });
+  };
 
-//   // 클리어 버튼 클릭 시 그림 초기화
-//   const handleClear = () => {
-//     setLines([]);
-//     socket.emit("clear");
-//   };
+  const handleMouseUp = () => {
+    setDrawing(false);
+    socket.emit("draw", lines[lines.length - 1]);
+  };
 
-//   return (
+  const handleClear = () => {
+    setLines([]);
+    socket.emit("clear");
+  };
 
-//     <Container ref={containerRef}>
-//       <SketchbookWrapper>
-//         <StyledStageContainer>
-//           <Stage
-//             width={dimensions.width}
-//             height={dimensions.height}
-//             onMouseDown={handleMouseDown}
-//             onMousemove={handleMouseMove}
-//             onMouseup={handleMouseUp}
-//           >
-//             <Layer>
-//               <Rect width={dimensions.width} height={dimensions.height} />
-//               {lines.map((line, i) => (
-//                 <Line
-//                   key={i}
-//                   points={line.points}
-//                   stroke={line.color}
-//                   strokeWidth={3}
-//                   lineCap="round"
-//                   lineJoin="round"
-//                 />
-//               ))}
-//             </Layer>
-//           </Stage>
-//         </StyledStageContainer>
-//       </SketchbookWrapper>
+  return (
+    <G.SketchbookContainer>
+      <Stage
+        width={canvasWidth}
+        height={canvasHeight}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+      >
+        <Layer>
+          <Rect width={canvasWidth} height={canvasHeight} fill="white" />
 
-//       <ColorPalette>
-//         {COLORS.map((paletteColor) => (
-//           <ColorButton
-//             key={paletteColor}
-//             color={paletteColor}
-//             selected={color === paletteColor}
-//             onClick={() => setColor(paletteColor)}
-//           />
-//         ))}
-//       </ColorPalette>
+          {lines.map((line, i) => (
+            <Line
+              key={i}
+              points={line.points}
+              stroke={line.color}
+              strokeWidth={3}
+            />
+          ))}
+        </Layer>
+      </Stage>
 
-//       <ClearButton onClick={handleClear}>🗑️ CLEAR</ClearButton>
-//     </Container>
+      <ControlsContainer>
+        <PaletteContainer>
+          {COLORS.map((color) => (
+            <PaletteColor
+              key={color}
+              color={color}
+              $isSelected={selectedColor === color}
+              onClick={() => setSelectedColor(color)}
+            />
+          ))}
+        </PaletteContainer>
+        <ClearButton onClick={handleClear}>🧹 CLEAR</ClearButton>
+      </ControlsContainer>
+    </G.SketchbookContainer>
+  );
+};
 
-//   );
-// };
-
-// export default GameDrawing;
+export default GameDrawing;

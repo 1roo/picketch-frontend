@@ -8,6 +8,7 @@ const MakeNewGame = React.lazy(
   () => import("./components/newGame/MakeNewGame")
 );
 const GameListPage = React.lazy(() => import("./pages/GameListPage"));
+const GamePlayPage = React.lazy(() => import("./pages/GamePlayPage"));
 const ProfilePage = React.lazy(() => import("./pages/EditProfilePage"));
 const UserSetupPage = React.lazy(() => import("./pages/UserSetupPage"));
 const VictoryAlert = React.lazy(
@@ -72,6 +73,7 @@ function App() {
           <Route path="/game-list-page" element={<GameListPage />} />
           <Route path="/user-setting-page" element={<UserSetupPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/game-page" element={<GamePlayPage />} />
           <Route
             path="/victory"
             element={
