@@ -3,7 +3,7 @@ import CharacterSelectorBox from "../profilePage/CharacterSelectorBox";
 import RegionSelector from "../profilePage/RegionSelector";
 import NicknameInput from "./NickNameInput";
 import * as P from "../../styles/profilePage/profileStyle";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 interface ProfileEditorProps {
   isSetupMode: boolean; // 회원가입 모드 여부
@@ -44,25 +44,38 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
       return;
     }
 
-    setIsChecking(true); // 중복 검사 진행 중
+    setIsChecking(true); 
+    setErrorMessage("");
+
     try {
+      console.log(`📡 닉네임 중복 체크 요청: ${nickName}`);
       const response = await axios.get(
         `${process.env.REACT_APP_API_BASE_URL}/api/user/profile/checkNickname`,
         { params: { nickname: nickName } }
       );
 
-      if (response.data.isAvailable) {
+      console.log(" 닉네임 중복 검사 응답:", response.status); 
+
+      if (response.status === 200) {
         setIsAvailable(true);
         setErrorMessage("");
-      } else {
-        setIsAvailable(false);
-        setErrorMessage("이미 사용 중인 닉네임입니다.");
       }
     } catch (error) {
-      setErrorMessage("닉네임 중복 확인 중 오류가 발생했습니다.");
-      setIsAvailable(false);
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 400) {
+          setIsAvailable(false);
+          setErrorMessage("❌ 이미 사용 중인 닉네임입니다.");
+        } else {
+          setErrorMessage(` 서버 오류 발생 (${error.response?.status})`);
+          setIsAvailable(false);
+        }
+      } else {
+        setErrorMessage("🚨 알 수 없는 오류가 발생했습니다.");
+        setIsAvailable(false);
+      }
+    } finally {
+      setIsChecking(false); 
     }
-    setIsChecking(false); // 검사 완료
   };
 
   // 저장 핸들러
