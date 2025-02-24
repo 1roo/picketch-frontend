@@ -27,7 +27,7 @@ const Container = styled.div`
     width: 95%;
     padding: 5px;
     gap: 2px;
-    flex-wrap: wrap; /* ✅ 좁아지면 두 줄 배치 */
+    flex-wrap: wrap;
     justify-content: center;
   }
 `;
