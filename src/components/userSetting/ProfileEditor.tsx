@@ -17,7 +17,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
   const [nickName, setNickName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
-  const [isChecking, setIsChecking] = useState(false); // 중복 체크 여부
+  const [isChecking, setIsChecking] = useState(false);
 
   const handleRegionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const regionId = parseInt(event.target.value);
@@ -44,29 +44,27 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
       return;
     }
 
-    setIsChecking(true); 
+    setIsChecking(true);
     setErrorMessage("");
 
     try {
       console.log(`📡 닉네임 중복 체크 요청: ${nickName}`);
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/api/user/profile/checkNickname`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/user/profile/check-nickname`,
         { params: { nickname: nickName } }
       );
 
-      console.log(" 닉네임 중복 검사 응답:", response.status); 
-
-      if (response.status === 200) {
-        setIsAvailable(true);
-        setErrorMessage("");
-      }
+      console.log("✅ 닉네임 사용 가능");
+      setIsAvailable(true);
+      setErrorMessage("");
     } catch (error) {
-      if (error instanceof AxiosError) {
+      if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
+          console.log("❌ 닉네임 중복");
           setIsAvailable(false);
-          setErrorMessage("❌ 이미 사용 중인 닉네임입니다.");
+          setErrorMessage("이미 사용 중인 닉네임입니다.");
         } else {
-          setErrorMessage(` 서버 오류 발생 (${error.response?.status})`);
+          setErrorMessage(`서버 오류 발생 (${error.response?.status})`);
           setIsAvailable(false);
         }
       } else {
@@ -74,7 +72,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
         setIsAvailable(false);
       }
     } finally {
-      setIsChecking(false); 
+      setIsChecking(false);
     }
   };
 
@@ -148,7 +146,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
         handleCheckDuplicate={handleCheckDuplicate}
       />
 
-      {/* 지역 선택  (회원가입 안 된 경우에만 보이도록)*/}
+      {/* 지역 선택  (회원가입 안 된 경우에만 보이도록) */}
       {isSetupMode && (
         <RegionSelector
           selectedRegion={selectedRegion}

@@ -309,5 +309,6 @@ export const ErrorMessage = styled.p`
 
 export const SuccessMessage = styled.p`
   color: #d8ff91;
-  font-size: 14px;
+  font-size: 12px;
+  margin-left: 65px;
 `;

@@ -5,13 +5,12 @@ export interface GameRoom {
   playerCount: number; // 플레이어 수
 }
 
-
-export interface GameRoom {
-  game_id: number;
-  name: string;
-  manager: number;
-  is_lock: boolean;
-  pw?: string;
-  round: number;
-  is_waiting: boolean;
-}
+// export interface GameRoom {
+//   game_id: number;
+//   name: string;
+//   manager: number;
+//   is_lock: boolean;
+//   pw?: string;
+//   round: number;
+//   is_waiting: boolean;
+// }
