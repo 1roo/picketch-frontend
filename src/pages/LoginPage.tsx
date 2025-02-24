@@ -2,7 +2,7 @@ import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import * as M from "../styles/loginPage/mainPageStyle";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import useLoginStore from "../store/useLoginStore";
 
 const BACKEND_URL = process.env.REACT_APP_API_BASE_URL;
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
@@ -21,6 +21,7 @@ export default function LoginPage() {
 }
 
 function LoginPageContent() {
+  const { setAccessToken, setRefreshToken } = useLoginStore();
   const navigate = useNavigate();
   /*
    * 1. 구글 로그인
@@ -46,9 +47,16 @@ function LoginPageContent() {
         );
 
         if (data.code === "SU") {
-          if (!data.hasProfile) {
+          console.log("data: ", data);
+
+          setAccessToken(data.data.accessToken);
+          setRefreshToken(data.data.refreshToken);
+
+          if (!data.data.hasProfile) {
             console.log("프로필 없음! 등록화면으로 이동");
             navigate("/user-setting-page");
+          } else {
+            navigate("/game-list-page");
           }
         } else {
           console.error("백엔드 로그인 실패:", data.message);
@@ -75,35 +83,6 @@ function LoginPageContent() {
     console.log("✅ 카카오 로그인 시작!");
     window.location.href = kakaoLoginUrl;
   };
-
-  // const handleKakaoCallback = async () => {
-  //   const code = new URL(window.location.href).searchParams.get("code");
-  //   if (!code) {
-  //     console.error("❌ 카카오 인가 코드 없음");
-  //     return;
-  //   }
-
-  //   console.log("📡 백엔드로 카카오 인가 코드 전송:", code);
-
-  //   try {
-  //     const { data } = await axios.post(`${BACKEND_URL}/api/auth/kakao`, {
-  //       code,
-  //     });
-
-  //     console.log("✅ 카카오 로그인 성공:", data);
-  //   } catch (err: any) {
-  //     console.error(
-  //       "❌ 카카오 로그인 실패:",
-  //       err.response?.data || err.message
-  //     );
-  //   }
-  // };
-
-  // // ✅ 컴포넌트가 마운트되면 카카오 로그인 처리
-  // useEffect(() => {
-  //   handleKakaoCallback();
-  // }, []);
-
   /*
    *  3. 네이버 로그인
    */
