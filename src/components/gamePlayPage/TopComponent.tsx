@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 interface TopComponentsProps {
@@ -71,26 +72,39 @@ export default function TopComponents({ socket }: TopComponentsProps) {
   const [timeLeft, setTimeLeft] = useState(60);
   const [isRunning, setIsRunning] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [readyPlayers, setReadyPlayers] = useState<number>(0);
-  const totalPlayers = 4;
+  const [isAllReady, setIsAllReady] = useState<boolean>(false);
+  const [managerId, setManagerId] = useState<number | null>(null);
 
-  const exitGame = () => {};
+  const navigate = useNavigate();
+
+  const userId = Number(localStorage.getItem("userId"));
+
+  const exitGame = () => {
+    socket.disconnect();
+    navigate(-1);
+  };
 
   useEffect(() => {
     const handleUpdateReady = (readyCount: number) => {
-      setReadyPlayers(readyCount);
+      setIsReady(true);
     };
 
     const handleStartTimer = () => {
       setIsRunning(true);
     };
 
+    const handleUpdateGameInfo = (response: any) => {
+      setManagerId(response.data.managerId);
+    };
+
     socket.on("update_ready", handleUpdateReady);
     socket.on("start_timer", handleStartTimer);
+    socket.on("updateGameInfo", handleUpdateGameInfo);
 
     return () => {
       socket.off("update_ready", handleUpdateReady);
       socket.off("start_timer", handleStartTimer);
+      socket.off("updateGameInfo", handleUpdateGameInfo);
     };
   }, [socket]);
 
@@ -114,9 +128,13 @@ export default function TopComponents({ socket }: TopComponentsProps) {
   }, [isRunning, socket]);
 
   const handleReadyToggle = () => {
-    const newReadyState = !isReady;
-    setIsReady(newReadyState);
-    socket.emit("player_ready", newReadyState);
+    if (userId === managerId) {
+      socket.emit("game_start");
+    } else {
+      const newReadyState = !isReady;
+      setIsReady(newReadyState);
+      socket.emit("player_ready", newReadyState);
+    }
   };
 
   return (
@@ -124,7 +142,7 @@ export default function TopComponents({ socket }: TopComponentsProps) {
       <RoomTitle>방제: 너가 그림을 그렇게 잘그려?</RoomTitle>
       <TimerDisplay $isRunning={isRunning}>{`${timeLeft} `}초</TimerDisplay>
       <ReadyButton $isReady={isReady} onClick={handleReadyToggle}>
-        READY
+        {isAllReady && userId === managerId ? "START" : "READY"}
       </ReadyButton>
       <ExitButton onClick={exitGame}>나가기</ExitButton>
     </Container>
