@@ -1,11 +1,17 @@
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 import React, { Suspense, useEffect } from "react";
 import GlobalStyle from "./styles/GlobalStyle";
 import LoadingAnimation from "./components/etc/LoadingAnimation";
 import useAuthStore from "./store/useAuthStore";
 
 const LoginPage = React.lazy(() => import("./pages/LoginPage"));
-
 const GameListPage = React.lazy(() => import("./pages/GameListPage"));
 const GamePlayPage = React.lazy(() => import("./pages/GamePlayPage"));
 const ProfilePage = React.lazy(() => import("./pages/EditProfilePage"));
@@ -62,28 +68,40 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
   return null;
 };
 
+const PrivateRoute = () => {
+  const { isLoggedIn } = useAuthStore();
+  return isLoggedIn ? <Outlet /> : <Navigate to="/" replace />;
+};
+
 function App() {
   return (
     <>
       <GlobalStyle />
       <Suspense fallback={<LoadingAnimation />}>
         <Routes>
+          {/* 로그인 페이지는 항상 접근 가능 */}
           <Route path="/" element={<LoginPage />} />
-          <Route path="/game-list-page" element={<GameListPage />} />
-          <Route path="/user-setting-page" element={<UserSetupPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/game-page/:gameId" element={<GamePlayPage />} />
-          <Route
-            path="/victory"
-            element={
-              <VictoryAlert
-                username="너구리"
-                profileImg="/images/dog.png"
-                onPlayAgain={() => console.log("한 판 더!")}
-                onGoToGameList={() => console.log("게임 리스트로 이동!")}
-              />
-            }
-          />
+
+          {/* 로그인 필요 페이지 PrivateRoute로 감싸기 */}
+          <Route element={<PrivateRoute />}>
+            <Route path="/game-list-page" element={<GameListPage />} />
+            <Route path="/user-setting-page" element={<UserSetupPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/game-page/:gameId" element={<GamePlayPage />} />
+            <Route
+              path="/victory"
+              element={
+                <VictoryAlert
+                  username="너구리"
+                  profileImg="/images/dog.png"
+                  onPlayAgain={() => console.log("한 판 더!")}
+                  onGoToGameList={() => console.log("게임 리스트로 이동!")}
+                />
+              }
+            />
+          </Route>
+
+          {/* OAuth Callback 처리 */}
           <Route
             path="/auth/naver/callback"
             element={<OAuthCallbackHandler provider="naver" />}
@@ -92,6 +110,9 @@ function App() {
             path="/auth/kakao/callback"
             element={<OAuthCallbackHandler provider="kakao" />}
           />
+
+          {/* 존재하지 않는 페이지 처리 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
     </>

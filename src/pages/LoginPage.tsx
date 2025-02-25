@@ -49,6 +49,8 @@ function LoginPageContent() {
         if (data.code === "SU") {
           setAccessToken(data.data.accessToken);
           setRefreshToken(data.data.refreshToken);
+          console.log(data.data);
+
           setLogin();
 
           navigate(
