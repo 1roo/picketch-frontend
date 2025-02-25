@@ -6,10 +6,10 @@ import {
   GameListContainer,
   GameRoomsContainer,
 } from "../../styles/gameRoomStyle";
-import axios from "axios";
-import MakeNewGame from "../newGame/MakeNewGame";
-import { io, Socket } from "socket.io-client";
+import MakeNewGame from "../newGame/MakeNewGame"; // ✅ MakeNewGame 가져오기
 import { useNavigate } from "react-router-dom";
+import socket from "../../socket/gameSocket";
+import api from "../../utils/axios";
 
 interface GameRoom {
   roomId: number;
@@ -17,8 +17,6 @@ interface GameRoom {
   isLock: boolean;
   playerCount: number;
 }
-
-const BACKEND_URL = process.env.REACT_APP_API_BASE_URL;
 
 const GameList: React.FC = () => {
   const [gameRooms, setGameRooms] = useState<GameRoom[]>([]);
@@ -28,9 +26,7 @@ const GameList: React.FC = () => {
   useEffect(() => {
     const fetchGameRooms = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/api/game-room`, {
-          params: { status: "waiting" },
-        });
+        const response = await api.get(`/api/game-room`);
 
         const fetchedRooms = response.data.data.waitingRooms.map(
           (room: any) => ({
@@ -49,34 +45,13 @@ const GameList: React.FC = () => {
     fetchGameRooms();
   }, []);
 
-  const handleMakeRoom = () => {
-    setShowMakeRoomModal(true);
-  };
-
-  const closeMakeRoomModal = () => {
-    setShowMakeRoomModal(false);
-  };
-
   const handleRoomSelect = (gameId: number, isLock: boolean) => {
     const inputPw = isLock ? prompt("비밀번호를 입력해주세요") || "" : "";
 
-    const socket: Socket = io(`${BACKEND_URL}/game`, {
-      transports: ["websocket"],
-      auth: {
-        token: localStorage.getItem("accessToken")
-          ? `Bearer ${localStorage.getItem("accessToken")}`
-          : "",
-      },
-      query: { userId: 1 },
-    });
-
-    socket.on("connect", () => {
-      console.log("소켓 연결 성공");
-      socket.emit("joinGame", {
-        userId: 1,
-        gameId,
-        inputPw,
-      });
+    socket.emit("joinGame", {
+      userId: localStorage.getItem("userId"),
+      gameId,
+      inputPw,
     });
 
     socket.on("joinGame", (response) => {
@@ -86,14 +61,7 @@ const GameList: React.FC = () => {
         });
       } else {
         alert(`방 입장 실패: ${response.message}`);
-        socket.disconnect();
       }
-    });
-
-    socket.on("connect_error", (error) => {
-      console.error("소켓 연결 에러", error);
-      alert("소켓 연결 에러: 방에 입장할 수 없습니다.");
-      socket.disconnect();
     });
   };
 
@@ -102,7 +70,7 @@ const GameList: React.FC = () => {
       <ButtonContainer>
         <ActionButtons
           onRandomJoin={() => alert("랜덤참여 클릭!")}
-          onCreateRoom={handleMakeRoom}
+          onCreateRoom={() => setShowMakeRoomModal(true)}
         />
       </ButtonContainer>
       <GameRoomsContainer>
@@ -114,7 +82,9 @@ const GameList: React.FC = () => {
           />
         ))}
       </GameRoomsContainer>
-      {showMakeRoomModal && <MakeNewGame onClose={closeMakeRoomModal} />}
+      {showMakeRoomModal && (
+        <MakeNewGame onClose={() => setShowMakeRoomModal(false)} />
+      )}
     </GameListContainer>
   );
 };

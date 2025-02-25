@@ -1,10 +1,8 @@
 import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import * as M from "../styles/loginPage/mainPageStyle";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/useAuthStore";
-
-const BACKEND_URL = process.env.REACT_APP_API_BASE_URL;
+import api from "../utils/axios";
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
 const kakaoRestApiKey = process.env.REACT_APP_KAKAO_REST_API_KEY;
 const kakaoRedirectUri = process.env.REACT_APP_KAKAO_REDIRECT_URL;
@@ -36,8 +34,8 @@ function LoginPageContent() {
       }
 
       try {
-        const { data } = await axios.post(
-          `${BACKEND_URL}/api/auth/google`,
+        const { data } = await api.post(
+          `/api/auth/google`,
           {
             accessToken: response.access_token,
           },
@@ -60,7 +58,7 @@ function LoginPageContent() {
           console.error("백엔드 로그인 실패:", data.message);
         }
       } catch (err) {
-        if (axios.isAxiosError(err)) {
+        if (api.isAxiosError(err)) {
           console.error("서버 요청 실패:", err.response?.data || err.message);
         } else {
           console.error("알 수 없는 오류 발생:", err);

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import styled from "styled-components";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import socket from "../../socket/gameSocket"; // ✅ 소켓 가져오기
+import api from "../../utils/axios";
 
 interface MakeNewGameProps {
   onClose: () => void;
@@ -11,8 +13,7 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
   const [roomName, setRoomName] = useState("");
   const [turns, setTurns] = useState<number>(1);
   const [password, setPassword] = useState("");
-
-  const BACKEND_URL = process.env.REACT_APP_API_BASE_URL;
+  const navigate = useNavigate();
 
   const handleLockChange = () => {
     setIsLocked((prev) => !prev);
@@ -21,6 +22,12 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
 
   const handleCreateGame = async () => {
     const accessToken = localStorage.getItem("accessToken");
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
     const gameData = {
       roomName,
       round: turns,
@@ -29,19 +36,36 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
     };
 
     try {
-      const response = await axios.post(
-        `${BACKEND_URL}/api/game-room`,
-        gameData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const response = await api.post(`/api/game-room`, gameData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
+      const newGameId = response.data.gameId;
       console.log("방 생성 성공:", response.data);
       alert("방이 생성되었습니다!");
+
+      // ✅ 방장이 자동으로 게임방 입장
+      socket.emit("joinGame", {
+        userId,
+        gameId: newGameId,
+        inputPw: password || "",
+      });
+
+      socket.on("joinGame", (joinResponse) => {
+        if (joinResponse.type === "SUCCESS") {
+          navigate(`/game-page/${newGameId}`, {
+            state: joinResponse.data,
+          });
+        } else {
+          alert(`방 입장 실패: ${joinResponse.message}`);
+        }
+      });
+
+      // ✅ 방 생성 후 모달 닫기
+      onClose();
     } catch (error) {
       console.error("방 생성 오류:", error);
       alert("방 생성에 실패했습니다.");
@@ -60,7 +84,6 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
             type="text"
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
-            style={{ width: "75%" }}
           />
         </InputWrapper>
 
@@ -87,7 +110,6 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
         <LockInputWrapper>
           <span>잠금</span>
           <LockContainer>
-            {/* 자물쇠 아이콘 & 체크박스 */}
             <LockGroup>
               <LockIcon
                 src={isLocked ? "/images/lock.png" : "/images/lock2.png"}
@@ -99,19 +121,12 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
                 onChange={handleLockChange}
               />
             </LockGroup>
-
-            {/* 비밀번호 입력 */}
             <PasswordContainer>
               <span>비밀번호</span>
               <PasswordInput
                 type="number"
                 value={password}
-                onChange={(e) => {
-                  const inputValue = e.target.value.replace(/\D/g, "");
-                  if (inputValue.length <= 4) {
-                    setPassword(inputValue);
-                  }
-                }}
+                onChange={(e) => setPassword(e.target.value)}
                 disabled={!isLocked}
               />
             </PasswordContainer>

@@ -29,7 +29,8 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setAccessToken, setRefreshToken, setLogin } = useAuthStore();
+  const { setAccessToken, setRefreshToken, setLogin, setUserId } =
+    useAuthStore();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -45,13 +46,16 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
         .then((data) => {
           console.log(`${provider} 로그인 성공!`, data);
 
-          if (data.data && data.data.accessToken && data.data.refreshToken) {
-            setAccessToken(data.data.accessToken);
-            setRefreshToken(data.data.refreshToken);
+          const userData = data.data.data;
+
+          if (data.code === "SU") {
+            setAccessToken(userData.accessToken);
+            setRefreshToken(userData.refreshToken);
+            setUserId(userData.userId);
             setLogin();
 
             navigate(
-              data.data.hasProfile ? "/game-list-page" : "/user-setting-page"
+              userData.hasProfile ? "/game-list-page" : "/user-setting-page"
             );
           } else {
             console.error("❌ 로그인 응답에 토큰 없음:", data);
