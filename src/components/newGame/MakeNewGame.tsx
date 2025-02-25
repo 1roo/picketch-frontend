@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import socket from "../../socket/gameSocket"; // ✅ 소켓 가져오기
 import api from "../../utils/axios";
 
 interface MakeNewGameProps {
@@ -14,26 +13,6 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
   const [turns, setTurns] = useState<number>(1);
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // ✅ 기존 이벤트 리스너 제거 후 새로 등록
-    socket.off("joinGame");
-    socket.once("joinGame", (joinResponse) => {
-      console.log("🎯 서버 응답 (joinGame):", joinResponse);
-      if (joinResponse.type === "SUCCESS") {
-        navigate(`/game-page/${joinResponse.data.gameId}`, {
-          state: joinResponse.data,
-        });
-      } else {
-        console.error("❌ 방 입장 실패:", joinResponse.message);
-        alert(`방 입장 실패: ${joinResponse.message}`);
-      }
-    });
-
-    return () => {
-      socket.off("joinGame"); // ✅ 컴포넌트 언마운트 시 이벤트 제거
-    };
-  }, []);
 
   const handleLockChange = () => {
     setIsLocked((prev) => !prev);
@@ -77,52 +56,12 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
       console.log("✅ 방 생성 성공, gameId:", newGameId);
       alert("방이 생성되었습니다!");
 
-      // ✅ 방 생성 후 자동으로 joinGame 요청
-      joinGame(newGameId, password);
+      // ✅ 방 생성 후 해당 게임방으로 자동 이동 (서버에서 자동 입장 처리)
+      navigate(`/game-page/${newGameId}`);
     } catch (error) {
       console.error("❌ 방 생성 오류:", error);
       alert("방 생성에 실패했습니다.");
     }
-  };
-
-  // ✅ joinGame 요청을 자동으로 보내는 함수
-  const joinGame = (gameId: number, inputPw: string | null) => {
-    const userId = Number(localStorage.getItem("userId")); // 🔥 userId를 숫자로 변환
-
-    console.log("📡 joinGame 요청 보냄:", { userId, gameId });
-
-    if (!gameId || typeof gameId !== "number") {
-      console.error("❌ 유효하지 않은 gameId:", gameId);
-      alert("잘못된 gameId 값입니다.");
-      return;
-    }
-
-    if (!userId || typeof userId !== "number" || isNaN(userId)) {
-      console.error("❌ 유효하지 않은 userId:", userId);
-      alert("잘못된 userId 값입니다.");
-      return;
-    }
-
-    socket.emit("joinGame", {
-      userId,
-      gameId,
-      inputPw: inputPw || null,
-    });
-
-    // ✅ joinGame 성공 응답 받으면 자동 이동
-    socket.on("joinGame", (response) => {
-      console.log("🎯 서버 응답 (joinGame):", response);
-
-      if (response.type === "SUCCESS") {
-        console.log("✅ 방 입장 성공:", response.data);
-        navigate(`/game-page/${response.data.gameId}`, {
-          state: response.data,
-        });
-      } else {
-        console.error("❌ 방 입장 실패:", response.message);
-        alert(`방 입장 실패: ${response.message}`);
-      }
-    });
   };
 
   return (

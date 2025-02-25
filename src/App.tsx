@@ -67,7 +67,15 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
           navigate("/");
         });
     }
-  }, [provider, location, navigate, setAccessToken, setRefreshToken, setLogin]);
+  }, [
+    provider,
+    location,
+    navigate,
+    setAccessToken,
+    setRefreshToken,
+    setLogin,
+    setUserId,
+  ]);
 
   return null;
 };
