@@ -28,6 +28,13 @@ const GameList: React.FC = () => {
       try {
         const response = await api.get(`/api/game-room`);
 
+        console.log("📡 서버에서 받은 게임방 목록:", response.data);
+
+        if (!response.data?.data?.waitingRooms) {
+          console.error("❌ 서버에서 게임방 데이터를 받지 못했습니다.");
+          return;
+        }
+
         const fetchedRooms = response.data.data.waitingRooms.map(
           (room: any) => ({
             roomId: room.roomId,
@@ -36,6 +43,7 @@ const GameList: React.FC = () => {
             playerCount: room.playCount || 1,
           })
         );
+        console.log("✅ 변환된 게임방 목록:", fetchedRooms);
         setGameRooms(fetchedRooms);
       } catch (error) {
         console.error("Error fetching game rooms:", error);
@@ -48,6 +56,12 @@ const GameList: React.FC = () => {
   const handleRoomSelect = (gameId: number, isLock: boolean) => {
     const inputPw = isLock ? prompt("비밀번호를 입력해주세요") || "" : "";
 
+    console.log("🔄 방 입장 요청:", {
+      userId: localStorage.getItem("userId"),
+      gameId,
+      inputPw,
+    });
+
     socket.emit("joinGame", {
       userId: localStorage.getItem("userId"),
       gameId,
@@ -55,7 +69,15 @@ const GameList: React.FC = () => {
     });
 
     socket.on("joinGame", (response) => {
+      console.log("🎯 서버 응답:", response);
       if (response.type === "SUCCESS") {
+        console.log("✅ 게임 입장 성공!", response.data);
+
+        if (!response.data?.gameId) {
+          console.error("❌ gameId가 없습니다!", response.data);
+          alert("방 입장 실패: 서버에서 gameId를 받지 못했습니다.");
+          return;
+        }
         navigate(`/game-page/${response.data.gameId}`, {
           state: response.data,
         });
