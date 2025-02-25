@@ -3,8 +3,8 @@ import CharacterSelectorBox from "../profilePage/CharacterSelectorBox";
 import RegionSelector from "../profilePage/RegionSelector";
 import NicknameInput from "./NickNameInput";
 import * as P from "../../styles/profilePage/profileStyle";
-import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../../utils/axios";
 
 interface ProfileEditorProps {
   isSetupMode: boolean; // 회원가입 모드 여부
@@ -51,7 +51,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
 
     try {
       console.log(`📡 닉네임 중복 체크 요청: ${nickName}`);
-      const response = await axios.get(
+      const response = await api.get(
         `${process.env.REACT_APP_API_BASE_URL}/api/user/profile/check-nickname`,
         { params: { nickname: nickName } }
       );
@@ -60,7 +60,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
       setIsAvailable(true);
       setErrorMessage("");
     } catch (error) {
-      if (axios.isAxiosError(error)) {
+      if (api.isAxiosError(error)) {
         if (error.response?.status === 400) {
           console.log("❌ 닉네임 중복");
           setIsAvailable(false);
@@ -112,7 +112,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
     console.log("📡 요청 헤더 - Authorization:", `Bearer ${token}`);
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `${process.env.REACT_APP_API_BASE_URL}/api/user/profile`,
         userData,
         {

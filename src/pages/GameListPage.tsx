@@ -11,6 +11,7 @@ const LayoutContainer = styled.div`
   gap: 0px;
   overflow: hidden;
 `;
+
 const SidebarContainer = styled.div`
   flex: 0 0 400px;
   min-width: 200px;
