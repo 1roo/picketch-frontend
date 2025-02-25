@@ -67,13 +67,13 @@ const GameList: React.FC = () => {
           ? `Bearer ${localStorage.getItem("accessToken")}`
           : "",
       },
-      query: { userId: 5 },
+      query: { userId: 1 },
     });
 
     socket.on("connect", () => {
       console.log("소켓 연결 성공");
       socket.emit("joinGame", {
-        userId: 5,
+        userId: 1,
         gameId,
         inputPw,
       });
