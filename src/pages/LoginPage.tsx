@@ -19,7 +19,8 @@ export default function LoginPage() {
 }
 
 function LoginPageContent() {
-  const { setAccessToken, setRefreshToken, setLogin } = useAuthStore();
+  const { setAccessToken, setRefreshToken, setLogin, setUserId } =
+    useAuthStore();
   const navigate = useNavigate();
   /*
    * 1. 구글 로그인
@@ -51,6 +52,7 @@ function LoginPageContent() {
         if (data.code === "SU") {
           setAccessToken(data.data.data.accessToken);
           setRefreshToken(data.data.data.refreshToken);
+          setUserId(data.data.data.userId);
           console.log(data.data.data);
 
           setLogin();
