@@ -3,6 +3,7 @@ import { ChatMessage } from "../../interfaces/chat";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
+import io from "socket.io-client";
 
 export default function DmChat() {
   const [inputMessage, setInputMessage] = useState("");
@@ -30,6 +31,7 @@ export default function DmChat() {
   ]);
 
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null); // input 요소를 참조하는 useRef
 
   const getCurrentTimestamp = () => {
     const now = new Date();
@@ -51,6 +53,9 @@ export default function DmChat() {
 
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     setInputMessage("");
+    if (inputRef.current) {
+      inputRef.current.focus(); // input 창에 포커스 유지
+    }
   };
 
   useEffect(() => {
@@ -82,6 +87,7 @@ export default function DmChat() {
 
       <S.ChatInputBox>
         <S.ChatInput
+          ref={inputRef}
           type="text"
           placeholder="채팅 입력"
           value={inputMessage}

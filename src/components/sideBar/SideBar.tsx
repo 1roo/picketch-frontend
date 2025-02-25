@@ -72,10 +72,7 @@ export default function Sidebar() {
         </S.AlertDiv>
       )}
       <Friends toggleDmChat={toggleDmChat} />
-      <S.Line>
-        {isDmOpen && <DmChat />}
-        <Rank />;
-      </S.Line>
+      <S.Line>{isDmOpen ? <DmChat /> : <Rank />}</S.Line>
     </S.Container>
   );
 }
