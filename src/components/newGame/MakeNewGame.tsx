@@ -33,7 +33,7 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
     return () => {
       socket.off("joinGame"); // ✅ 컴포넌트 언마운트 시 이벤트 제거
     };
-  }, []);
+  }, [navigate]);
 
   const handleLockChange = () => {
     setIsLocked((prev) => !prev);

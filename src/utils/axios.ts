@@ -1,8 +1,9 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, AxiosError } from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_API_BASE_URL;
+const BACKEND_URL =
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:8080"; // 기본값 설정
 
-// ✅ AxiosInstance 타입을 확장해서 isAxiosError 추가
+// ✅ AxiosInstance 타입 확장
 interface CustomAxiosInstance extends AxiosInstance {
   isAxiosError: typeof axios.isAxiosError;
 }
@@ -14,19 +15,88 @@ const api: CustomAxiosInstance = axios.create({
   },
 }) as CustomAxiosInstance;
 
-// 요청 인터셉터: 모든 요청에 Authorization 헤더 자동 추가
+// 🔥 요청 인터셉터: `accessToken`을 모든 요청에 자동 추가 (구글 로그인 예외 처리)
 api.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    let accessToken = localStorage.getItem("accessToken");
+
+    if (!accessToken || accessToken === "null" || accessToken === "undefined") {
+      console.warn("⚠️ 잘못된 accessToken 값:", accessToken);
+      accessToken = null;
+      localStorage.removeItem("accessToken");
     }
+
+    // ✅ 구글 로그인 요청(`/api/auth/google`)에는 `Authorization`을 추가하지 않음
+    if (accessToken && !config.url?.includes("/api/auth/google")) {
+      console.log("📡 요청 Authorization 헤더 추가:", `Bearer ${accessToken}`);
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    } else {
+      console.log(
+        "🔄 구글 로그인 요청 - Authorization 헤더 제외됨:",
+        config.url
+      );
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ✅ axios의 isAxiosError를 api 인스턴스에 추가 (타입 확장 적용)
-api.isAxiosError = axios.isAxiosError;
+// 🔥 응답 인터셉터: `401 Unauthorized` 발생 시 토큰 재발급 처리
+api.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      console.error("🚨 401 Unauthorized - 토큰 만료 감지, 재발급 시도");
+
+      const originalRequest = error.config;
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      if (!refreshToken) {
+        console.warn("❌ Refresh Token 없음. 자동 로그아웃");
+        handleLogout();
+        return Promise.reject(error);
+      }
+
+      try {
+        console.log("🔄 토큰 재발급 요청 실행");
+        const { data } = await axios.post(
+          `${BACKEND_URL}/api/auth/refresh`,
+          { refreshToken },
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+        console.log("✅ 토큰 재발급 성공:", data);
+
+        // ✅ 새로운 `accessToken`을 저장 후 기존 요청 다시 실행
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("refreshToken", data.refreshToken);
+
+        if (originalRequest?.headers) {
+          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        }
+
+        return api(originalRequest!);
+      } catch (refreshError) {
+        console.error("❌ 토큰 재발급 실패. 자동 로그아웃 처리");
+        handleLogout();
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// ✅ 로그아웃 처리 함수
+const handleLogout = () => {
+  console.warn("👋 자동 로그아웃 실행");
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  window.location.href = "/"; // 로그인 페이지로 리디렉트
+};
+
+// ✅ `isAxiosError` 추가 방식 개선
+Object.assign(api, { isAxiosError: axios.isAxiosError });
 
 export default api;

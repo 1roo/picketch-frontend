@@ -28,6 +28,8 @@ function LoginPageContent() {
   const googleLogin = useGoogleLogin({
     flow: "implicit",
     onSuccess: async (response) => {
+      console.log("구글로그인응답: ", response);
+
       if (!response.access_token) {
         console.error("Access Token 없음");
         return;
@@ -44,10 +46,12 @@ function LoginPageContent() {
           }
         );
 
+        console.log("백엔드 응답: ", data);
+
         if (data.code === "SU") {
-          setAccessToken(data.data.accessToken);
-          setRefreshToken(data.data.refreshToken);
-          console.log(data.data);
+          setAccessToken(data.data.data.accessToken);
+          setRefreshToken(data.data.data.refreshToken);
+          console.log(data.data.data);
 
           setLogin();
 

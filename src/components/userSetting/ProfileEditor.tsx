@@ -51,10 +51,9 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
 
     try {
       console.log(`📡 닉네임 중복 체크 요청: ${nickName}`);
-      const response = await api.get(
-        `${process.env.REACT_APP_API_BASE_URL}/api/user/profile/check-nickname`,
-        { params: { nickname: nickName } }
-      );
+      await api.get(`/api/user/profile/check-nickname`, {
+        params: { nickname: nickName },
+      });
 
       console.log("✅ 닉네임 사용 가능");
       setIsAvailable(true);
@@ -112,16 +111,11 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
     console.log("📡 요청 헤더 - Authorization:", `Bearer ${token}`);
 
     try {
-      const response = await api.post(
-        `${process.env.REACT_APP_API_BASE_URL}/api/user/profile`,
-        userData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await api.post(`/api/user/profile`, userData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       console.log("✅ 프로필 저장 성공:", response.data);
       alert("프로필이 저장되었습니다!");
