@@ -165,7 +165,6 @@ export const FriendsDiv = styled.div`
   color: white;
   font-weight: normal;
   height: 35%; /* 기존 height 유지 */
-  max-height: 200px; /* 친구 목록이 너무 길어지지 않도록 제한 */
   overflow-y: auto; /* 스크롤 활성화 */
 
   /* p {

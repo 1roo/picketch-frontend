@@ -17,11 +17,6 @@ export default function Sidebar() {
     setIsAlertOpen(!isAlertOpen);
   };
 
-  // const toggleDmChat = (friendNickname: string) => {
-  //   setIsDmOpen(true);
-  //   setSelectedFriend(friendNickname);
-  // };
-
   const toggleDmChat = (friendNickname: string) => {
     if (isDmOpen && selectedFriend === friendNickname) {
       // 현재 열려 있는 채팅이 동일한 친구라면 닫기
