@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import socket from "../../socket/gameSocket"; // ✅ 소켓 추가
 import api from "../../utils/axios";
 
 interface MakeNewGameProps {
@@ -56,7 +57,14 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
       console.log("✅ 방 생성 성공, gameId:", newGameId);
       alert("방이 생성되었습니다!");
 
-      // ✅ 방 생성 후 해당 게임방으로 자동 이동 (서버에서 자동 입장 처리)
+      // ✅ 방 생성 후 `joinGame` 소켓 요청 보내기
+      socket.emit("managerJoinGame", {
+        userId: Number(userId),
+        gameId: newGameId,
+        inputPw: password || "",
+      });
+
+      // ✅ 게임 페이지로 이동
       navigate(`/game-page/${newGameId}`);
     } catch (error) {
       console.error("❌ 방 생성 오류:", error);
@@ -141,7 +149,6 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
 
 /* ======= Styled Components ======= */
 
-/* 전체 화면을 감싸는 배경 */
 const Wrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -151,7 +158,6 @@ const Wrapper = styled.div`
   background-color: rgba(21, 21, 21, 0.5);
 `;
 
-/* 방 생성 UI 컨테이너 */
 const Container = styled.div`
   position: relative;
   width: 50vw;
@@ -168,7 +174,6 @@ const Container = styled.div`
   color: #101010;
 `;
 
-/* 제목 스타일 */
 const Title = styled.p`
   font-weight: 700;
   font-size: 1.2em;
@@ -176,7 +181,6 @@ const Title = styled.p`
   text-align: center;
 `;
 
-/* 공통 Input 박스 */
 const InputWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -190,21 +194,15 @@ const InputWrapper = styled.div`
     padding: 3px;
   }
 `;
+
 const LockInputWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin: 10px 0;
   width: 100%;
-
-  input {
-    border: 1px solid #101010;
-    border-radius: 5px;
-    padding: 3px;
-  }
 `;
 
-/* 잠금 & 비밀번호 그룹 */
 const LockContainer = styled.div`
   display: flex;
   align-items: center;
@@ -212,7 +210,6 @@ const LockContainer = styled.div`
   margin-left: 10px;
 `;
 
-/* 자물쇠 아이콘 & 체크박스 */
 const LockGroup = styled.div`
   display: flex;
   align-items: center;
@@ -229,7 +226,6 @@ const LockCheckBox = styled.input`
   cursor: pointer;
 `;
 
-/* 비밀번호 입력 필드 */
 const PasswordContainer = styled.div`
   display: flex;
   align-items: center;
@@ -243,7 +239,6 @@ const PasswordInput = styled.input`
   border-radius: 5px;
 `;
 
-/* 턴 수 선택 영역 */
 const Radios = styled.div`
   display: flex;
   align-items: center;
@@ -258,7 +253,6 @@ const Radios = styled.div`
   }
 `;
 
-/* 버튼 컨테이너 */
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -266,7 +260,6 @@ const ButtonContainer = styled.div`
   margin-top: 20px;
 `;
 
-/* 버튼 스타일 */
 const Button = styled.button<{ type: "make" | "cancel" }>`
   padding: 5px 20px;
   border-radius: 5px;
