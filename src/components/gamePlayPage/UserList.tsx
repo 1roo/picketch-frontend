@@ -6,7 +6,7 @@ interface UserListProps {
     nickname: string;
     score: number;
     region: string;
-    profileImg: string;
+    character: string;
   }[];
 }
 
@@ -19,7 +19,7 @@ const UserList: React.FC<UserListProps> = ({ users }) => {
           nickname={user.nickname}
           score={user.score}
           region={user.region}
-          profileImg={user.profileImg}
+          profileImg={user.character}
         />
       ))}
     </UserListContainer>
