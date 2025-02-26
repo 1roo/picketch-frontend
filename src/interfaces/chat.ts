@@ -1,5 +1,5 @@
 export interface ChatMessage {
-  userNick: string;
-  message: string;
+  senderNick: string;
+  gameMessage: string;
   timestamp?: string;
 }

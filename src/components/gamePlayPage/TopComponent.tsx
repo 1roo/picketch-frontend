@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import styled from "styled-components";
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import styled from 'styled-components';
 
 interface TopComponentsProps {
   socket: any;
   gameTitle: string;
+  managerId: number;
 }
 
 const Container = styled.div`
@@ -36,8 +37,8 @@ const RoomTitle = styled.span`
 const ReadyButton = styled.button<{ $isReady: boolean }>`
   width: 90px;
   height: 32px;
-  background-color: ${(props) => (props.$isReady ? "#d8ff91" : "gray")};
-  color: ${(props) => (props.$isReady ? "#101010" : "#d8ff91")};
+  background-color: ${(props) => (props.$isReady ? '#d8ff91' : 'gray')};
+  color: ${(props) => (props.$isReady ? '#101010' : '#d8ff91')};
   border: none;
   border-radius: 25px;
   cursor: pointer;
@@ -60,49 +61,61 @@ const ExitButton = styled.span`
 export default function TopComponents({
   socket,
   gameTitle,
+  managerId,
 }: TopComponentsProps) {
   const [isReady, setIsReady] = useState(false);
   const navigate = useNavigate();
   const { gameId } = useParams(); // ✅ 현재 게임 ID 가져오기
-  const userId = Number(localStorage.getItem("userId"));
+  const userId = Number(localStorage.getItem('userId'));
 
   const handleReady = () => {
     const newReadyState = !isReady;
     setIsReady(newReadyState);
 
     // ✅ "readyGame" 소켓 이벤트 전송
-    socket.emit("readyGame", {
+    socket.emit('readyGame', {
       userId,
       gameId: Number(gameId),
       isReady: newReadyState,
     });
-    console.log("✅ readyGame 요청 보냄:", {
+    console.log('✅ readyGame 요청 보냄:', {
       userId,
       gameId,
       isReady: newReadyState,
     });
   };
 
+  const handleStart = () => {
+    socket.emit('startGame', {
+      userId,
+      gameId: Number(gameId),
+    });
+  };
+
   const handleLeaveGame = () => {
     if (!gameId) {
-      console.warn("🚨 gameId가 존재하지 않습니다!");
+      console.warn('🚨 gameId가 존재하지 않습니다!');
       return;
     }
 
     // ✅ "leaveGame" 소켓 요청 전송
-    socket.emit("leaveGame", { userId, gameId: Number(gameId) });
-    console.log("🚪 leaveGame 요청 보냄:", { userId, gameId });
+    socket.emit('leaveGame', { userId, gameId: Number(gameId) });
+    console.log('🚪 leaveGame 요청 보냄:', { userId, gameId });
 
     // ✅ 소켓 연결 해제 및 이전 페이지로 이동
     socket.disconnect();
     navigate(-1);
   };
-
+  console.log('유저아이디', userId);
+  console.log('매니저 아이디', managerId);
   return (
     <Container>
-      <RoomTitle>방제: {gameTitle || "게임 제목 없음"}</RoomTitle>
-      <ReadyButton $isReady={isReady} onClick={handleReady}>
-        READY
+      <RoomTitle>방제: {gameTitle || '게임 제목 없음'}</RoomTitle>
+      <ReadyButton
+        $isReady={isReady}
+        onClick={managerId === userId ? handleStart : handleReady}
+      >
+        {managerId === userId ? 'START' : 'READY'}
       </ReadyButton>
       <ExitButton onClick={handleLeaveGame}>나가기</ExitButton>
     </Container>
