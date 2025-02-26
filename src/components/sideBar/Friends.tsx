@@ -6,16 +6,18 @@ import api from "../../utils/axios";
 import DmChat from "./DmChat";
 
 interface FriendsProps {
-  toggleDmChat: (friendNickname: string) => void;
+
+  toggleDmChat: (friendId: number, friendNickname: string) => void;
 }
 
 interface Friend {
   friendId: number;
   friendNickname: string;
 }
-
 export default function Friends({ toggleDmChat }: FriendsProps) {
   const [friends, setFriends] = useState<Friend[]>([]); // 친구 목록을 저장할 상태
+
+  const [selectedFriend, setSelectedFriend] = useState<string | null>(null); // DM할 친구 저장
 
   // 컴포넌트가 마운트될 때 친구 목록을 가져오는 함수
   useEffect(() => {
@@ -31,10 +33,9 @@ export default function Friends({ toggleDmChat }: FriendsProps) {
 
     getFriends(); // 함수 실행
   }, []); // 빈 배열을 넣어서 컴포넌트가 처음 렌더링될 때만 실행
-
   return (
     <S.FriendsDiv>
-      {/* <p>친구목록</p> */}
+      <p>친구목록</p>
 
       {friends.length > 0 ? (
         friends.map((friend) => (
@@ -43,7 +44,12 @@ export default function Friends({ toggleDmChat }: FriendsProps) {
             <div style={{ display: "flex", alignItems: "center" }}>
               <button
                 type="button"
-                onClick={() => toggleDmChat(friend.friendNickname)}
+
+                key={friend.friendId}
+                onClick={() => {
+                  toggleDmChat(friend.friendId, friend.friendNickname);
+                }}
+
               >
                 DM
               </button>
@@ -54,6 +60,11 @@ export default function Friends({ toggleDmChat }: FriendsProps) {
       ) : (
         <p>친구가 없습니다.</p>
       )}
+
+      <S.AddFriend type="button">
+        <FontAwesomeIcon icon={faPlus} size="xs" /> 친구추가
+      </S.AddFriend>
+
     </S.FriendsDiv>
   );
 }
