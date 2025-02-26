@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
 import * as G from '../../styles/gameplayPage/gameplayPageStyle';
-import { ChatMessage } from '../../interfaces/chat';
+import { ChatMessage, GameChatMessage } from '../../interfaces/chat';
 
 interface ChatBoxProps {
   socket: any;
@@ -10,11 +10,11 @@ interface ChatBoxProps {
 
 export default function ChatBox({ socket }: ChatBoxProps) {
   const [inputMessage, setInputMessage] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<GameChatMessage[]>([]);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    socket.on('gameMessage', (newMessage: ChatMessage) => {
+    socket.on('gameMessage', (newMessage: GameChatMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
@@ -34,7 +34,7 @@ export default function ChatBox({ socket }: ChatBoxProps) {
   const sendMessage = () => {
     if (inputMessage.trim() === '') return;
 
-    const newMessage: ChatMessage = {
+    const newMessage: GameChatMessage = {
       senderNick: '홍길동',
       gameMessage: inputMessage,
     };
