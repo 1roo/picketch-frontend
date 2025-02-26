@@ -3,3 +3,8 @@ export interface ChatMessage {
   message: string;
   timestamp?: string;
 }
+
+export interface GameChatMessage {
+  senderNick: string;
+  gameMessage: string;
+}
