@@ -28,8 +28,18 @@ export default function GamePlayPage() {
     });
 
     return () => {
-      socket.emit("leaveGame", { gameId });
-      socket.off("updateGameInfo");
+      if (gameId) {
+        const userId = Number(localStorage.getItem("userId"));
+
+        // ✅ 페이지 나갈 때 자동으로 `leaveGame` 요청 전송
+        socket.emit("leaveGame", { userId, gameId: Number(gameId) });
+        console.log("🚪 페이지 떠날 때 leaveGame 요청 보냄:", {
+          userId,
+          gameId,
+        });
+
+        socket.off("updateGameInfo");
+      }
     };
   }, [gameId]);
 
