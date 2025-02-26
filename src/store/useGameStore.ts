@@ -6,7 +6,7 @@ interface Player {
   score: number;
   ready: boolean;
   character: string;
-  region: string; // ✅ region 추가 (소켓 응답 데이터와 일치)
+  region: string;
 }
 
 interface GameInfo {
@@ -17,6 +17,13 @@ interface GameInfo {
   maxRound: number;
   currentRound: number | null;
   isAnswerFound: boolean | null;
+  isWaiting: boolean;
+  isLock: boolean;
+  pw: string | null;
+  keywords: string[] | null;
+  currentRoundKeyword: string | null;
+  isNextRoundSettled: boolean | null;
+  isGameEnd: boolean | null;
   players: Player[];
 }
 
