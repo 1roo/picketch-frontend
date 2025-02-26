@@ -35,9 +35,7 @@ export default function Friends({ toggleDmChat }: FriendsProps) {
   return (
     <S.FriendsDiv>
       {/* <p>친구목록</p> */}
-      <S.AddFriend type="button">
-        <FontAwesomeIcon icon={faPlus} size="xs" /> 친구추가
-      </S.AddFriend>
+
       {friends.length > 0 ? (
         friends.map((friend) => (
           <S.FrindDiv key={friend.friendId}>

@@ -167,11 +167,6 @@ export const FriendsDiv = styled.div`
   height: 35%; /* 기존 height 유지 */
   overflow-y: auto; /* 스크롤 활성화 */
 
-  /* p {
-    font-weight: bold;
-    font-size: 23px;
-  } */
-
   div {
     margin: 10px 0;
   }
@@ -230,11 +225,6 @@ export const FrindDiv = styled.div`
       padding: 2px 5px;
     }
   }
-`;
-
-export const AddFriend = styled.button`
-  position: sticky;
-  bottom: 0;
 `;
 
 // ---------------------chatting-----------------------------------
