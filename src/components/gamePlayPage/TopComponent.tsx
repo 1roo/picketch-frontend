@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 interface TopComponentsProps {
   socket: any;
+  gameTitle: string;
 }
 
 const Container = styled.div`
@@ -17,20 +18,6 @@ const Container = styled.div`
   border-radius: 10px;
   flex-wrap: nowrap;
   gap: 5px;
-
-  @media (max-width: 768px) {
-    width: 90%;
-    padding: 8px;
-    gap: 3px;
-  }
-
-  @media (max-width: 540px) {
-    width: 95%;
-    padding: 5px;
-    gap: 2px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
 `;
 
 const RoomTitle = styled.span`
@@ -44,37 +31,6 @@ const RoomTitle = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  @media (max-width: 768px) {
-    font-size: 1em;
-    max-width: 55%;
-  }
-
-  @media (max-width: 540px) {
-    font-size: 0.8em;
-    max-width: 60%;
-  }
-
-  @media (max-width: 400px) {
-    font-size: 0.7em;
-    max-width: 65%;
-  }
-`;
-
-const TimerDisplay = styled.div<{ $isRunning: boolean }>`
-  font-size: 1.2em;
-  font-weight: bold;
-  color: ${(props) => (props.$isRunning ? "#d8ff91" : "#ccc")};
-  min-width: 40px;
-
-  @media (max-width: 768px) {
-    font-size: 1em;
-  }
-
-  @media (max-width: 540px) {
-    font-size: 0.8em;
-    min-width: 30px;
-  }
 `;
 
 const ReadyButton = styled.button<{ $isReady: boolean }>`
@@ -85,30 +41,9 @@ const ReadyButton = styled.button<{ $isReady: boolean }>`
   border: none;
   border-radius: 25px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
   font-size: 0.9em;
   font-weight: bold;
   text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 80px;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  @media (max-width: 768px) {
-    width: 75px;
-    height: 28px;
-    font-size: 0.8em;
-  }
-
-  @media (max-width: 540px) {
-    width: 65px;
-    height: 25px;
-    font-size: 0.7em;
-  }
 `;
 
 const ExitButton = styled.span`
@@ -117,106 +52,42 @@ const ExitButton = styled.span`
   font-weight: bold;
   font-size: 1em;
   transition: color 0.3s ease;
-  min-width: 50px;
-
   &:hover {
     color: #d8ff91;
   }
-
-  @media (max-width: 768px) {
-    font-size: 0.9em;
-    min-width: 40px;
-  }
-
-  @media (max-width: 540px) {
-    font-size: 0.8em;
-    min-width: 35px;
-  }
 `;
 
-export default function TopComponents({ socket }: TopComponentsProps) {
-  const [timeLeft, setTimeLeft] = useState(60);
-  const [isRunning, setIsRunning] = useState(false);
+export default function TopComponents({
+  socket,
+  gameTitle,
+}: TopComponentsProps) {
   const [isReady, setIsReady] = useState(false);
-
-  const [isAllReady, setIsAllReady] = useState<boolean>(false);
   const [managerId, setManagerId] = useState<number | null>(null);
-
   const navigate = useNavigate();
-
   const userId = Number(localStorage.getItem("userId"));
 
   const exitGame = () => {
-    socket.disconnect();
-    navigate(-1);
+    socket.emit("leaveGame");
+    navigate("/game-list-page");
   };
 
   useEffect(() => {
-    const handleUpdateReady = (readyCount: number) => {
-      setIsReady(true);
-    };
-
-
-    const handleStartTimer = () => {
-      setIsRunning(true);
-    };
-
-
-    const handleUpdateGameInfo = (response: any) => {
+    socket.on("updateGameInfo", (response: { data: { managerId: number } }) => {
       setManagerId(response.data.managerId);
-    };
-
-    socket.on("update_ready", handleUpdateReady);
-
-    socket.on("start_timer", handleStartTimer);
-    socket.on("updateGameInfo", handleUpdateGameInfo);
+    });
 
     return () => {
-      socket.off("start_timer", handleStartTimer);
-      socket.off("updateGameInfo", handleUpdateGameInfo);
+      socket.off("updateGameInfo");
     };
   }, [socket]);
 
-  useEffect(() => {
-    if (!isRunning) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(timer);
-          setIsRunning(false);
-          setTimeLeft(60);
-          socket.emit("reset_ready");
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isRunning, socket]);
-
-  const handleReadyToggle = () => {
-
-    if (userId === managerId) {
-      socket.emit("game_start");
-    } else {
-      const newReadyState = !isReady;
-      setIsReady(newReadyState);
-      socket.emit("player_ready", newReadyState);
-    }
-
-
-  };
-
   return (
     <Container>
-      <RoomTitle>방제: 너가 그림을 그렇게 잘 그려?</RoomTitle>
-      <TimerDisplay $isRunning={isRunning}>{`${timeLeft} `}초</TimerDisplay>
-      <ReadyButton $isReady={isReady} onClick={handleReadyToggle}>
-        {isAllReady && userId === managerId ? "START" : "READY"}
+      <RoomTitle>{gameTitle || ""}</RoomTitle>
+      <ReadyButton $isReady={isReady} onClick={() => setIsReady(!isReady)}>
+        {userId === managerId ? "START" : "READY"}
       </ReadyButton>
-      <ExitButton>나가기</ExitButton>
+      <ExitButton onClick={exitGame}>나가기</ExitButton>
     </Container>
   );
 }

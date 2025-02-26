@@ -13,15 +13,17 @@ import socket from "../socket/gameSocket";
 export default function GamePlayPage() {
   const { gameId } = useParams();
   const [users, setUsers] = useState([]);
+  const [gameTitle, setGameTitle] = useState(""); // ✅ 게임 제목 상태 추가
 
   useEffect(() => {
     socket.emit("joinGame", { gameId });
 
-    // ✅ 유저 목록 업데이트 이벤트 수신
+    // ✅ 서버에서 게임 정보 업데이트 받을 때 게임 제목도 저장
     socket.on("updateGameInfo", (response) => {
       console.log("🔥 서버에서 받은 updateGameInfo 응답:", response);
       if (response.type === "SUCCESS") {
-        setUsers(response.data.players); // 유저 목록 업데이트
+        setUsers(response.data.players);
+        setGameTitle(response.data.gameName); // ✅ 게임 제목 저장
       }
     });
 
@@ -33,7 +35,8 @@ export default function GamePlayPage() {
 
   return (
     <PageContainer>
-      <TopComponents socket={socket} />
+      <TopComponents socket={socket} gameTitle={gameTitle} />{" "}
+      {/* ✅ 게임 제목 전달 */}
       <CenterComponents>
         <UserList users={users} />
         <div style={{ display: "flex", flexDirection: "column" }}>
