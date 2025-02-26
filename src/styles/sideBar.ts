@@ -32,7 +32,7 @@ export const AlertDiv = styled.div`
   background-color: #101010;
   border: 1px solid #d8ff91;
   border-radius: 5px;
-   z-index: 9999;
+  z-index: 9999;
 
   &::after {
     content: "";
@@ -164,11 +164,8 @@ export const FriendsDiv = styled.div`
   flex-direction: column;
   color: white;
   font-weight: normal;
-  height: 35%;
-  p {
-    font-weight: bold;
-    font-size: 23px;
-  }
+  height: 35%; /* 기존 height 유지 */
+  overflow-y: auto; /* 스크롤 활성화 */
 
   div {
     margin: 10px 0;
@@ -230,16 +227,20 @@ export const FrindDiv = styled.div`
   }
 `;
 
-export const AddFriend = styled.button`
-  position: absolute;
-  bottom: 0;
-`;
-
 // ---------------------chatting-----------------------------------
 
 export const FriendNick = styled.div`
   background: #101010;
   border-bottom: 1px solid #d8ff91;
+`;
+
+export const CloseButton = styled.button`
+  background-color: #d8ff91;
+  color: black;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  border-radius: 5px;
 `;
 
 export const ChatDiv = styled.div`

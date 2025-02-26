@@ -10,13 +10,16 @@ import socket from "../../socket/dmChatSocket";
 export default function Sidebar() {
   const [isDmOpen, setIsDmOpen] = useState<{ [key: number]: boolean }>({});
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+
   const [isRankOpen, setIsRankOpen] = useState(false);
   const [chatFriendNick, setChatFriendNick] = useState("");
+
 
   const alertRef = useRef<HTMLDivElement>(null);
   const toggleAlerts = () => {
     setIsAlertOpen(!isAlertOpen);
   };
+
   const toggleDmChat = (friendId: number, friendNick: string) => {
     // { "1": true, "2": false, "3": false }
     setIsDmOpen((prev) => {
@@ -33,6 +36,7 @@ export default function Sidebar() {
     socket.emit("joinDm", friendNick);
     setChatFriendNick(friendNick);
     socket.emit("joinDm", friendNick);
+
   };
   useEffect(() => {
     console.log(isDmOpen);
@@ -60,11 +64,12 @@ export default function Sidebar() {
       <div
         style={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
           fontSize: "25px",
           padding: "15px",
         }}
       >
+        <p>친구 목록</p>
         <FontAwesomeIcon
           icon={faBell}
           style={{ cursor: "pointer" }}
@@ -92,6 +97,7 @@ export default function Sidebar() {
       )}
       <Friends toggleDmChat={toggleDmChat} />
       <S.Line>
+
         {/* {isDmOpen && <DmChat friendNick={chatFriendNick} />} */}
         {Object.values(isDmOpen).some((isOpen) => isOpen) ? (
           <DmChat friendNick={chatFriendNick} />
@@ -99,6 +105,7 @@ export default function Sidebar() {
           <Rank />
         )}
         {/* {!isDmOpen && <Rank />} */}
+
       </S.Line>
     </S.Container>
   );

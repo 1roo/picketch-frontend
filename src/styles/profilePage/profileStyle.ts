@@ -233,6 +233,36 @@ export const SaveButton = styled.button`
   }
 `;
 
+export const DeleteButton = styled.button`
+  width: 60%;
+  max-width: 100px;
+  padding: 10px;
+  background: transparent;
+  color: #d8ff91;
+  border: 2px solid #d8ff91;
+  cursor: pointer;
+  margin-top: 40px;
+  border-radius: 5px;
+  font-size: 16px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center; /* 텍스트 가운데 정렬 */
+
+  &:hover {
+    background: red;
+    color: #101010;
+    font-weight: bold;
+    font-size: 16px;
+
+    &::after {
+      content: " 💀";
+      font-size: 20px;
+    }
+  }
+`;
+
 // 유효성 검사
 export const InputContainer = styled.div`
   display: flex;

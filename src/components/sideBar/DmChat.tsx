@@ -3,6 +3,7 @@ import { ChatMessage } from "../../interfaces/chat";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
+
 import socket from "../../socket/dmChatSocket";
 
 interface FriendProps {
@@ -20,6 +21,7 @@ export default function DmChat({ friendNick }: FriendProps) {
   const otherNick = friendNick;
   const [dmRoomId, setDmRoomId] = useState("");
   const [userInfo, setUserInfo] = useState({});
+
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     { senderNick: otherNick, message: "안녕!", timestamp: "02월 14일 14:00" },
@@ -42,6 +44,7 @@ export default function DmChat({ friendNick }: FriendProps) {
   ]);
 
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null); // input 요소를 참조하는 useRef
 
   const getCurrentTimestamp = () => {
     const now = new Date();
@@ -71,6 +74,9 @@ export default function DmChat({ friendNick }: FriendProps) {
     socket.emit("sendDm", newMessage);
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     setInputMessage("");
+    if (inputRef.current) {
+      inputRef.current.focus(); // input 창에 포커스 유지
+    }
   };
 
   useEffect(() => {
@@ -134,6 +140,7 @@ export default function DmChat({ friendNick }: FriendProps) {
 
       <S.ChatInputBox>
         <S.ChatInput
+          ref={inputRef}
           type="text"
           placeholder="채팅 입력"
           value={inputMessage}

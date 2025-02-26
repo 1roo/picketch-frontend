@@ -48,6 +48,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
     setSelectedRegion(regionId);
   };
 
+  // 유효성 검사
   const handleCheckDuplicate = async () => {
     if (!nickName.trim()) {
       setErrorMessage("닉네임을 입력해주세요.");
@@ -94,6 +95,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
     }
   };
 
+  // 저장 핸들러
   const handleSave = async () => {
     if (!userId) {
       alert("로그인이 필요합니다.");
@@ -129,6 +131,27 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
     }
   };
 
+  // 회원 탈퇴
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("정말로 탈퇴하시겠습니까? 😢")) {
+      return;
+    }
+
+    try {
+      await api.delete("/api/user/profile/me"); // 회원 탈퇴 API 호출
+
+      alert("회원 탈퇴가 완료되었습니다.");
+
+      // 인증 상태 초기화 (로그아웃 처리)
+      useAuthStore.getState().setLogout();
+
+      navigate("/"); // 홈페이지 또는 로그인 페이지로 이동
+    } catch (error) {
+      console.error("❌ 회원 탈퇴 실패:", error);
+      alert("회원 탈퇴 중 문제가 발생했습니다. 다시 시도해주세요.");
+    }
+  };
+
   return (
     <P.ProfileWrapper>
       <P.TitleContainer>
@@ -161,6 +184,8 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
       >
         {isChecking ? "검사 중..." : "저장"}
       </P.SaveButton>
+
+      <P.DeleteButton onClick={handleDeleteAccount}>회원 탈퇴</P.DeleteButton>
     </P.ProfileWrapper>
   );
 };
