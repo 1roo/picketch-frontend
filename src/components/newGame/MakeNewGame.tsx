@@ -58,7 +58,7 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
       alert("방이 생성되었습니다!");
 
       // ✅ 방 생성 후 `joinGame` 소켓 요청 보내기
-      socket.emit("joinGame", {
+      socket.emit("managerJoinGame", {
         userId: Number(userId),
         gameId: newGameId,
         inputPw: password || "",
