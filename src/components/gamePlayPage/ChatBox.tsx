@@ -35,7 +35,7 @@ export default function ChatBox({ socket }: ChatBoxProps) {
     if (inputMessage.trim() === "") return;
 
     const newMessage: ChatMessage = {
-      userNick: "홍길동",
+      senderNick: "홍길동",
       message: inputMessage,
     };
     socket.emit("send_message", newMessage);
@@ -51,7 +51,7 @@ export default function ChatBox({ socket }: ChatBoxProps) {
             key={index}
             ref={index === messages.length - 1 ? lastMessageRef : null}
           >
-            <span className="nickname">{msg.userNick}</span>
+            <span className="nickname">{msg.senderNick}</span>
             <span> {msg.message}</span>
           </G.ChatBubble>
         ))}
