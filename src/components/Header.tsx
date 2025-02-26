@@ -5,7 +5,7 @@ import useAuthStore from "../store/useAuthStore";
 const HeaderContainer = styled.header`
   width: 100%;
   height: 60px;
-  background-color: #101010;
+  background-color: #d8ff91;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -23,14 +23,14 @@ const Nav = styled.nav`
 `;
 
 const NavLink = styled(Link)`
-  color: #d8ff91;
+  color: black;
   text-decoration: none;
   font-weight: bold;
 `;
 
 const LogoutButton = styled.button`
   background-color: transparent;
-  color: #d8ff91;
+  color: black;
   padding: 5px 10px;
   border-radius: 5px;
   font-weight: bold;
