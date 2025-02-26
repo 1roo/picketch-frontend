@@ -5,10 +5,13 @@ import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 
-export default function DmChat() {
+interface DmChatProps {
+  otherNick: string | null;
+}
+
+export default function DmChat({ otherNick }: DmChatProps) {
   const [inputMessage, setInputMessage] = useState("");
   const myNick = "홍길동";
-  const otherNick = "친구nick";
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     { userNick: "야야", message: "안녕!", timestamp: "02월 14일 14:00" },

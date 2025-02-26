@@ -164,11 +164,14 @@ export const FriendsDiv = styled.div`
   flex-direction: column;
   color: white;
   font-weight: normal;
-  height: 35%;
-  p {
+  height: 35%; /* 기존 height 유지 */
+  max-height: 200px; /* 친구 목록이 너무 길어지지 않도록 제한 */
+  overflow-y: auto; /* 스크롤 활성화 */
+
+  /* p {
     font-weight: bold;
     font-size: 23px;
-  }
+  } */
 
   div {
     margin: 10px 0;
@@ -231,7 +234,7 @@ export const FrindDiv = styled.div`
 `;
 
 export const AddFriend = styled.button`
-  position: absolute;
+  position: sticky;
   bottom: 0;
 `;
 
