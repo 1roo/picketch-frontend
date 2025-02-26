@@ -6,7 +6,7 @@ import {
   GameListContainer,
   GameRoomsContainer,
 } from "../../styles/gameRoomStyle";
-import MakeNewGame from "../newGame/MakeNewGame"; // ✅ MakeNewGame 가져오기
+import MakeNewGame from "../newGame/MakeNewGame";
 import { useNavigate } from "react-router-dom";
 import socket from "../../socket/gameSocket";
 import api from "../../utils/axios";
@@ -27,7 +27,6 @@ const GameList: React.FC = () => {
     const fetchGameRooms = async () => {
       try {
         const response = await api.get(`/api/game-room`);
-
         console.log("📡 서버에서 받은 게임방 목록:", response.data);
 
         if (!response.data?.data?.waitingRooms) {
@@ -40,9 +39,10 @@ const GameList: React.FC = () => {
             roomId: room.roomId,
             roomName: room.roomName,
             isLock: room.is_lock,
-            playerCount: room.playCount || 1,
+            playerCount: room.playerCount || 1,
           })
         );
+
         console.log("✅ 변환된 게임방 목록:", fetchedRooms);
         setGameRooms(fetchedRooms);
       } catch (error) {
@@ -53,7 +53,11 @@ const GameList: React.FC = () => {
     fetchGameRooms();
   }, []);
 
-  const handleRoomSelect = (gameId: number, isLock: boolean) => {
+  const handleRoomSelect = async (
+    gameId: number,
+    isLock: boolean,
+    roomName: string
+  ) => {
     const inputPw = isLock ? prompt("비밀번호를 입력해주세요") || "" : "";
 
     console.log("🔄 방 입장 요청:", {
@@ -62,22 +66,45 @@ const GameList: React.FC = () => {
       inputPw,
     });
 
+    try {
+      socket.emit("joinGame", { gameId, inputPw });
+
+      socket.on("joinGame", (socketResponse) => {
+        console.log("🎯 소켓 응답:", socketResponse);
+        if (socketResponse.type === "SUCCESS") {
+          navigate(`/game-page/${socketResponse.data.gameId}`, {
+            state: { gameName: roomName }, // ✅ roomName 추가
+          });
+        } else {
+          alert(`방 입장 실패: ${socketResponse.message}`);
+        }
+      });
+    } catch (error) {
+      console.error("❌ 방 입장 중 오류 발생:", error);
+      alert("방 입장 중 오류가 발생했습니다.");
+    }
+  };
+
+  // ✅ 랜덤 입장 함수 추가
+  const handleRandomJoin = () => {
+    const availableRooms = gameRooms.filter((room) => !room.isLock);
+    if (availableRooms.length === 0) {
+      alert("참여 가능한 공개 방이 없습니다!");
+      return;
+    }
+    const randomRoom =
+      availableRooms[Math.floor(Math.random() * availableRooms.length)];
+    console.log("🎲 랜덤 선택된 방:", randomRoom);
+
     socket.emit("joinGame", {
       userId: localStorage.getItem("userId"),
-      gameId,
-      inputPw,
+      gameId: randomRoom.roomId,
+      inputPw: "",
     });
 
     socket.on("joinGame", (response) => {
       console.log("🎯 서버 응답:", response);
       if (response.type === "SUCCESS") {
-        console.log("✅ 게임 입장 성공!", response.data);
-
-        if (!response.data?.gameId) {
-          console.error("❌ gameId가 없습니다!", response.data);
-          alert("방 입장 실패: 서버에서 gameId를 받지 못했습니다.");
-          return;
-        }
         navigate(`/game-page/${response.data.gameId}`, {
           state: response.data,
         });
@@ -91,7 +118,7 @@ const GameList: React.FC = () => {
     <GameListContainer>
       <ButtonContainer>
         <ActionButtons
-          onRandomJoin={() => alert("랜덤참여 클릭!")}
+          onRandomJoin={handleRandomJoin}
           onCreateRoom={() => setShowMakeRoomModal(true)}
         />
       </ButtonContainer>
@@ -100,7 +127,9 @@ const GameList: React.FC = () => {
           <GameRoomBox
             key={room.roomId}
             {...room}
-            onClick={() => handleRoomSelect(room.roomId, room.isLock)}
+            onClick={() =>
+              handleRoomSelect(room.roomId, room.isLock, room.roomName)
+            }
           />
         ))}
       </GameRoomsContainer>
