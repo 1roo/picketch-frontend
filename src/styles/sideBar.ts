@@ -32,7 +32,7 @@ export const AlertDiv = styled.div`
   background-color: #101010;
   border: 1px solid #d8ff91;
   border-radius: 5px;
-   z-index: 9999;
+  z-index: 9999;
 
   &::after {
     content: "";
@@ -240,6 +240,15 @@ export const AddFriend = styled.button`
 export const FriendNick = styled.div`
   background: #101010;
   border-bottom: 1px solid #d8ff91;
+`;
+
+export const CloseButton = styled.button`
+  background-color: #d8ff91;
+  color: black;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  border-radius: 5px;
 `;
 
 export const ChatDiv = styled.div`
