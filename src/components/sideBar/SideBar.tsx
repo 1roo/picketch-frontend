@@ -8,12 +8,16 @@ import Rank from "./Rank";
 import socket from "../../socket/dmChatSocket";
 
 export default function Sidebar() {
-  // const [isDmOpen, setIsDmOpen] = useState<{ [key: number]: boolean }>({});
   const [isDmOpen, setIsDmOpen] = useState(false);
+
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isRankOpen, setIsRankOpen] = useState(false);
   const [chatFriendNick, setChatFriendNick] = useState("");
   const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
+
+  const [isRankOpen, setIsRankOpen] = useState(false);
+  const [chatFriendNick, setChatFriendNick] = useState("");
+
 
   const alertRef = useRef<HTMLDivElement>(null);
   const toggleAlerts = () => {
@@ -32,6 +36,9 @@ export default function Sidebar() {
       socket.emit("joinDm", friendNickname);
     }
   };
+  useEffect(() => {
+    console.log(isDmOpen);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -55,11 +62,12 @@ export default function Sidebar() {
       <div
         style={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
           fontSize: "25px",
           padding: "15px",
         }}
       >
+        <p>친구 목록</p>
         <FontAwesomeIcon
           icon={faBell}
           style={{ cursor: "pointer" }}
@@ -92,6 +100,7 @@ export default function Sidebar() {
         ) : (
           <Rank />
         )}
+
       </S.Line>
     </S.Container>
   );
