@@ -74,7 +74,7 @@ export default function Sidebar() {
       <Friends toggleDmChat={toggleDmChat} />
       <S.Line>
         {isDmOpen && <DmChat />}
-        <Rank />;
+        <Rank />
       </S.Line>
     </S.Container>
   );

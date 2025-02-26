@@ -1,19 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CharacterSelectorBox from "../profilePage/CharacterSelectorBox";
 import RegionSelector from "../profilePage/RegionSelector";
 import NicknameInput from "./NickNameInput";
 import * as P from "../../styles/profilePage/profileStyle";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/axios";
+import useAuthStore from "../../store/useAuthStore";
 
 interface ProfileEditorProps {
-  isSetupMode: boolean; // 회원가입 모드 여부
+  isSetupMode: boolean;
 }
 
 const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
-  const [selectedCharacter, setSelectedCharacter] = useState(
-    "/images/chicken.png"
-  );
+  const { userId } = useAuthStore();
+  const [selectedCharacter, setSelectedCharacter] = useState<string>("");
   const [selectedRegion, setSelectedRegion] = useState<number>(1);
   const [nickName, setNickName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -21,12 +21,33 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
   const [isChecking, setIsChecking] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        if (!userId) return;
+
+        const response = await api.get(`/api/user/profile/me`);
+        console.log("✅ 유저 정보:", response.data);
+
+        setNickName(response.data.data.nickname || "");
+        setIsAvailable(true);
+        setSelectedCharacter(
+          response.data.data.character ?? "/images/chicken.png"
+        );
+        setSelectedRegion(response.data.data.regionId || 1);
+      } catch (error) {
+        console.error("❌ 유저 정보 불러오기 실패:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, [userId]);
+
   const handleRegionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const regionId = parseInt(event.target.value);
     setSelectedRegion(regionId);
   };
 
-  // 닉네임 중복 검사 (DB와 비교)
   const handleCheckDuplicate = async () => {
     if (!nickName.trim()) {
       setErrorMessage("닉네임을 입력해주세요.");
@@ -59,34 +80,22 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
       setIsAvailable(true);
       setErrorMessage("");
     } catch (error) {
-      if (api.isAxiosError(error)) {
-        if (error.response?.status === 400) {
-          console.log("❌ 닉네임 중복");
-          setIsAvailable(false);
-          setErrorMessage("이미 사용 중인 닉네임입니다.");
-        } else {
-          setErrorMessage(`서버 오류 발생 (${error.response?.status})`);
-          setIsAvailable(false);
-          alert(
-            "세션이 만료되었거나 오류가 발생했습니다. 다시 로그인해주세요."
-          );
-          navigate("/");
-        }
-      } else {
-        setErrorMessage("🚨 알 수 없는 오류가 발생했습니다.");
+      if (api.isAxiosError(error) && error.response?.status === 400) {
+        console.log("❌ 닉네임 중복");
         setIsAvailable(false);
+        setErrorMessage("이미 사용 중인 닉네임입니다.");
+      } else {
+        setErrorMessage("서버 오류 발생. 다시 로그인해주세요.");
+        setIsAvailable(false);
+        navigate("/");
       }
     } finally {
       setIsChecking(false);
     }
   };
 
-  // 저장 핸들러
   const handleSave = async () => {
-    const token = localStorage.getItem("accessToken");
-
-    if (!token) {
-      console.error("❌ accessToken이 없습니다.");
+    if (!userId) {
       alert("로그인이 필요합니다.");
       navigate("/");
       return;
@@ -102,13 +111,6 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
       regionId: selectedRegion,
       character: selectedCharacter,
     };
-
-    console.log(
-      "📡 요청 URL:",
-      `${process.env.REACT_APP_API_BASE_URL}/api/user/profile`
-    );
-    console.log("📡 요청 데이터:", userData);
-    console.log("📡 요청 헤더 - Authorization:", `Bearer ${token}`);
 
     try {
       const response = await api.post(`/api/user/profile`, userData, {
@@ -133,13 +135,11 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
         <P.Title>{isSetupMode ? "추가 정보" : "프로필 수정"}</P.Title>
       </P.TitleContainer>
 
-      {/* 캐릭터 선택 */}
       <CharacterSelectorBox
         selectedCharacter={selectedCharacter}
         onSelectCharacter={setSelectedCharacter}
       />
 
-      {/* 닉네임 입력 */}
       <NicknameInput
         nickName={nickName}
         setNickName={setNickName}
@@ -148,7 +148,6 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
         handleCheckDuplicate={handleCheckDuplicate}
       />
 
-      {/* 지역 선택  (회원가입 안 된 경우에만 보이도록) */}
       {isSetupMode && (
         <RegionSelector
           selectedRegion={selectedRegion}
@@ -156,7 +155,6 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
         />
       )}
 
-      {/* 저장 버튼 (닉네임 중복 확인 통과 시 활성화) */}
       <P.SaveButton
         onClick={handleSave}
         disabled={isAvailable === false || isChecking}
