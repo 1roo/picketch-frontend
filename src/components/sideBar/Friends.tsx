@@ -6,7 +6,7 @@ import api from "../../utils/axios";
 import DmChat from "./DmChat";
 
 interface FriendsProps {
-  toggleDmChat: (friendId: number, friendNickname: string) => void;
+  toggleDmChat: (friendNickname: string) => void;
 }
 interface Friend {
   friendId: number;
@@ -39,9 +39,8 @@ export default function Friends({ toggleDmChat }: FriendsProps) {
             <div style={{ display: "flex", alignItems: "center" }}>
               <button
                 type="button"
-                key={friend.friendId}
                 onClick={() => {
-                  toggleDmChat(friend.friendId, friend.friendNickname);
+                  toggleDmChat(friend.friendNickname);
                 }}
               >
                 DM
