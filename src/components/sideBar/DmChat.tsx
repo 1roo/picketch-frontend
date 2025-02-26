@@ -26,20 +26,12 @@ export default function DmChat({ friendNick }: FriendNick) {
   // 시간 가져오기
   const getCurrentTimestamp = () => {
     const now = new Date();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
     return `${month}월 ${day}일 ${hours}:${minutes}`;
   };
-  // const getMessage = () => {
-  //   const newMessage: ChatMessage = {
-  //     senderNick: myNick,
-  //     message: inputMessage,
-  //     timestamp: getCurrentTimestamp(),
-  //   };
-  //   setMessages((prevMessages) => [...prevMessages, newMessage]);
-  // };
 
   // 친구 선택 시 상대 닉네임 변경
   useEffect(() => {
@@ -83,8 +75,7 @@ export default function DmChat({ friendNick }: FriendNick) {
 
   // 메세지 보내기
   const sendMessage = () => {
-
-    if (inputMessage.trim() === '') return;
+    if (inputMessage.trim() === "") return;
 
     const newMessage: ChatMessage = {
       senderNick: myNick,
@@ -111,7 +102,6 @@ export default function DmChat({ friendNick }: FriendNick) {
       chatBox.scrollTop = chatBox.scrollHeight;
     }
     const messageHandler = (data: reciveMsgData) => {
-
       const newMessage = [
         ...messages,
         {
@@ -130,14 +120,13 @@ export default function DmChat({ friendNick }: FriendNick) {
   }, [messages]);
 
   useEffect(() => {
-    socket.on('error', (errmsg) => {
+    socket.on("error", (errmsg) => {
       alert(errmsg);
     });
 
-    socket.on('updateDmRoomInfo', (dmData) => {
+    socket.on("updateDmRoomInfo", (dmData) => {
       console.log(dmData.prevChat);
       setMessages(dmData.prevChat);
-      setDmRoomId(dmData.dmRoomId);
       setUserInfo(dmData.chatUserInfo);
     });
   }, []);
@@ -169,16 +158,15 @@ export default function DmChat({ friendNick }: FriendNick) {
       <S.ChatInputBox>
         <S.ChatInput
           ref={inputRef}
-          type='text'
-          placeholder='채팅 입력'
+          type="text"
+          placeholder="채팅 입력"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyDown={enterTodo}
-
         />
         <FontAwesomeIcon
           icon={faPaperPlane}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
           onClick={sendMessage}
         />
       </S.ChatInputBox>

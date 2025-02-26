@@ -11,13 +11,7 @@ export default function Sidebar() {
   const [isDmOpen, setIsDmOpen] = useState(false);
 
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [isRankOpen, setIsRankOpen] = useState(false);
-  const [chatFriendNick, setChatFriendNick] = useState("");
   const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
-
-  const [isRankOpen, setIsRankOpen] = useState(false);
-  const [chatFriendNick, setChatFriendNick] = useState("");
-
 
   const alertRef = useRef<HTMLDivElement>(null);
   const toggleAlerts = () => {
@@ -100,7 +94,6 @@ export default function Sidebar() {
         ) : (
           <Rank />
         )}
-
       </S.Line>
     </S.Container>
   );
