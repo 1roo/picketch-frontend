@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import socket from "../../socket/gameSocket"; // ✅ 소켓 가져오기
+import socket from "../../socket/gameSocket"; // ✅ 소켓 추가
 import api from "../../utils/axios";
 
 interface MakeNewGameProps {
@@ -21,8 +21,8 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
   };
 
   const handleCreateGame = async () => {
-    const accessToken = localStorage.getItem("accessToken");
     const userId = localStorage.getItem("userId");
+
     if (!userId) {
       alert("로그인이 필요합니다.");
       return;
@@ -36,38 +36,38 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
     };
 
     try {
+      // ✅ 방 생성 요청
       const response = await api.post(`/api/game-room`, gameData, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
       });
 
-      const newGameId = response.data.gameId;
-      console.log("방 생성 성공:", response.data);
+      console.log("📡 서버 응답 데이터:", response.data);
+
+      // ✅ gameId 확인
+      let newGameId = response.data.data?.gameId;
+
+      if (!newGameId || typeof newGameId !== "number") {
+        console.error("❌ 서버에서 gameId를 받지 못함:", response.data);
+        alert("방 생성 실패: 서버에서 gameId를 받지 못했습니다.");
+        return;
+      }
+
+      console.log("✅ 방 생성 성공, gameId:", newGameId);
       alert("방이 생성되었습니다!");
 
-      // ✅ 방장이 자동으로 게임방 입장
-      socket.emit("joinGame", {
-        userId,
+      // ✅ 방 생성 후 `joinGame` 소켓 요청 보내기
+      socket.emit("managerJoinGame", {
+        userId: Number(userId),
         gameId: newGameId,
         inputPw: password || "",
       });
 
-      socket.on("joinGame", (joinResponse) => {
-        if (joinResponse.type === "SUCCESS") {
-          navigate(`/game-page/${newGameId}`, {
-            state: joinResponse.data,
-          });
-        } else {
-          alert(`방 입장 실패: ${joinResponse.message}`);
-        }
-      });
-
-      // ✅ 방 생성 후 모달 닫기
-      onClose();
+      // ✅ 게임 페이지로 이동
+      navigate(`/game-page/${newGameId}`);
     } catch (error) {
-      console.error("방 생성 오류:", error);
+      console.error("❌ 방 생성 오류:", error);
       alert("방 생성에 실패했습니다.");
     }
   };
@@ -149,7 +149,6 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
 
 /* ======= Styled Components ======= */
 
-/* 전체 화면을 감싸는 배경 */
 const Wrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -159,7 +158,6 @@ const Wrapper = styled.div`
   background-color: rgba(21, 21, 21, 0.5);
 `;
 
-/* 방 생성 UI 컨테이너 */
 const Container = styled.div`
   position: relative;
   width: 50vw;
@@ -176,7 +174,6 @@ const Container = styled.div`
   color: #101010;
 `;
 
-/* 제목 스타일 */
 const Title = styled.p`
   font-weight: 700;
   font-size: 1.2em;
@@ -184,7 +181,6 @@ const Title = styled.p`
   text-align: center;
 `;
 
-/* 공통 Input 박스 */
 const InputWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -198,21 +194,15 @@ const InputWrapper = styled.div`
     padding: 3px;
   }
 `;
+
 const LockInputWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin: 10px 0;
   width: 100%;
-
-  input {
-    border: 1px solid #101010;
-    border-radius: 5px;
-    padding: 3px;
-  }
 `;
 
-/* 잠금 & 비밀번호 그룹 */
 const LockContainer = styled.div`
   display: flex;
   align-items: center;
@@ -220,7 +210,6 @@ const LockContainer = styled.div`
   margin-left: 10px;
 `;
 
-/* 자물쇠 아이콘 & 체크박스 */
 const LockGroup = styled.div`
   display: flex;
   align-items: center;
@@ -237,7 +226,6 @@ const LockCheckBox = styled.input`
   cursor: pointer;
 `;
 
-/* 비밀번호 입력 필드 */
 const PasswordContainer = styled.div`
   display: flex;
   align-items: center;
@@ -251,7 +239,6 @@ const PasswordInput = styled.input`
   border-radius: 5px;
 `;
 
-/* 턴 수 선택 영역 */
 const Radios = styled.div`
   display: flex;
   align-items: center;
@@ -266,7 +253,6 @@ const Radios = styled.div`
   }
 `;
 
-/* 버튼 컨테이너 */
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -274,7 +260,6 @@ const ButtonContainer = styled.div`
   margin-top: 20px;
 `;
 
-/* 버튼 스타일 */
 const Button = styled.button<{ type: "make" | "cancel" }>`
   padding: 5px 20px;
   border-radius: 5px;

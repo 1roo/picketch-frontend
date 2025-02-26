@@ -19,7 +19,8 @@ export default function LoginPage() {
 }
 
 function LoginPageContent() {
-  const { setAccessToken, setRefreshToken, setLogin } = useAuthStore();
+  const { setAccessToken, setRefreshToken, setLogin, setUserId } =
+    useAuthStore();
   const navigate = useNavigate();
   /*
    * 1. 구글 로그인
@@ -28,6 +29,8 @@ function LoginPageContent() {
   const googleLogin = useGoogleLogin({
     flow: "implicit",
     onSuccess: async (response) => {
+      console.log("구글로그인응답: ", response);
+
       if (!response.access_token) {
         console.error("Access Token 없음");
         return;
@@ -44,10 +47,13 @@ function LoginPageContent() {
           }
         );
 
+        console.log("백엔드 응답: ", data);
+
         if (data.code === "SU") {
-          setAccessToken(data.data.accessToken);
-          setRefreshToken(data.data.refreshToken);
-          console.log(data.data);
+          setAccessToken(data.data.data.accessToken);
+          setRefreshToken(data.data.data.refreshToken);
+          setUserId(data.data.data.userId);
+          console.log(data.data.data);
 
           setLogin();
 

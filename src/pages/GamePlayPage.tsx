@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import ChatBox from "../components/gamePlayPage/ChatBox";
 import GameDrawing from "../components/gamePlayPage/GameDrawing";
 import TopComponents from "../components/gamePlayPage/TopComponent";
@@ -12,28 +12,40 @@ import socket from "../socket/gameSocket";
 
 export default function GamePlayPage() {
   const { gameId } = useParams();
+  const location = useLocation();
   const [users, setUsers] = useState([]);
+  const [gameTitle, setGameTitle] = useState(
+    location.state?.gameName || "게임 제목 없음"
+  );
 
   useEffect(() => {
-    socket.emit("joinGame", { gameId });
-
-    // ✅ 유저 목록 업데이트 이벤트 수신
     socket.on("updateGameInfo", (response) => {
       console.log("🔥 서버에서 받은 updateGameInfo 응답:", response);
       if (response.type === "SUCCESS") {
-        setUsers(response.data.players); // 유저 목록 업데이트
+        setUsers(response.data.players);
+        setGameTitle(response.data.gameName);
       }
     });
 
     return () => {
-      socket.emit("leaveGame", { gameId });
-      socket.off("updateGameInfo");
+      if (gameId) {
+        const userId = Number(localStorage.getItem("userId"));
+
+        // ✅ 페이지 나갈 때 자동으로 `leaveGame` 요청 전송
+        socket.emit("leaveGame", { userId, gameId: Number(gameId) });
+        console.log("🚪 페이지 떠날 때 leaveGame 요청 보냄:", {
+          userId,
+          gameId,
+        });
+
+        socket.off("updateGameInfo");
+      }
     };
   }, [gameId]);
 
   return (
     <PageContainer>
-      <TopComponents socket={socket} />
+      <TopComponents socket={socket} gameTitle={gameTitle} />
       <CenterComponents>
         <UserList users={users} />
         <div style={{ display: "flex", flexDirection: "column" }}>
