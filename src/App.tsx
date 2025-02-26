@@ -49,7 +49,7 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
         .then((data) => {
           console.log(`${provider} 로그인 성공!`, data);
 
-          const userData = data.data;
+          const userData = data.data?.data || data.data;
 
           if (data.code === "SU") {
             setAccessToken(userData.accessToken);
