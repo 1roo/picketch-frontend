@@ -50,7 +50,12 @@ const GameList: React.FC = () => {
       }
     };
 
+    // 최초 데이터 불러오기
     fetchGameRooms();
+    // 3초마다 게임방 목록 갱신
+    const interval = setInterval(fetchGameRooms, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleRoomSelect = async (
