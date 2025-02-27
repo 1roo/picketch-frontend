@@ -87,7 +87,17 @@ export default function TopComponents({
   const navigate = useNavigate();
   const { gameId } = useParams(); // ✅ 현재 게임 ID 가져오기
   const userId = Number(localStorage.getItem('userId'));
-
+  console.log(
+    '임시',
+    gameTitle,
+    managerId,
+    keyword,
+    currentRound,
+    maxRound,
+    currentTurnUserId,
+    isGameEnd,
+    isStartGame
+  );
   const handleReady = () => {
     const newReadyState = !isReady;
     setIsReady(newReadyState);
@@ -117,6 +127,8 @@ export default function TopComponents({
       console.warn('🚨 gameId가 존재하지 않습니다!');
       return;
     }
+    socket.emit('leaveGame', { gameId });
+    socket.disconnect();
     navigate('/');
   };
   console.log('유저아이디', userId);

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Stage, Layer, Line, Rect } from 'react-konva';
 import * as G from '../../styles/gameplayPage/gameplayPageStyle';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 interface DrawData {
   type: string;
@@ -100,6 +101,7 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
   const [isDrawing, setIsDrawing] = useState(false); // 마우스 버튼 상태 추가
   const [currentLine, setCurrentLine] = useState<LineData | null>(null); // 현재 그리려는 선
   const [isNewLine, setIsNewLine] = useState(true);
+  const navigate = useNavigate();
   useEffect(() => {
     // 클라이언트에서 서버로부터 그림 그리기 이벤트 수신
     // 클라이언트에서 서버로부터 그림 그리기 이벤트 수신
@@ -140,34 +142,37 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
       }
     });
 
-    socket.on('startGame', (data: any) => {
-      // alert(
-      //   `다음 라운드 시작. ${
-      //     data.data.keyword ? data.data.keyword : "턴 순서가 아닙니다."
-      //   }`
-      // );
-    });
+    // socket.on('startGame', (data: any) => {
+    //   // alert(
+    //   //   `다음 라운드 시작. ${
+    //   //     data.data.keyword ? data.data.keyword : "턴 순서가 아닙니다."
+    //   //   }`
+    //   // );
+    // });
 
-    socket.on('endRound', () => {
+    socket.on('endRound', (response: any) => {
       setLines([]); // 화면 지우기
-      socket.emit('nextTurn');
-    });
-
-    socket.on('nextTurn', (data: any) => {
-      // alert(
-      //   `다음 라운드 시작. ${
-      //     data.data.keyword ? data.data.keyword : "턴 순서가 아닙니다."
-      //   }`
-      // );
-      if (data.type === 'ERROR') {
-        socket.emit('endGame');
+      if (response.type === 'SUCCESS') {
+        socket.emit('nextTurn');
       }
     });
 
+    // socket.on('nextTurn', (data: any) => {
+    //   // alert(
+    //   //   `다음 라운드 시작. ${
+    //   //     data.data.keyword ? data.data.keyword : "턴 순서가 아닙니다."
+    //   //   }`
+    //   // );
+    //   if (data.type === 'ERROR') {
+    //     socket.emit('endGame');
+    //   }
+    // });
+
     socket.on('endGame', (data: any) => {
       if (data.type === 'SUCCESS') {
-        alert('게임 종료되었습니다.');
+        // alert('게임 종료되었습니다.');
         setLines([]); // 화면 지우기
+        navigate('/game-list-page');
       }
     });
 

@@ -54,7 +54,7 @@ export default function GamePlayPage() {
   const userId = localStorage.getItem('userId');
   // const isManager = localStorage.getItem('isManager');
   const isManager = localStorage.getItem('isManager');
-
+  console.log('매니저아이디는', managerId);
   // 소켓 연결: useRef를 사용하여 한 번만 연결되도록 설정
   useEffect(() => {
     if (!socketRef.current) {
@@ -72,7 +72,7 @@ export default function GamePlayPage() {
         if (data && data.data) {
           setUsers(data.data.players || []);
           setGameTitle(data.data.gameName);
-          setKeyword(data.data.keyword);
+          // setKeyword(data.data.keyword);
           setCurrentRound(data.data.currentRound);
           setMaxRound(data.data.maxRound);
           setIsGameEnd(data.data.gameEnd);
@@ -103,12 +103,14 @@ export default function GamePlayPage() {
         console.error('❌ 소켓 연결 실패:', err);
       });
       newSocket.on('joinGame', (response: any) => {
-        if (response.data.type === 'SUCCESS') {
+        console.log('🔥 joinGame 이벤트 수신:', response);
+        if (response.type === 'SUCCESS') {
           newSocket.emit('updateGameInfo');
         }
       });
       newSocket.on('managerJoinGame', (response: any) => {
-        if (response.data.type === 'SUCCESS') {
+        console.log('🔥 managerJoinGame 이벤트 수신:', response);
+        if (response.type === 'SUCCESS') {
           newSocket.emit('updateGameInfo');
         }
       });
@@ -116,11 +118,18 @@ export default function GamePlayPage() {
         if (response.type === 'SUCCESS') {
           setKeyword(response.data.keyword);
           setIsStartGame(true);
+          if (isManager === 'true') {
+            console.log('넥스트턴 실행');
+            newSocket.emit('nextTurn');
+            //nextTurn 보내면서 타이머 시작 요청 or 자동으로 타이머 시작
+          }
         }
       });
 
       newSocket.on('nextTurn', (response: any) => {
+        console.log('🔥 넥스트턴 응답', response);
         if (response.type === 'SUCCESS') {
+          console.log('키워드는', response.data.keyword);
           setKeyword(response.data.keyword);
         }
 
@@ -129,10 +138,19 @@ export default function GamePlayPage() {
         }
       });
 
+      newSocket.on('updateTimer', (response: any) => {
+        console.log('🔥 updateTimer 응답', response);
+      });
+
       return () => {
         console.log('🚪 게임 페이지 떠날 때 소켓 연결 해제');
-        newSocket.emit('leaveGame', { gameId });
+        // newSocket.emit('leaveGame', { gameId });
         newSocket.disconnect();
+        newSocket.off('updateGameInfo');
+        newSocket.off('joinGame');
+        newSocket.off('managerJoinGame');
+        newSocket.off('startGame');
+        newSocket.off('nextTurn');
       };
     }
   }, [gameId]);
