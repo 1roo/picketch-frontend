@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
+import { io, Socket } from 'socket.io-client';
 import ChatBox from '../components/gamePlayPage/ChatBox';
 import GameDrawing from '../components/gamePlayPage/GameDrawing';
 import TopComponents from '../components/gamePlayPage/TopComponent';
@@ -9,11 +10,11 @@ import {
   CenterComponents,
 } from '../styles/gameplayPage/gameplayPageStyle';
 import socket from '../socket/gameSocket';
-
 export default function GamePlayPage() {
   const { gameId } = useParams();
-  const location = useLocation();
   const [users, setUsers] = useState([]);
+  const location = useLocation();
+
   const [gameTitle, setGameTitle] = useState(
     location.state?.gameName || '게임 제목 없음'
   );
@@ -51,9 +52,6 @@ export default function GamePlayPage() {
         setCurrentTurnUserId(response.data.currentTurnUserId);
         setIsGameEnd(response.data.isGameEnd);
       }
-    });
-    socket.on('endRound', (response) => {
-      console.log('🔥 서버에서 받은 endRound 응답:', response);
     });
 
     socket.on('startGame', (response: any) => {
@@ -109,11 +107,18 @@ export default function GamePlayPage() {
         isGameEnd={isGameEnd}
         isStartGame={isStartGame}
       />
+
       <CenterComponents>
         <UserList users={users} />
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <GameDrawing socket={socket} />
-          <ChatBox socket={socket} />
+          {socket ? (
+            <>
+              <GameDrawing socket={socket} />
+              <ChatBox socket={socket} />
+            </>
+          ) : (
+            <p>소켓 연결 중...</p>
+          )}
         </div>
       </CenterComponents>
     </PageContainer>

@@ -1,115 +1,132 @@
-import * as S from '../../styles/sideBar';
-import { ChatMessage } from '../../interfaces/chat';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
-import { useEffect, useRef, useState } from 'react';
+import * as S from "../../styles/sideBar";
+import {
+  ChatMessage,
+  DmData,
+  FriendNick,
+  Msg,
+  reciveMsgData,
+  UserInfo,
+} from "../../interfaces/chat";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useRef, useState } from "react";
+import socket from "../../socket/dmChatSocket";
 
-import socket from '../../socket/dmChatSocket';
-
-interface FriendProps {
-  friendNick: string;
-}
-interface MsgData {
-  dmRoomId: number;
-  from: string;
-  message: string;
-}
-export default function DmChat({ friendNick }: FriendProps) {
-  console.log(friendNick);
-  const [inputMessage, setInputMessage] = useState('');
-  const myNick = '홍길동';
-  const otherNick = friendNick;
-  const [dmRoomId, setDmRoomId] = useState('');
-  const [userInfo, setUserInfo] = useState({});
-
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { senderNick: otherNick, message: '안녕!', timestamp: '02월 14일 14:00' },
-    {
-      senderNick: myNick,
-      message: '반가워!',
-      timestamp: '02월 14일 14:01',
-    },
-    {
-      senderNick: otherNick,
-      message: 'DM 테스트 중이야',
-      timestamp: '02월 14일 14:02',
-    },
-    {
-      senderNick: myNick,
-      message: '잘 나오네!',
-      timestamp: '02월 14일 14:03',
-    },
-    { senderNick: otherNick, message: '좋아!', timestamp: '02월 14일 14:04' },
-  ]);
+export default function DmChat({ friendNick }: FriendNick) {
+  const userId = Number(localStorage.getItem("userId"));
+  const [inputMessage, setInputMessage] = useState("");
+  const [userInfo, setUserInfo] = useState<UserInfo>({});
+  const [otherNick, setOtherNick] = useState(friendNick);
+  const [myNick, setMyNick] = useState(userInfo[userId]?.nickname);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null); // input 요소를 참조하는 useRef
 
+  // 시간 가져오기
   const getCurrentTimestamp = () => {
     const now = new Date();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
     return `${month}월 ${day}일 ${hours}:${minutes}`;
   };
-  // const getMessage = () => {
-  //   const newMessage: ChatMessage = {
-  //     senderNick: myNick,
-  //     message: inputMessage,
-  //     timestamp: getCurrentTimestamp(),
-  //   };
-  //   setMessages((prevMessages) => [...prevMessages, newMessage]);
-  // };
 
+  // 친구 선택 시 상대 닉네임 변경
+  useEffect(() => {
+    setOtherNick(friendNick);
+    return () => {
+      // 친구 변경 시 exitDm, 기존 친구와의 메세지 삭제
+      socket.emit("exitDm", friendNick);
+      setMessages([]);
+    };
+  }, [friendNick]);
+
+  // myNick 가져오기
+  useEffect(() => {
+    setMyNick(userInfo[userId]?.nickname);
+  }, [userInfo]);
+
+  // 이전 대화내용,
+  useEffect(() => {
+    socket.on("error", (errmsg) => {
+      alert(errmsg);
+    });
+    const updateHandler = (dmData: DmData) => {
+      const { prevChat } = dmData;
+      console.log(prevChat);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        ...prevChat.map((msg: Msg) => ({
+          senderNick: Number(msg.sender_id) === userId ? "me" : otherNick,
+          message: msg.message,
+          timestamp: msg.timestamp,
+        })),
+      ]);
+      setUserInfo(dmData.chatUserInfo);
+      setMyNick(userInfo[userId]?.nickname);
+    };
+    socket.on("updateDmRoomInfo", updateHandler);
+    return () => {
+      socket.off("updateDmRoomInfo", updateHandler);
+    };
+  }, [friendNick, messages]);
+
+  // 메세지 보내기
   const sendMessage = () => {
-    if (inputMessage.trim() === '') return;
+    if (inputMessage.trim() === "") return;
 
     const newMessage: ChatMessage = {
       senderNick: myNick,
       message: inputMessage,
       timestamp: getCurrentTimestamp(),
     };
-    socket.emit('sendDm', newMessage);
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-    setInputMessage('');
+    console.log(newMessage);
+    socket.emit("sendDm", newMessage);
+    setInputMessage("");
     if (inputRef.current) {
       inputRef.current.focus(); // input 창에 포커스 유지
     }
   };
+  const enterTodo = (e: React.KeyboardEvent) => {
+    // 한글 두 번 추가 방지
+    if (e.nativeEvent.isComposing) return;
+    if (e.key === "Enter") sendMessage();
+  };
 
+  // 메세지 받기
   useEffect(() => {
     if (chatContainerRef.current) {
       const chatBox = chatContainerRef.current;
       chatBox.scrollTop = chatBox.scrollHeight;
     }
-    // 추가
-    const messageHandler = (data: MsgData) => {
+    const messageHandler = (data: reciveMsgData) => {
       const newMessage = [
         ...messages,
         {
           senderNick: data.from,
           message: data.message,
-          timestamp: getCurrentTimestamp(),
+          timestamp: data.timestamp,
         },
       ];
+      setMessages(newMessage);
     };
-    socket.on('receiveDm', messageHandler);
+    socket.on("receiveDm", messageHandler);
 
     return () => {
-      socket.off('receiveDm', messageHandler);
+      socket.off("receiveDm", messageHandler);
     };
   }, [messages]);
 
   useEffect(() => {
-    socket.on('error', (errmsg) => {
+    socket.on("error", (errmsg) => {
       alert(errmsg);
     });
 
-    socket.on('updateDmRoomInfo', (dmData) => {
+    socket.on("updateDmRoomInfo", (dmData) => {
       console.log(dmData.prevChat);
       setMessages(dmData.prevChat);
-      setDmRoomId(dmData.dmRoomId);
       setUserInfo(dmData.chatUserInfo);
     });
   }, []);
@@ -118,12 +135,13 @@ export default function DmChat({ friendNick }: FriendProps) {
     <S.ChatDiv>
       <S.FriendNick>{otherNick}</S.FriendNick>
       <S.ChatContainer ref={chatContainerRef}>
-        {messages.map((msg) => {
-          const isMyMessage = msg.senderNick === myNick; // ✅ 변수로 선언하여 가독성 향상
+        {messages.map((msg, index) => {
+          const isMyMessage =
+            msg.senderNick === myNick || msg.senderNick === "me"; // ✅ 변수로 선언하여 가독성 향상
 
           return (
             <S.ChatMessageWrapper
-              key={msg.senderNick}
+              key={`${msg.timestamp}-${index}`}
               isMyMessage={isMyMessage}
             >
               <S.ChatBubble isMyMessage={isMyMessage}>
@@ -140,15 +158,15 @@ export default function DmChat({ friendNick }: FriendProps) {
       <S.ChatInputBox>
         <S.ChatInput
           ref={inputRef}
-          type='text'
-          placeholder='채팅 입력'
+          type="text"
+          placeholder="채팅 입력"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+          onKeyDown={enterTodo}
         />
         <FontAwesomeIcon
           icon={faPaperPlane}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
           onClick={sendMessage}
         />
       </S.ChatInputBox>

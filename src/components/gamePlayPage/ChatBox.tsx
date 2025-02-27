@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
 import * as G from '../../styles/gameplayPage/gameplayPageStyle';
-import { ChatMessage, GameChatMessage } from '../../interfaces/chat';
+import { GameChatMessage } from '../../interfaces/chat';
 
 interface ChatBoxProps {
   socket: any;
@@ -14,12 +14,18 @@ export default function ChatBox({ socket }: ChatBoxProps) {
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    socket.on('gameMessage', (newMessage: GameChatMessage) => {
+    if (!socket) return; // socket이 null이면 실행하지 않음
+
+    const messageHandler = (newMessage: GameChatMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-    });
+    };
+
+    socket.on('gameMessage', messageHandler);
 
     return () => {
-      socket.off('gameMessage');
+      if (socket) {
+        socket.off('gameMessage', messageHandler);
+      }
     };
   }, [socket]);
 
@@ -32,12 +38,13 @@ export default function ChatBox({ socket }: ChatBoxProps) {
   }, [messages]);
 
   const sendMessage = () => {
-    if (inputMessage.trim() === '') return;
+    if (inputMessage.trim() === '' || !socket) return;
 
     const newMessage: GameChatMessage = {
       senderNick: '홍길동',
       gameMessage: inputMessage,
     };
+
     socket.emit('gameMessage', newMessage);
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     setInputMessage('');
@@ -51,15 +58,15 @@ export default function ChatBox({ socket }: ChatBoxProps) {
             key={index}
             ref={index === messages.length - 1 ? lastMessageRef : null}
           >
-            <span className='nickname'>{msg.senderNick}</span>
+            <span className="nickname">{msg.senderNick}</span>
             <span> {msg.gameMessage}</span>
           </G.ChatBubble>
         ))}
       </G.ChatMessageWrapper>
       <G.InputDiv>
         <input
-          type='text'
-          placeholder='채팅 입력'
+          type="text"
+          placeholder="채팅 입력"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && sendMessage()}

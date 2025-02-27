@@ -17,7 +17,7 @@ interface LineData {
 interface GameDrawingProps {
   socket: any;
 }
-// 🎨 팔레트 & 도구 스타일
+
 const ControlsContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -25,11 +25,11 @@ const ControlsContainer = styled.div`
   gap: 8px;
   margin-top: 10px;
   z-index: 10;
-
   @media (max-width: 768px) {
     gap: 5px;
   }
 `;
+
 const PaletteContainer = styled.div`
   display: flex;
   gap: 10px;
@@ -38,19 +38,17 @@ const PaletteContainer = styled.div`
   justify-content: center;
   align-items: center;
   padding-bottom: 120px;
-
   @media (max-width: 1024px) {
     padding-bottom: 0px;
   }
-
   @media (max-width: 768px) {
     padding-bottom: 0px;
   }
-
   @media (max-width: 480px) {
     padding-bottom: 0px;
   }
 `;
+
 const PaletteColor = styled.button<{ color: string; $isSelected: boolean }>`
   width: 30px;
   height: 30px;
@@ -60,7 +58,6 @@ const PaletteColor = styled.button<{ color: string; $isSelected: boolean }>`
     props.$isSelected ? '3px solid black' : '1px solid #ccc'};
   cursor: pointer;
   transition: transform 0.2s ease;
-
   &:hover {
     transform: scale(1.1);
   }
@@ -68,18 +65,17 @@ const PaletteColor = styled.button<{ color: string; $isSelected: boolean }>`
     width: 24px;
     height: 24px;
   }
-
   @media (max-width: 480px) {
     width: 18px;
     height: 18px;
   }
 `;
+
 const ClearButton = styled.img`
   width: 35px;
   height: 35px;
   cursor: pointer;
   transition: transform 0.2s ease;
-
   &:hover {
     transform: scale(1.1);
   }
@@ -87,7 +83,6 @@ const ClearButton = styled.img`
     width: 28px;
     height: 28px;
   }
-
   @media (max-width: 480px) {
     width: 22px;
     height: 22px;
@@ -101,6 +96,7 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
     width: Math.max(460, window.innerWidth * 0.5),
     height: Math.max(306, (window.innerWidth * 0.5) / 1.5),
   });
+
   const [isDrawing, setIsDrawing] = useState(false); // 마우스 버튼 상태 추가
   const [currentLine, setCurrentLine] = useState<LineData | null>(null); // 현재 그리려는 선
   const [isNewLine, setIsNewLine] = useState(true);
@@ -176,11 +172,14 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
     });
 
     return () => {
-      socket.off('drawCanvas');
-      socket.off('clearCanvas');
-      socket.off('endGame');
-      socket.off('nextTurn');
-      socket.off('endRound');
+      if (socket) {
+        socket.off('drawCanvas');
+        socket.off('clearCanvas');
+        socket.off('startGame');
+        socket.off('endRound');
+        socket.off('nextTurn');
+        socket.off('endGame');
+      }
     };
   }, [socket]);
 
@@ -224,7 +223,7 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
 
   // 화면 지우기 버튼 클릭 시
   const handlerClear = () => {
-    socket.emit('clearCanvas');
+    if (socket) socket.emit('clearCanvas');
   };
 
   return (
@@ -248,9 +247,6 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
               points={line.points}
               stroke={line.color}
               strokeWidth={3}
-              tension={0.5}
-              lineCap='round'
-              lineJoin='round'
             />
           ))}
           {/* 현재 그리는 선 */}
@@ -287,7 +283,7 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
               key={color}
               color={color}
               $isSelected={selectedColor === color}
-              onClick={() => setSelectedColor(color)} // 색상 선택 시 선택된 색상으로 변경
+              onClick={() => setSelectedColor(color)}
             />
           ))}
           <ClearButton

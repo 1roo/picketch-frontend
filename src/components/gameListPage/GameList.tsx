@@ -85,13 +85,14 @@ const GameList: React.FC = () => {
     }
   };
 
-  // ✅ 랜덤 입장 함수 추가
   const handleRandomJoin = () => {
     const availableRooms = gameRooms.filter((room) => !room.isLock);
+
     if (availableRooms.length === 0) {
       alert('참여 가능한 공개 방이 없습니다!');
       return;
     }
+
     const randomRoom =
       availableRooms[Math.floor(Math.random() * availableRooms.length)];
     console.log('🎲 랜덤 선택된 방:', randomRoom);
