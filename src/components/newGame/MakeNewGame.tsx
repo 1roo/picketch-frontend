@@ -1,7 +1,7 @@
 import { useState } from "react";
-import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import socket from "../../socket/gameSocket"; // ✅ 소켓 추가
+import styled from "styled-components";
+import { io } from "socket.io-client";
 import api from "../../utils/axios";
 
 interface MakeNewGameProps {
@@ -9,10 +9,10 @@ interface MakeNewGameProps {
 }
 
 export default function MakeNewGame({ onClose }: MakeNewGameProps) {
-  const [isLocked, setIsLocked] = useState(false);
   const [roomName, setRoomName] = useState("");
   const [turns, setTurns] = useState<number>(1);
   const [password, setPassword] = useState("");
+  const [isLocked, setIsLocked] = useState(false);
   const navigate = useNavigate();
 
   const handleLockChange = () => {
@@ -22,50 +22,51 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
 
   const handleCreateGame = async () => {
     const userId = localStorage.getItem("userId");
-
     if (!userId) {
       alert("로그인이 필요합니다.");
       return;
     }
-
+    // 백엔드에서 요구하는 필드명으로 수정 (예: gameName, is_lock, password, round)
     const gameData = {
       roomName,
       round: turns,
-      isLock: isLocked,
-      pw: isLocked ? password : null,
+      is_lock: isLocked,
+      password: isLocked ? password : null,
     };
-
     try {
-      // ✅ 방 생성 요청
-      const response = await api.post(`/api/game-room`, gameData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      console.log("📡 서버 응답 데이터:", response.data);
-
-      // ✅ gameId 확인
-      let newGameId = response.data.data?.gameId;
-
-      if (!newGameId || typeof newGameId !== "number") {
-        console.error("❌ 서버에서 gameId를 받지 못함:", response.data);
-        alert("방 생성 실패: 서버에서 gameId를 받지 못했습니다.");
+      // 방 생성 요청
+      const response = await api.post(`/api/game-room`, gameData);
+      const newGameId = response.data.data?.gameId;
+if(response.data.code==='SU'){
+  navigate(`/game-page/${newGameId}`);
+}
+      if (!newGameId) {
+        alert("방 생성 실패: gameId를 받지 못했습니다.");
         return;
       }
 
+      localStorage.setItem('manager', 'true');
       console.log("✅ 방 생성 성공, gameId:", newGameId);
-      alert("방이 생성되었습니다!");
 
-      // ✅ 방 생성 후 `joinGame` 소켓 요청 보내기
-      socket.emit("managerJoinGame", {
-        userId: Number(userId),
+      // 생성된 방에 자동 입장 (POST /api/game-room/join)
+      const joinResponse = await api.post(`/api/game-room/join`, {
         gameId: newGameId,
         inputPw: password || "",
       });
 
-      // ✅ 게임 페이지로 이동
-      navigate(`/game-page/${newGameId}`);
+      if (joinResponse.data.code !== "SU") {
+        alert(`방 입장 실패: ${joinResponse.data.message}`);
+        return;
+      }
+
+      console.log("✅ 방 입장 성공, 소켓 연결 시도");
+
+
+      
+        
+
+
+      
     } catch (error) {
       console.error("❌ 방 생성 오류:", error);
       alert("방 생성에 실패했습니다.");
