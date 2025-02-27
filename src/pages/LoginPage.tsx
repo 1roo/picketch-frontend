@@ -53,6 +53,7 @@ function LoginPageContent() {
           setAccessToken(data.data.accessToken);
           setRefreshToken(data.data.refreshToken);
           setUserId(data.data.userId);
+          localStorage.setItem("isManager", "false");
           console.log(data.data);
 
           setLogin();
