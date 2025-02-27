@@ -11,7 +11,7 @@ interface TopComponentsProps {
   maxRound: number;
   currentTurnUserId: number | undefined;
   isGameEnd: boolean;
-  isStartGame: boolean;
+  isGameStart: boolean;
   remainingTime: number | undefined;
   isNextRoundSettled: boolean;
 }
@@ -83,7 +83,7 @@ export default function TopComponents({
   maxRound,
   currentTurnUserId,
   isGameEnd,
-  isStartGame,
+  isGameStart,
   remainingTime,
   isNextRoundSettled,
 }: TopComponentsProps) {
@@ -91,17 +91,7 @@ export default function TopComponents({
   const navigate = useNavigate();
   const { gameId } = useParams(); // ✅ 현재 게임 ID 가져오기
   const userId = Number(localStorage.getItem('userId'));
-  console.log(
-    '임시',
-    gameTitle,
-    managerId,
-    keyword,
-    currentRound,
-    maxRound,
-    currentTurnUserId,
-    isGameEnd,
-    isStartGame
-  );
+  console.log('임시', isGameStart);
   const handleReady = () => {
     const newReadyState = !isReady;
     setIsReady(newReadyState);
@@ -142,11 +132,11 @@ export default function TopComponents({
       {maxRound && `${currentRound} / ${maxRound} 라운드`}
       <RoomTitle>방제: {gameTitle || '게임 제목 없음'}</RoomTitle>
       {isNextRoundSettled && remainingTime}
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       {keyword && userId === currentTurnUserId
-        ? `정답 키워드는 ${keyword ? keyword : ''}`
+        ? `키워드는       ' ${keyword ? keyword : ''}`
         : ''}
-
-      {!isStartGame && (
+      {!isGameStart && (
         <ReadyButton
           $isReady={isReady}
           onClick={managerId === userId ? handleStart : handleReady}
@@ -154,7 +144,7 @@ export default function TopComponents({
           {managerId === userId ? 'START' : 'READY'}
         </ReadyButton>
       )}
-      {isStartGame && isGameEnd && '모든 라운드 종료'}
+      {isGameStart && isGameEnd && '모든 라운드 종료'}
       <ExitButton onClick={handleLeaveGame}>나가기</ExitButton>
     </Container>
   );
