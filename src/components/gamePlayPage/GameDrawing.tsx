@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 import { Stage, Layer, Line, Rect } from 'react-konva';
 import * as G from '../../styles/gameplayPage/gameplayPageStyle';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
 
 interface DrawData {
-  data: { x: number; y: number; brushColor: string };
+  type: string;
+  data: { x: number; y: number; brushColor: string; newLine: string };
 }
 
 interface LineData {
@@ -102,112 +102,127 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
     height: Math.max(306, (window.innerWidth * 0.5) / 1.5),
   });
   const [isDrawing, setIsDrawing] = useState(false); // 마우스 버튼 상태 추가
-  const navigate = useNavigate();
-
+  const [currentLine, setCurrentLine] = useState<LineData | null>(null); // 현재 그리려는 선
+  const [isNewLine, setIsNewLine] = useState(true);
   useEffect(() => {
     // 클라이언트에서 서버로부터 그림 그리기 이벤트 수신
+    // 클라이언트에서 서버로부터 그림 그리기 이벤트 수신
     socket.on('drawCanvas', (data: DrawData) => {
-      console.log(data.data.x, data.data.y); // 데이터 확인
-      console.log(data); // 데이터 확인
-      setLines((prevLines) => {
-        const lastLine =
-          prevLines.length > 0 ? prevLines[prevLines.length - 1] : null;
-        console.log('셋라인안');
-        if (lastLine && lastLine.color === data.data.brushColor) {
-          // 마지막 선과 같은 색상일 경우, 기존 객체 수정하면 안 됨 -> 새로운 객체를 반환해야 함
-          return [
-            ...prevLines.slice(0, -1),
-            {
-              ...lastLine,
-              points: [...lastLine.points, data.data.x, data.data.y],
-            },
-          ];
+      console.log('drawCanvas응답은', data);
+      console.log('drawCanvas응답은', data.type);
+      if (data.type === 'SUCCESS') {
+        // data.newLine을 확인하여 새 선을 시작해야 하는지 결정
+        if (data.data.newLine) {
+          // 새로운 선 시작
+          setLines((prevLines) => [
+            ...prevLines,
+            { points: [data.data.x, data.data.y], color: data.data.brushColor },
+          ]);
+        } else {
+          // 기존 선에 점 추가
+          setLines((prevLines) => {
+            const lastLine =
+              prevLines.length > 0 ? prevLines[prevLines.length - 1] : null;
+            if (lastLine) {
+              return [
+                ...prevLines.slice(0, -1),
+                {
+                  ...lastLine,
+                  points: [...lastLine.points, data.data.x, data.data.y],
+                },
+              ];
+            }
+            return prevLines;
+          });
         }
-        console.log('라인 업데이트');
-        return [
-          ...prevLines,
-          { points: [data.data.x, data.data.y], color: data.data.brushColor },
-        ];
-      });
+      }
     });
 
     socket.on('clearCanvas', (data: any) => {
       if (data.type === 'SUCCESS') {
-        console.log('지우기 success응답받음');
         setLines([]); // 화면 지우기
       }
     });
 
+    socket.on('startGame', (data: any) => {
+      alert(
+        `다음 라운드 시작. ${
+          data.data.keyword ? data.data.keyword : '턴 순서가 아닙니다.'
+        }`
+      );
+    });
+
     socket.on('endRound', () => {
-      // 라운드 종료시
       setLines([]); // 화면 지우기
       socket.emit('nextTurn');
     });
 
-    // socket.on('startGame', (data: any) => {
-    //   alert(
-    //     `다음 라운드 시작. ${
-    //       data.data.keyword ? data.data.keyword : '턴 순서가 아닙니다.'
-    //     }`
-    //   );
-    //   console.log('다음턴 시작시 키워드정보', data);
-    // });
-
-    // socket.on('nextTurn', (data: any) => {
-    //   //다음턴 시작시 키워드 정보 받음
-    //   alert(
-    //     `다음 라운드 시작. ${
-    //       data.data.keyword ? data.data.keyword : '턴 순서가 아닙니다.'
-    //     }`
-    //   );
-    //   console.log('다음턴 시작시 키워드정보', data);
-
-    //   //만약 마지막 라운드일 경우에는 endGame 이벤트 emit 하기
-    //   if (data.type === 'ERROR') {
-    //     socket.emit('endGame');
-    //   }
-    // });
+    socket.on('nextTurn', (data: any) => {
+      alert(
+        `다음 라운드 시작. ${
+          data.data.keyword ? data.data.keyword : '턴 순서가 아닙니다.'
+        }`
+      );
+      if (data.type === 'ERROR') {
+        socket.emit('endGame');
+      }
+    });
 
     socket.on('endGame', (data: any) => {
-      console.log('게임종료 요청의 응답', data);
       if (data.type === 'SUCCESS') {
-        alert('게임종료되었습니다.');
+        alert('게임 종료되었습니다.');
         setLines([]); // 화면 지우기
-        navigate('/game-list-page');
-        console.log('게임 종료 처리 완료');
       }
     });
 
     return () => {
       socket.off('drawCanvas');
       socket.off('clearCanvas');
+      socket.off('endGame');
+      socket.off('nextTurn');
+      socket.off('endRound');
     };
   }, [socket]);
 
+  // 마우스를 눌렀을 때 드로잉 시작
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    setIsDrawing(true); // 마우스 버튼 눌렸을 때 드로잉 시작
+    setIsDrawing(true);
+    setIsNewLine(true); // 새로운 선 시작
+    setCurrentLine({ points: [], color: selectedColor });
   };
 
+  // 마우스를 뗐을 때 드로잉 종료
   const handleMouseUp = () => {
-    setIsDrawing(false); // 마우스 버튼 뗐을 때 드로잉 종료
+    setIsDrawing(false);
+    if (currentLine && currentLine.points.length > 0) {
+      setLines((prevLines) => [...prevLines, currentLine]);
+    }
+    setCurrentLine(null); // 새로운 선을 시작할 준비
   };
 
+  // 마우스를 움직일 때 그리는 선에 점 추가
   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (!isDrawing) return; // 드로잉 중일 때만 emit 이벤트 발생
+    if (!isDrawing || !currentLine) return;
 
     const stage = e.target.getStage();
     if (!stage) return;
     const point = stage.getPointerPosition();
     if (!point) return;
 
-    // 마우스 이동 시 서버로 그림 그리기 데이터 전송
+    // 서버로 그림 그리기 데이터 전송
     socket.emit('drawCanvas', {
       x: point.x,
       y: point.y,
       brushColor: selectedColor,
+      newLine: isNewLine,
     });
+
+    if (isNewLine) {
+      setIsNewLine(false);
+    }
   };
 
+  // 화면 지우기 버튼 클릭 시
   const handlerClear = () => {
     socket.emit('clearCanvas');
   };
@@ -230,11 +245,25 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
           {lines.map((line, i) => (
             <Line
               key={i}
-              points={line.points} // 선을 그릴 좌표 데이터
-              stroke={line.color} // 선 색상
-              strokeWidth={3} // 선 두께
+              points={line.points}
+              stroke={line.color}
+              strokeWidth={3}
+              tension={0.5}
+              lineCap='round'
+              lineJoin='round'
             />
           ))}
+          {/* 현재 그리는 선 */}
+          {currentLine && currentLine.points.length > 0 && (
+            <Line
+              points={currentLine.points}
+              stroke={currentLine.color}
+              strokeWidth={3}
+              tension={0.5}
+              lineCap='round'
+              lineJoin='round'
+            />
+          )}
         </Layer>
       </Stage>
 
@@ -264,7 +293,6 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
           <ClearButton
             src='/images/eraser.png'
             alt='Clear'
-            // onClick={() => setLines([])} // 화면 지우기
             onClick={handlerClear} // 화면 지우기
           />
         </PaletteContainer>

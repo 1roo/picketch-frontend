@@ -73,6 +73,7 @@ export default function TopComponents({
   maxRound,
   currentTurnUserId,
   isGameEnd,
+  isStartGame,
 }: TopComponentsProps) {
   const [isReady, setIsReady] = useState(false);
   const navigate = useNavigate();
@@ -119,13 +120,15 @@ export default function TopComponents({
       {keyword && userId === currentTurnUserId
         ? `정답 키워드는 ${keyword ? keyword : ''}`
         : ''}
-      <ReadyButton
-        $isReady={isReady}
-        onClick={managerId === userId ? handleStart : handleReady}
-      >
-        {!isGameEnd && (managerId === userId ? 'START' : 'READY')}
-        {isGameEnd && '모든 라운드 종료'}
-      </ReadyButton>
+      {!isStartGame && (
+        <ReadyButton
+          $isReady={isReady}
+          onClick={managerId === userId ? handleStart : handleReady}
+        >
+          {managerId === userId ? 'START' : 'READY'}
+        </ReadyButton>
+      )}
+      {isStartGame && isGameEnd && '모든 라운드 종료'}
       <ExitButton onClick={handleLeaveGame}>나가기</ExitButton>
     </Container>
   );
