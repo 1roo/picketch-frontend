@@ -34,6 +34,7 @@ export default function ChatBox({ socket }: ChatBoxProps) {
   const sendMessage = () => {
     if (inputMessage.trim() === '') return;
 
+
     const newMessage: GameChatMessage = {
       senderNick: '홍길동',
       gameMessage: inputMessage,
