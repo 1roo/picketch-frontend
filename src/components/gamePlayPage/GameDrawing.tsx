@@ -147,8 +147,16 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
       if (response.type === 'SUCCESS') {
         if (isManager === 'true') {
           console.log('클라에서 엔드라운드 요청');
-          socket.emit('nextTurn');
           socket.emit('endTimer');
+          // socket.emit('nextTurn');
+        }
+      }
+    });
+    socket.on('endTimer', (response: any) => {
+      if (response?.type === 'SUCCESS') {
+        console.log('✅ endTimer:', response);
+        if (isManager === 'true') {
+          socket.emit('nextTurn');
         }
       }
     });

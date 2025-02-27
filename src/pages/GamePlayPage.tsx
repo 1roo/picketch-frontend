@@ -23,7 +23,7 @@ export default function GamePlayPage() {
   const [currentRound, setCurrentRound] = useState<number>(0);
   const [maxRound, setMaxRound] = useState<number>(0);
   const [isGameEnd, setIsGameEnd] = useState<boolean>(false);
-  const [isStartGame, setIsStartGame] = useState<boolean>(false);
+  const [isGameStart, setIsGameStart] = useState<boolean>(false);
   const [isNextRoundSettled, setIsNextRoundSettled] = useState<boolean>(false);
   const [currentTurnUserId, setCurrentTurnUserId] = useState<
     number | undefined
@@ -80,7 +80,7 @@ export default function GamePlayPage() {
           setCurrentRound(data.data.currentRound);
           setMaxRound(data.data.maxRound);
           setIsGameEnd(data.data.gameEnd);
-          setIsStartGame(data.data.isStartGame);
+          setIsGameStart(data.data.isGameStart);
           setCurrentTurnUserId(data.data.currentTurnUserId);
           setManagerId(data.data.managerId);
           setIsNextRoundSettled(data.data.isNextRoundSettled);
@@ -122,7 +122,7 @@ export default function GamePlayPage() {
       newSocket.on('startGame', (response: any) => {
         if (response.type === 'SUCCESS') {
           setKeyword(response.data.keyword);
-          setIsStartGame(true);
+          setIsGameStart(true);
           if (isManager === 'true') {
             console.log('넥스트턴 실행');
             newSocket.emit('nextTurn');
@@ -182,7 +182,7 @@ export default function GamePlayPage() {
         maxRound={maxRound}
         currentTurnUserId={currentTurnUserId}
         isGameEnd={isGameEnd}
-        isStartGame={isStartGame}
+        isGameStart={isGameStart}
         remainingTime={remainingTime}
         isNextRoundSettled={isNextRoundSettled}
       />
