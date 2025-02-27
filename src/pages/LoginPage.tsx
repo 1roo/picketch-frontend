@@ -83,7 +83,7 @@ function LoginPageContent() {
 
   const handleKakaoLogin = () => {
     console.log("✅ 카카오 로그인 시작!");
-    window.location.href = kakaoLoginUrl;
+    navigate(kakaoLoginUrl);
   };
   /*
    *  3. 네이버 로그인
@@ -99,7 +99,7 @@ function LoginPageContent() {
     console.log("✅ 네이버 로그인 시작!");
     console.log("네이버 uri???", naverLoginUrl);
 
-    window.location.href = naverLoginUrl;
+    navigate(naverLoginUrl);
   };
 
   return (
