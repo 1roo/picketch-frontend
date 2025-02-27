@@ -142,11 +142,11 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
     });
 
     socket.on("startGame", (data: any) => {
-      alert(
-        `다음 라운드 시작. ${
-          data.data.keyword ? data.data.keyword : "턴 순서가 아닙니다."
-        }`
-      );
+      // alert(
+      //   `다음 라운드 시작. ${
+      //     data.data.keyword ? data.data.keyword : "턴 순서가 아닙니다."
+      //   }`
+      // );
     });
 
     socket.on("endRound", () => {
@@ -155,11 +155,11 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
     });
 
     socket.on("nextTurn", (data: any) => {
-      alert(
-        `다음 라운드 시작. ${
-          data.data.keyword ? data.data.keyword : "턴 순서가 아닙니다."
-        }`
-      );
+      // alert(
+      //   `다음 라운드 시작. ${
+      //     data.data.keyword ? data.data.keyword : "턴 순서가 아닙니다."
+      //   }`
+      // );
       if (data.type === "ERROR") {
         socket.emit("endGame");
       }

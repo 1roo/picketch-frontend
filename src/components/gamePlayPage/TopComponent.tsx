@@ -129,7 +129,7 @@ export default function TopComponents({
       console.warn("🚨 gameId가 존재하지 않습니다!");
       return;
     }
-    navigate(-1);
+    navigate("/");
   };
   console.log("유저아이디", userId);
   console.log("매니저 아이디", managerId);
