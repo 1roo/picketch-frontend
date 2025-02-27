@@ -14,27 +14,35 @@ interface AlertProps {
 }
 
 export default function Sidebar() {
-  const [isDmOpen, setIsDmOpen] = useState(false);
-
+  const [isDmOpen, setIsDmOpen] = useState<{ [key: number]: boolean }>({});
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
+
+  const [isRankOpen, setIsRankOpen] = useState(false);
+  const [chatFriendNick, setChatFriendNick] = useState("");
+
 
   const alertRef = useRef<HTMLDivElement>(null);
   const toggleAlerts = () => {
     setIsAlertOpen(!isAlertOpen);
   };
 
-  const toggleDmChat = (friendNickname: string) => {
-    if (isDmOpen && selectedFriend === friendNickname) {
-      // 현재 열려 있는 채팅이 동일한 친구라면 닫기
-      setIsDmOpen(false);
-      setSelectedFriend(null);
-    } else {
-      // 다른 친구라면 새로운 채팅 열기
-      setIsDmOpen(true);
-      setSelectedFriend(friendNickname);
-      socket.emit("joinDm", friendNickname);
-    }
+  const toggleDmChat = (friendId: number, friendNick: string) => {
+    // { "1": true, "2": false, "3": false }
+    setIsDmOpen((prev) => {
+      const isCurrentlyOpen: boolean = prev[friendId]; // 현재 상태 확인
+      return {
+        ...Object.keys(prev).reduce((acc, key) => {
+          acc[key] = false; // 모든 버튼을 false로 초기화
+          return acc;
+        }, {} as { [key: string]: boolean }),
+        [String(friendId)]: !isCurrentlyOpen, // 클릭한 버튼만 true로 설정
+      };
+    });
+    setChatFriendNick(friendNick);
+    socket.emit("joinDm", friendNick);
+    setChatFriendNick(friendNick);
+    socket.emit("joinDm", friendNick);
+
   };
   useEffect(() => {
     console.log(isDmOpen);
@@ -62,11 +70,15 @@ export default function Sidebar() {
 
       <Friends toggleDmChat={toggleDmChat} />
       <S.Line>
-        {isDmOpen && selectedFriend ? (
-          <DmChat friendNick={selectedFriend} />
+
+        {/* {isDmOpen && <DmChat friendNick={chatFriendNick} />} */}
+        {Object.values(isDmOpen).some((isOpen) => isOpen) ? (
+          <DmChat friendNick={chatFriendNick} />
         ) : (
           <Rank />
         )}
+        {/* {!isDmOpen && <Rank />} */}
+
       </S.Line>
     </S.Container>
   );

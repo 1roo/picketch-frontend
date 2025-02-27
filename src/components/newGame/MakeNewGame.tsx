@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import socket from "../../socket/gameSocket"; // ✅ 소켓 추가
@@ -13,6 +13,7 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
   const [roomName, setRoomName] = useState("");
   const [turns, setTurns] = useState<number>(1);
   const [password, setPassword] = useState("");
+  const [newGameId, setNewGameId] = useState();
   const navigate = useNavigate();
 
   const handleLockChange = () => {
@@ -43,11 +44,11 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
         },
       });
 
-      console.log("📡 서버 응답 데이터:", response.data);
+      console.log("📡 서버 응답 데이터:", response.data.data);
 
       // ✅ gameId 확인
       let newGameId = response.data.data?.gameId;
-
+      setNewGameId(response.data.data?.gameId);
       if (!newGameId || typeof newGameId !== "number") {
         console.error("❌ 서버에서 gameId를 받지 못함:", response.data);
         alert("방 생성 실패: 서버에서 gameId를 받지 못했습니다.");
@@ -65,12 +66,27 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
       });
 
       // ✅ 게임 페이지로 이동
-      navigate(`/game-page/${newGameId}`);
+      // navigate(`/game-page/${newGameId}`);
     } catch (error) {
       console.error("❌ 방 생성 오류:", error);
       alert("방 생성에 실패했습니다.");
     }
   };
+
+  useEffect(() => {
+    console.log("useeect실행");
+    socket.on("managerJoinGame", (response: any) => {
+      console.log("magager 참가 응답은", response);
+      if (response.type === "SUCCESS") {
+        // ✅ 게임 페이지로 이동
+        console.log("게임페이지 이동");
+        navigate(`/game-page/${newGameId}`);
+      }
+    });
+    return () => {
+      socket.off("managerJoinGame");
+    };
+  }, [newGameId, navigate]);
 
   return (
     <Wrapper>

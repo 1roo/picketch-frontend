@@ -13,13 +13,20 @@ interface ProfileEditorProps {
 
 const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
   const { userId } = useAuthStore();
-  const [selectedCharacter, setSelectedCharacter] = useState<string>("");
+  const [selectedCharacter, setSelectedCharacter] = useState<string>(
+    "/images/chicken.png"
+  );
   const [selectedRegion, setSelectedRegion] = useState<number>(1);
   const [nickName, setNickName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [isChecking, setIsChecking] = useState(false);
   const navigate = useNavigate();
+
+  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    event.preventDefault();
+    event.returnValue = "";
+  };
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -29,10 +36,18 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
         const response = await api.get(`/api/user/profile/me`);
         console.log("✅ 유저 정보:", response.data);
 
-        setNickName(response.data.data.nickname || "");
-        setIsAvailable(true);
+        const nicknameFromResponse = response.data.data.nickname || "";
+        if (nicknameFromResponse.startsWith("T")) {
+          setNickName("");
+          setIsAvailable(false);
+        } else {
+          setNickName(nicknameFromResponse);
+          setIsAvailable(true);
+        }
         setSelectedCharacter(
-          response.data.data.character ?? "/images/chicken.png"
+          response.data.data.character === "default_character.png"
+            ? "/images/chicken.png"
+            : response.data.data.character
         );
         setSelectedRegion(response.data.data.regionId || 1);
       } catch (error) {
@@ -83,8 +98,8 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
     } catch (error) {
       if (api.isAxiosError(error) && error.response?.status === 400) {
         console.log("❌ 닉네임 중복");
-        setIsAvailable(false);
         setErrorMessage("이미 사용 중인 닉네임입니다.");
+        setIsAvailable(false);
       } else {
         setErrorMessage("서버 오류 발생. 다시 로그인해주세요.");
         setIsAvailable(false);
@@ -102,10 +117,16 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
       navigate("/");
       return;
     }
-
-    if (isSetupMode && (!nickName || isAvailable === false)) {
-      setErrorMessage("닉네임을 확인해주세요.");
+    if (!nickName.trim()) {
+      alert("닉네임을 입력하세요");
       return;
+    }
+
+    if (isSetupMode) {
+      if (!nickName || isAvailable === false) {
+        setErrorMessage("닉네임 중복 검사를 완료해주세요.");
+        return;
+      }
     }
 
     const userData = {
@@ -115,11 +136,13 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
     };
 
     try {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
       const response = await api.post(`/api/user/profile`, userData, {
         headers: {
           "Content-Type": "application/json",
         },
       });
+      console.log("유저데이타: ", userData);
 
       console.log("✅ 프로필 저장 성공:", response.data);
       alert("프로필이 저장되었습니다!");
@@ -128,6 +151,8 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
       console.error("❌ 프로필 저장 실패:", error);
       alert("프로필 저장에 실패했습니다. 다시 로그인해주세요.");
       navigate("/");
+    } finally {
+      window.addEventListener("beforeunload", handleBeforeUnload);
     }
   };
 
@@ -178,10 +203,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
         />
       )}
 
-      <P.SaveButton
-        onClick={handleSave}
-        disabled={isAvailable === false || isChecking}
-      >
+      <P.SaveButton onClick={handleSave} disabled={isChecking}>
         {isChecking ? "검사 중..." : "저장"}
       </P.SaveButton>
 

@@ -10,7 +10,7 @@ interface NicknameInputProps {
 }
 
 const NicknameInput: React.FC<NicknameInputProps> = ({
-  nickName,
+  nickName = "",
   setNickName,
   errorMessage,
   isAvailable,
