@@ -23,6 +23,11 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
   const [isChecking, setIsChecking] = useState(false);
   const navigate = useNavigate();
 
+  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    event.preventDefault();
+    event.returnValue = "";
+  };
+
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
@@ -131,6 +136,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
     };
 
     try {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
       const response = await api.post(`/api/user/profile`, userData, {
         headers: {
           "Content-Type": "application/json",
@@ -145,6 +151,8 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isSetupMode }) => {
       console.error("❌ 프로필 저장 실패:", error);
       alert("프로필 저장에 실패했습니다. 다시 로그인해주세요.");
       navigate("/");
+    } finally {
+      window.addEventListener("beforeunload", handleBeforeUnload);
     }
   };
 
