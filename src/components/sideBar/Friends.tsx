@@ -106,29 +106,25 @@ export default function Friends({ toggleDmChat }: FriendsProps) {
         return;
       }
 
-      // 이미 소켓이 연결되어 있다면 중복 연결 방지
       if (socketRef.current && socketConnected) {
         console.log('이미 소켓이 연결되어 있습니다.');
         return;
       }
 
-      // 기존 연결이 있으면 정리
       if (socketRef.current) {
         console.log('기존 소켓 연결 해제');
         socketRef.current.disconnect();
         setSocketConnected(false);
       }
 
-      // query 매개변수 설정
       const options = {
         path: '/socket.io',
         transports: ['websocket'],
         query: {
-          userId: parseInt(currentUserId, 10), // 문자열을 숫자로 변환
+          userId: parseInt(currentUserId, 10),
           nickname,
-          token, // 인증 토큰 추가
+          token,
         },
-        // 재연결 관련 설정
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
