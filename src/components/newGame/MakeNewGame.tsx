@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
-import socket from "../../socket/gameSocket"; // ✅ 소켓 추가
-import api from "../../utils/axios";
+import { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
+import socket from '../../socket/gameSocket'; // ✅ 소켓 추가
+import api from '../../utils/axios';
 
 interface MakeNewGameProps {
   onClose: () => void;
@@ -10,22 +10,22 @@ interface MakeNewGameProps {
 
 export default function MakeNewGame({ onClose }: MakeNewGameProps) {
   const [isLocked, setIsLocked] = useState(false);
-  const [roomName, setRoomName] = useState("");
+  const [roomName, setRoomName] = useState('');
   const [turns, setTurns] = useState<number>(1);
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState('');
   const [newGameId, setNewGameId] = useState();
   const navigate = useNavigate();
 
   const handleLockChange = () => {
     setIsLocked((prev) => !prev);
-    if (!isLocked) setPassword("");
+    if (!isLocked) setPassword('');
   };
 
   const handleCreateGame = async () => {
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem('userId');
 
     if (!userId) {
-      alert("로그인이 필요합니다.");
+      alert('로그인이 필요합니다.');
       return;
     }
 
@@ -40,32 +40,61 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
       // ✅ 방 생성 요청
       const response = await api.post(`/api/game-room`, gameData, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
-      console.log("📡 서버 응답 데이터:", response.data.data);
+      console.log('📡 서버 응답 데이터:', response.data.data);
 
       // ✅ gameId 확인
       let newGameId = response.data.data?.gameId;
       setNewGameId(response.data.data?.gameId);
-      if (!newGameId || typeof newGameId !== "number") {
-        console.error("❌ 서버에서 gameId를 받지 못함:", response.data);
-        alert("방 생성 실패: 서버에서 gameId를 받지 못했습니다.");
+      if (!newGameId || typeof newGameId !== 'number') {
+        console.error('❌ 서버에서 gameId를 받지 못함:', response.data);
+        alert('방 생성 실패: 서버에서 gameId를 받지 못했습니다.');
         return;
       }
 
-      console.log("✅ 방 생성 성공, gameId:", newGameId);
-      localStorage.setItem("isManager", "true");
-      alert("방이 생성되었습니다!");
+      console.log('✅ 방 생성 성공, gameId:', newGameId);
+      alert('방이 생성되었습니다!');
+      localStorage.setItem('isManager', 'true');
+      const responseJoin = await api.post(`/api/game`, {
+        gameId: newGameId,
+        inputPw: password,
+        userId: Number(userId), // userId 추가
+      });
+      if (responseJoin.data.code === 'SU') {
+        // ✅ 방 생성 후 `joinGame` 소켓 요청 보내기
+        // socket.emit('managerJoinGame', {
+        //   userId: Number(userId),
+        //   gameId: newGameId,
+        //   inputPw: password || '',
+        // });
+
+        navigate(`/game-page/${newGameId}`);
+      }
 
       // ✅ 게임 페이지로 이동
-      navigate(`/game-page/${newGameId}`);
     } catch (error) {
-      console.error("❌ 방 생성 오류:", error);
-      alert("방 생성에 실패했습니다.");
+      console.error('❌ 방 생성 오류:', error);
+      alert('방 생성에 실패했습니다.');
     }
   };
+
+  useEffect(() => {
+    console.log('useeect실행');
+    socket.on('managerJoinGame', (response: any) => {
+      console.log('magager 참가 응답은', response);
+      if (response.type === 'SUCCESS') {
+        // ✅ 게임 페이지로 이동
+        console.log('게임페이지 이동');
+        navigate(`/game-page/${newGameId}`);
+      }
+    });
+    return () => {
+      socket.off('managerJoinGame');
+    };
+  }, [newGameId, navigate]);
 
   return (
     <Wrapper>
@@ -76,7 +105,7 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
         <InputWrapper>
           <span>방 제목</span>
           <input
-            type="text"
+            type='text'
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
           />
@@ -89,8 +118,8 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
             {[1, 2, 3, 4].map((num) => (
               <label key={num}>
                 <input
-                  type="radio"
-                  name="turns"
+                  type='radio'
+                  name='turns'
                   value={num}
                   checked={turns === num}
                   onChange={() => setTurns(num)}
@@ -107,11 +136,11 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
           <LockContainer>
             <LockGroup>
               <LockIcon
-                src={isLocked ? "/images/lock.png" : "/images/lock2.png"}
-                alt="자물쇠 그림"
+                src={isLocked ? '/images/lock.png' : '/images/lock2.png'}
+                alt='자물쇠 그림'
               />
               <LockCheckBox
-                type="checkbox"
+                type='checkbox'
                 checked={isLocked}
                 onChange={handleLockChange}
               />
@@ -119,7 +148,7 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
             <PasswordContainer>
               <span>비밀번호</span>
               <PasswordInput
-                type="number"
+                type='number'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={!isLocked}
@@ -130,10 +159,10 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
 
         {/* 버튼 */}
         <ButtonContainer>
-          <Button type="make" onClick={handleCreateGame}>
+          <Button type='make' onClick={handleCreateGame}>
             생성
           </Button>
-          <Button type="cancel" onClick={onClose}>
+          <Button type='cancel' onClick={onClose}>
             취소
           </Button>
         </ButtonContainer>
@@ -255,17 +284,17 @@ const ButtonContainer = styled.div`
   margin-top: 20px;
 `;
 
-const Button = styled.button<{ type: "make" | "cancel" }>`
+const Button = styled.button<{ type: 'make' | 'cancel' }>`
   padding: 5px 20px;
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
   border: none;
   color: #d8ff91;
-  background-color: ${({ type }) => (type === "make" ? "#101010" : "#BDBDBD")};
+  background-color: ${({ type }) => (type === 'make' ? '#101010' : '#BDBDBD')};
 
   &:hover {
     background-color: ${({ type }) =>
-      type === "make" ? "#2E2E2E" : "#9E9E9E"};
+      type === 'make' ? '#2E2E2E' : '#9E9E9E'};
   }
 `;
