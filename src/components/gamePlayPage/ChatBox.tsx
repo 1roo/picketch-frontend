@@ -14,7 +14,7 @@ export default function ChatBox({ socket }: ChatBoxProps) {
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!socket) return; // socket이 null이면 실행하지 않음
+    if (!socket) return;
 
     const messageHandler = (newMessage: GameChatMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -23,9 +23,7 @@ export default function ChatBox({ socket }: ChatBoxProps) {
     socket.on("gameMessage", messageHandler);
 
     return () => {
-      if (socket) {
-        socket.off("gameMessage", messageHandler);
-      }
+      socket.off("gameMessage", messageHandler);
     };
   }, [socket]);
 
@@ -45,9 +43,8 @@ export default function ChatBox({ socket }: ChatBoxProps) {
       gameMessage: inputMessage,
     };
 
-    socket.emit("gameMessage", newMessage);
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-    setInputMessage("");
+    socket.emit("gameMessage", newMessage); // ✅ 메시지만 보냄, 상태 업데이트 X
+    setInputMessage(""); // 입력 필드 초기화
   };
 
   return (

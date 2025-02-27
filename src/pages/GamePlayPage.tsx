@@ -108,16 +108,16 @@ export default function GamePlayPage() {
         const userId = Number(localStorage.getItem("userId"));
 
         // ✅ 페이지 나갈 때 자동으로 `leaveGame` 요청 전송
-        // socket.emit('leaveGame', { userId, gameId: Number(gameId) });
-        // console.log('🚪 페이지 떠날 때 leaveGame 요청 보냄:', {
-        //   userId,
-        //   gameId,
-        // });
-        // socket.emit('leaveGame', { userId, gameId: Number(gameId) });
-        // console.log('🚪 페이지 떠날 때 leaveGame 요청 보냄:', {
-        //   userId,
-        //   gameId,
-        // });
+        socket.emit("leaveGame", { userId, gameId: Number(gameId) });
+        console.log("🚪 페이지 떠날 때 leaveGame 요청 보냄:", {
+          userId,
+          gameId,
+        });
+        socket.emit("leaveGame", { userId, gameId: Number(gameId) });
+        console.log("🚪 페이지 떠날 때 leaveGame 요청 보냄:", {
+          userId,
+          gameId,
+        });
 
         socket.off("updateGameInfo");
         socket.off("startGame");

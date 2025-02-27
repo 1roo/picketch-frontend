@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Stage, Layer, Line, Rect } from "react-konva";
 import * as G from "../../styles/gameplayPage/gameplayPageStyle";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 
 interface DrawData {
   type: string;
