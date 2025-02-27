@@ -27,6 +27,7 @@ export interface DmData {
   dmRoomId: number;
   chatUserInfo: UserInfo;
   prevChat: Msg[];
+}
 
 export interface GameChatMessage {
   senderNick: string;
