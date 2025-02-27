@@ -125,7 +125,7 @@ export default function GamePlayPage() {
         socket.off("endRound");
       }
     };
-  }, []);
+  }, [gameId]);
 
   return (
     <PageContainer>

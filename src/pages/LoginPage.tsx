@@ -50,10 +50,10 @@ function LoginPageContent() {
         console.log("백엔드 응답: ", data);
 
         if (data.code === "SU") {
-          setAccessToken(data.data.data.accessToken);
-          setRefreshToken(data.data.data.refreshToken);
-          setUserId(data.data.data.userId);
-          console.log(data.data.data);
+          setAccessToken(data.data.accessToken);
+          setRefreshToken(data.data.refreshToken);
+          setUserId(data.data.userId);
+          console.log(data.data);
 
           setLogin();
 
@@ -83,7 +83,7 @@ function LoginPageContent() {
 
   const handleKakaoLogin = () => {
     console.log("✅ 카카오 로그인 시작!");
-    navigate(kakaoLoginUrl);
+    window.location.href = kakaoLoginUrl;
   };
   /*
    *  3. 네이버 로그인
@@ -99,7 +99,7 @@ function LoginPageContent() {
     console.log("✅ 네이버 로그인 시작!");
     console.log("네이버 uri???", naverLoginUrl);
 
-    navigate(naverLoginUrl);
+    window.location.href = naverLoginUrl;
   };
 
   return (
