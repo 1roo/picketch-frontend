@@ -11,6 +11,7 @@ interface TopComponentsProps {
   maxRound: number;
   currentTurnUserId: number | undefined;
   isGameEnd: boolean;
+  isStartGame: boolean;
 }
 
 const Container = styled.div`
@@ -122,7 +123,8 @@ export default function TopComponents({
         $isReady={isReady}
         onClick={managerId === userId ? handleStart : handleReady}
       >
-        {managerId === userId ? 'START' : 'READY'}
+        {!isGameEnd && (managerId === userId ? 'START' : 'READY')}
+        {isGameEnd && '모든 라운드 종료'}
       </ReadyButton>
       <ExitButton onClick={handleLeaveGame}>나가기</ExitButton>
     </Container>

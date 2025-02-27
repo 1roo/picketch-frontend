@@ -22,6 +22,7 @@ export default function GamePlayPage() {
   const [currentRound, setCurrentRound] = useState<number>(0);
   const [maxRound, setMaxRound] = useState<number>(0);
   const [isGameEnd, setIsGameEnd] = useState<boolean>(false);
+  const [isStartGame, setIsStartGame] = useState<boolean>(false);
   const [currentTurnUserId, setCurrentTurnUserId] = useState<
     number | undefined
   >();
@@ -59,6 +60,7 @@ export default function GamePlayPage() {
       if (response.type === 'SUCCESS') {
         setKeyword(response.data.keyword);
         console.log('다음턴 시작시 키워드정보', response.data);
+        setIsStartGame(true);
       }
     });
 
@@ -105,6 +107,7 @@ export default function GamePlayPage() {
         maxRound={maxRound}
         currentTurnUserId={currentTurnUserId}
         isGameEnd={isGameEnd}
+        isStartGame={isStartGame}
       />
       <CenterComponents>
         <UserList users={users} />
