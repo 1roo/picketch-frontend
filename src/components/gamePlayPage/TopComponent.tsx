@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import styled from "styled-components";
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import styled from 'styled-components';
 
 interface TopComponentsProps {
   socket: any;
@@ -40,18 +40,18 @@ const RoomTitle = styled.span`
   text-overflow: ellipsis;
 `;
 
-const Timer = styled.span`\
-font-size: 1.1em;
-font-weight: bold;
-color: white;
-min-width: 50px;
+const Timer = styled.span`
+  font-size: 1.1em;
+  font-weight: bold;
+  color: white;
+  min-width: 50px;
 `;
 
 const ReadyButton = styled.button<{ $isReady: boolean }>`
   width: 90px;
   height: 32px;
-  background-color: ${(props) => (props.$isReady ? "#d8ff91" : "gray")};
-  color: ${(props) => (props.$isReady ? "#101010" : "#d8ff91")};
+  background-color: ${(props) => (props.$isReady ? '#d8ff91' : 'gray')};
+  color: ${(props) => (props.$isReady ? '#101010' : '#d8ff91')};
   border: none;
   border-radius: 25px;
   cursor: pointer;
@@ -87,7 +87,7 @@ export default function TopComponents({
   const [timer, setTimer] = useState(60);
   const navigate = useNavigate();
   const { gameId } = useParams(); // ✅ 현재 게임 ID 가져오기
-  const userId = Number(localStorage.getItem("userId"));
+  const userId = Number(localStorage.getItem('userId'));
 
   useEffect(() => {
     if (!isStartGame) {
@@ -105,12 +105,12 @@ export default function TopComponents({
     setIsReady(newReadyState);
 
     // ✅ "readyGame" 소켓 이벤트 전송
-    socket.emit("readyGame", {
+    socket.emit('readyGame', {
       userId,
       gameId: Number(gameId),
       isReady: newReadyState,
     });
-    console.log("✅ readyGame 요청 보냄:", {
+    console.log('✅ readyGame 요청 보냄:', {
       userId,
       gameId,
       isReady: newReadyState,
@@ -118,7 +118,7 @@ export default function TopComponents({
   };
 
   const handleStart = () => {
-    socket.emit("startGame", {
+    socket.emit('startGame', {
       userId,
       gameId: Number(gameId),
     });
@@ -126,29 +126,30 @@ export default function TopComponents({
 
   const handleLeaveGame = () => {
     if (!gameId) {
-      console.warn("🚨 gameId가 존재하지 않습니다!");
+      console.warn('🚨 gameId가 존재하지 않습니다!');
       return;
     }
-    navigate("/");
+    navigate('/');
   };
-  console.log("유저아이디", userId);
-  console.log("매니저 아이디", managerId);
+  console.log('유저아이디', userId);
+  console.log('매니저 아이디', managerId);
   return (
     <Container>
       {maxRound && `${currentRound} / ${maxRound} 라운드`}
-      <RoomTitle>방제: {gameTitle || "게임 제목 없음"}</RoomTitle>
+      <RoomTitle>방제: {gameTitle || '게임 제목 없음'}</RoomTitle>
       {keyword && userId === currentTurnUserId
-        ? `정답 키워드는 ${keyword ? keyword : ""}`
-        : ""}
+        ? `정답 키워드는 ${keyword ? keyword : ''}`
+        : ''}
       {isStartGame && <Timer>⏳ {timer} s</Timer>}
       {!isStartGame && (
         <ReadyButton
           $isReady={isReady}
-          onClick={managerId === userId ? handleStart : handleReady}>
-          {managerId === userId ? "START" : "READY"}
+          onClick={managerId === userId ? handleStart : handleReady}
+        >
+          {managerId === userId ? 'START' : 'READY'}
         </ReadyButton>
       )}
-      {isStartGame && isGameEnd && "모든 라운드 종료"}
+      {isStartGame && isGameEnd && '모든 라운드 종료'}
       <ExitButton onClick={handleLeaveGame}>나가기</ExitButton>
     </Container>
   );
