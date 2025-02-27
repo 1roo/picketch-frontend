@@ -1,9 +1,9 @@
-import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
-import * as M from "../styles/loginPage/mainPageStyle";
-import { useNavigate } from "react-router-dom";
-import useAuthStore from "../store/useAuthStore";
-import api from "../utils/axios";
-const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
+import * as M from '../styles/loginPage/mainPageStyle';
+import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../store/useAuthStore';
+import api from '../utils/axios';
+const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 const kakaoRestApiKey = process.env.REACT_APP_KAKAO_REST_API_KEY;
 const kakaoRedirectUri = process.env.REACT_APP_KAKAO_REDIRECT_URL;
 const naverClientId = process.env.REACT_APP_NAVER_CLIENT_ID;
@@ -27,12 +27,12 @@ function LoginPageContent() {
    */
 
   const googleLogin = useGoogleLogin({
-    flow: "implicit",
+    flow: 'implicit',
     onSuccess: async (response) => {
-      console.log("구글로그인응답: ", response);
+      console.log('구글로그인응답: ', response);
 
       if (!response.access_token) {
-        console.error("Access Token 없음");
+        console.error('Access Token 없음');
         return;
       }
 
@@ -43,36 +43,36 @@ function LoginPageContent() {
             accessToken: response.access_token,
           },
           {
-            headers: { "Content-Type": "application/json" },
+            headers: { 'Content-Type': 'application/json' },
           }
         );
 
-        console.log("백엔드 응답: ", data);
+        console.log('백엔드 응답: ', data);
 
-        if (data.code === "SU") {
+        if (data.code === 'SU') {
           setAccessToken(data.data.accessToken);
           setRefreshToken(data.data.refreshToken);
           setUserId(data.data.userId);
-          localStorage.setItem("isManager", "false");
+          localStorage.setItem('isManager', 'false');
           console.log(data.data);
 
           setLogin();
 
           navigate(
-            data.data.hasProfile ? "/game-list-page" : "/user-setting-page"
+            data.data.hasProfile ? '/game-list-page' : '/user-setting-page'
           );
         } else {
-          console.error("백엔드 로그인 실패:", data.message);
+          console.error('백엔드 로그인 실패:', data.message);
         }
       } catch (err) {
         if (api.isAxiosError(err)) {
-          console.error("서버 요청 실패:", err.response?.data || err.message);
+          console.error('서버 요청 실패:', err.response?.data || err.message);
         } else {
-          console.error("알 수 없는 오류 발생:", err);
+          console.error('알 수 없는 오류 발생:', err);
         }
       }
     },
-    onError: () => console.error("구글 로그인 실패"),
+    onError: () => console.error('구글 로그인 실패'),
   });
 
   const handleGoogleLogin = () => googleLogin();
@@ -83,7 +83,7 @@ function LoginPageContent() {
   const kakaoLoginUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${kakaoRestApiKey}&redirect_uri=${kakaoRedirectUri}`;
 
   const handleKakaoLogin = () => {
-    console.log("✅ 카카오 로그인 시작!");
+    console.log('✅ 카카오 로그인 시작!');
     navigate(kakaoLoginUrl);
   };
   /*
@@ -91,14 +91,14 @@ function LoginPageContent() {
    */
   const handleNaverLogin = () => {
     const state = naverGenerateState();
-    sessionStorage.setItem("naver_state", state);
-    const safeNaverRedirectUri = naverRedirectUri ?? "";
+    sessionStorage.setItem('naver_state', state);
+    const safeNaverRedirectUri = naverRedirectUri ?? '';
 
     const naverLoginUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naverClientId}&redirect_uri=${encodeURIComponent(
       safeNaverRedirectUri
     )}&state=${state}`;
-    console.log("✅ 네이버 로그인 시작!");
-    console.log("네이버 uri???", naverLoginUrl);
+    console.log('✅ 네이버 로그인 시작!');
+    console.log('네이버 uri???', naverLoginUrl);
 
     navigate(naverLoginUrl);
   };
@@ -106,27 +106,27 @@ function LoginPageContent() {
   return (
     <M.Container>
       <M.LogoBox>
-        <M.MainLogo src="/images/picketch.png" alt="Picketch Logo" />
+        <M.MainLogo src='/images/picketch.png' alt='Picketch Logo' />
       </M.LogoBox>
       <M.LoginContainer>
         <M.LoginBox>
           <M.Title>소셜로그인</M.Title>
 
           <M.SocialLogo
-            src="/images/google_logo.png"
-            alt="Google 로그인 버튼"
+            src='/images/google_logo.png'
+            alt='Google 로그인 버튼'
             onClick={handleGoogleLogin}
           />
 
           <M.SocialLogo
-            src="/images/naver_logo.png"
-            alt="Naver 로그인 버튼"
+            src='/images/naver_logo.png'
+            alt='Naver 로그인 버튼'
             onClick={handleNaverLogin}
           />
 
           <M.SocialLogo
-            src="/images/kakao_logo.png"
-            alt="Kakao 로그인 버튼"
+            src='/images/kakao_logo.png'
+            alt='Kakao 로그인 버튼'
             onClick={handleKakaoLogin}
           />
         </M.LoginBox>

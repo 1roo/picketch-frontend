@@ -12,7 +12,7 @@ export default function ChatBox({ socket }: ChatBoxProps) {
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<GameChatMessage[]>([]);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
-
+  const [isComposing, setIsComposing] = useState(false);
   useEffect(() => {
     if (!socket) return;
 
@@ -67,11 +67,13 @@ export default function ChatBox({ socket }: ChatBoxProps) {
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              sendMessage();
+            if (e.key === 'Enter' && !isComposing) {
               e.preventDefault(); // Enter 키의 기본 동작을 막습니다.
+              sendMessage();
             }
           }}
+          onCompositionStart={() => setIsComposing(true)} // IME 입력 시작
+          onCompositionEnd={() => setIsComposing(false)} // IME 입력 완료
         />
         <FontAwesomeIcon icon={faCircleArrowUp} onClick={sendMessage} />
       </G.InputDiv>
