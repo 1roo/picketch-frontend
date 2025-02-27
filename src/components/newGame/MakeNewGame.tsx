@@ -9,7 +9,9 @@ interface MakeNewGameProps {
 }
 
 export default function MakeNewGame({ onClose }: MakeNewGameProps) {
+
   const [isLocked, setIsLocked] = useState(false);
+  const [roomName, setRoomName] = useState('');
   const [roomName, setRoomName] = useState('');
   const [turns, setTurns] = useState<number>(1);
   const [password, setPassword] = useState('');
@@ -19,6 +21,7 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
   const handleLockChange = () => {
     setIsLocked((prev) => !prev);
     if (!isLocked) setPassword('');
+    if (!isLocked) setPassword('');
   };
 
   const handleCreateGame = async () => {
@@ -26,28 +29,35 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
 
     if (!userId) {
       alert('로그인이 필요합니다.');
+      alert('로그인이 필요합니다.');
       return;
     }
-
+    // 백엔드에서 요구하는 필드명으로 수정 (예: gameName, is_lock, password, round)
     const gameData = {
       roomName,
       round: turns,
-      isLock: isLocked,
-      pw: isLocked ? password : null,
+      is_lock: isLocked,
+      password: isLocked ? password : null,
     };
-
     try {
+
       // ✅ 방 생성 요청
       const response = await api.post(`/api/game-room`, gameData, {
         headers: {
+          'Content-Type': 'application/json',
           'Content-Type': 'application/json',
         },
       });
 
       console.log('📡 서버 응답 데이터:', response.data.data);
+      console.log('📡 서버 응답 데이터:', response.data.data);
 
       // ✅ gameId 확인
       let newGameId = response.data.data?.gameId;
+      setNewGameId(response.data.data?.gameId);
+      if (!newGameId || typeof newGameId !== 'number') {
+        console.error('❌ 서버에서 gameId를 받지 못함:', response.data);
+        alert('방 생성 실패: 서버에서 gameId를 받지 못했습니다.');
       setNewGameId(response.data.data?.gameId);
       if (!newGameId || typeof newGameId !== 'number') {
         console.error('❌ 서버에서 gameId를 받지 못함:', response.data);
@@ -57,11 +67,15 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
 
       console.log('✅ 방 생성 성공, gameId:', newGameId);
       alert('방이 생성되었습니다!');
+      console.log('✅ 방 생성 성공, gameId:', newGameId);
+      alert('방이 생성되었습니다!');
 
       // ✅ 방 생성 후 `joinGame` 소켓 요청 보내기
       socket.emit('managerJoinGame', {
+      socket.emit('managerJoinGame', {
         userId: Number(userId),
         gameId: newGameId,
+        inputPw: password || '',
         inputPw: password || '',
       });
 
@@ -70,8 +84,24 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
     } catch (error) {
       console.error('❌ 방 생성 오류:', error);
       alert('방 생성에 실패했습니다.');
+      console.error('❌ 방 생성 오류:', error);
+      alert('방 생성에 실패했습니다.');
     }
   };
+  useEffect(() => {
+    console.log('useeect실행');
+    socket.on('managerJoinGame', (response: any) => {
+      console.log('magager 참가 응답은', response);
+      if (response.type === 'SUCCESS') {
+        // ✅ 게임 페이지로 이동
+        console.log('게임페이지 이동');
+        navigate(`/game-page/${newGameId}`);
+      }
+    });
+    return () => {
+      socket.off('managerJoinGame');
+    };
+  }, [newGameId, navigate]);
   useEffect(() => {
     console.log('useeect실행');
     socket.on('managerJoinGame', (response: any) => {
@@ -97,6 +127,7 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
           <span>방 제목</span>
           <input
             type='text'
+            type='text'
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
           />
@@ -109,6 +140,8 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
             {[1, 2, 3, 4].map((num) => (
               <label key={num}>
                 <input
+                  type='radio'
+                  name='turns'
                   type='radio'
                   name='turns'
                   value={num}
@@ -129,8 +162,11 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
               <LockIcon
                 src={isLocked ? '/images/lock.png' : '/images/lock2.png'}
                 alt='자물쇠 그림'
+                src={isLocked ? '/images/lock.png' : '/images/lock2.png'}
+                alt='자물쇠 그림'
               />
               <LockCheckBox
+                type='checkbox'
                 type='checkbox'
                 checked={isLocked}
                 onChange={handleLockChange}
@@ -139,6 +175,7 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
             <PasswordContainer>
               <span>비밀번호</span>
               <PasswordInput
+                type='number'
                 type='number'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -151,8 +188,10 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
         {/* 버튼 */}
         <ButtonContainer>
           <Button type='make' onClick={handleCreateGame}>
+          <Button type='make' onClick={handleCreateGame}>
             생성
           </Button>
+          <Button type='cancel' onClick={onClose}>
           <Button type='cancel' onClick={onClose}>
             취소
           </Button>

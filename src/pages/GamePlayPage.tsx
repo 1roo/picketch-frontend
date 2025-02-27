@@ -12,8 +12,9 @@ import socket from "../socket/gameSocket";
 
 export default function GamePlayPage() {
   const { gameId } = useParams();
-  const location = useLocation();
   const [users, setUsers] = useState([]);
+  const location = useLocation();
+
   const [gameTitle, setGameTitle] = useState(
     location.state?.gameName || "게임 제목 없음"
   );
@@ -71,6 +72,10 @@ export default function GamePlayPage() {
         setMaxRound(response.data.maxRound);
         setCurrentTurnUserId(response.data.currentTurnUserId);
         setIsGameEnd(response.data.isGameEnd);
+        setCurrentRound(response.data.currentRound);
+        setMaxRound(response.data.maxRound);
+        setCurrentTurnUserId(response.data.currentTurnUserId);
+        setIsGameEnd(response.data.isGameEnd);
       }
     });
     socket.on("endRound", (response) => {
@@ -108,6 +113,11 @@ export default function GamePlayPage() {
         //   userId,
         //   gameId,
         // });
+        // socket.emit('leaveGame', { userId, gameId: Number(gameId) });
+        // console.log('🚪 페이지 떠날 때 leaveGame 요청 보냄:', {
+        //   userId,
+        //   gameId,
+        // });
 
         socket.off("updateGameInfo");
         socket.off("startGame");
@@ -129,12 +139,25 @@ export default function GamePlayPage() {
         currentTurnUserId={currentTurnUserId}
         isGameEnd={isGameEnd}
         isStartGame={isStartGame}
+        keyword={keyword}
+        currentRound={currentRound}
+        maxRound={maxRound}
+        currentTurnUserId={currentTurnUserId}
+        isGameEnd={isGameEnd}
+        isStartGame={isStartGame}
       />
+
       <CenterComponents>
         <UserList users={users} />
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <GameDrawing socket={socket} />
-          <ChatBox socket={socket} />
+          {socket ? (
+            <>
+              <GameDrawing socket={socket} />
+              <ChatBox socket={socket} />
+            </>
+          ) : (
+            <p>소켓 연결 중...</p>
+          )}
         </div>
       </CenterComponents>
     </PageContainer>
