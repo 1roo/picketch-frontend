@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
 import { useParams, useLocation } from "react-router-dom";
 import ChatBox from "../components/gamePlayPage/ChatBox";
 import GameDrawing from "../components/gamePlayPage/GameDrawing";
@@ -8,7 +9,6 @@ import {
   PageContainer,
   CenterComponents,
 } from "../styles/gameplayPage/gameplayPageStyle";
-import socket from "../socket/gameSocket";
 
 export default function GamePlayPage() {
   const { gameId } = useParams();
@@ -27,6 +27,7 @@ export default function GamePlayPage() {
   const [currentTurnUserId, setCurrentTurnUserId] = useState<
     number | undefined
   >();
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   // 새로고침, 뒤로가기 방지
   useEffect(() => {
@@ -49,8 +50,51 @@ export default function GamePlayPage() {
     window.history.pushState(null, "", window.location.href);
   });
 
+  const userId = localStorage.getItem("userId");
+  const isManager = localStorage.getItem("isManager");
+
+  // 소켓 생성: 백엔드 URL, 네임스페이스, query에 gameId와 userId 포함, transports 설정
+  const newSocket = io(`${process.env.REACT_APP_API_BASE_URL}/game`, {
+    query: { gameId, userId: Number(userId) },
+    transports: ["websocket"],
+  });
+  if (isManager) {
+    setManagerId(Number(userId));
+  }
   useEffect(() => {
-    socket.emit("updateGameInfo", (response: any) => {
+    // updateGameInfo 이벤트 리스너를 즉시 등록
+    newSocket.on("updateGameInfo", (data: any) => {
+      console.log("🔥 updateGameInfo 이벤트 수신:", data);
+      if (data && data.data) {
+        setUsers(data.data.players || []);
+        setGameTitle(data.data.gameName || "게임 제목 없음");
+      }
+    });
+
+    newSocket.on("connect", () => {
+      console.log("✅ 시소켓 연결 성공, 소켓 ID:", newSocket.id);
+      // joinGame 이벤트를 emit하여 방에 입장
+      newSocket.emit("joinGame", {
+        gameId: Number(gameId),
+        userId: Number(userId),
+      });
+    });
+
+    newSocket.on("connect_error", (err) => {
+      console.error("❌ 소켓 연결 실패:", err);
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      console.log("🚪 게임 페이지 떠날 때 소켓 연결 해제");
+      newSocket.emit("leaveGame", { gameId });
+      newSocket.disconnect();
+    };
+  }, [gameId]);
+
+  useEffect(() => {
+    newSocket.emit("updateGameInfo", (response: any) => {
       console.log("🔥 서버에서 받은 updateGameInfo 응답:", response);
       if (response.type === "SUCCESS") {
         setUsers(response.data.players);
@@ -62,7 +106,7 @@ export default function GamePlayPage() {
         setIsGameEnd(response.data.isGameEnd);
       }
     });
-    socket.on("updateGameInfo", (response) => {
+    newSocket.on("updateGameInfo", (response) => {
       console.log("🔥 서버에서 받은 updateGameInfo 응답:", response);
       if (response.type === "SUCCESS") {
         setUsers(response.data.players);
@@ -78,11 +122,11 @@ export default function GamePlayPage() {
         setIsGameEnd(response.data.isGameEnd);
       }
     });
-    socket.on("endRound", (response) => {
+    newSocket.on("endRound", (response) => {
       console.log("🔥 서버에서 받은 endRound 응답:", response);
     });
 
-    socket.on("startGame", (response: any) => {
+    newSocket.on("startGame", (response: any) => {
       if (response.type === "SUCCESS") {
         setKeyword(response.data.keyword);
         console.log("다음턴 시작시 키워드정보", response.data);
@@ -90,7 +134,7 @@ export default function GamePlayPage() {
       }
     });
 
-    socket.on("nextTurn", (response: any) => {
+    newSocket.on("nextTurn", (response: any) => {
       //다음턴 시작시 키워드 정보 받음
       if (response.type === "SUCCESS") {
         setKeyword(response.data.keyword);
@@ -99,7 +143,7 @@ export default function GamePlayPage() {
 
       //만약 마지막 라운드일 경우에는 endGame 이벤트 emit 하기
       if (response.type === "ERROR") {
-        socket.emit("endGame");
+        newSocket.emit("endGame");
       }
     });
 
@@ -108,21 +152,21 @@ export default function GamePlayPage() {
         const userId = Number(localStorage.getItem("userId"));
 
         // ✅ 페이지 나갈 때 자동으로 `leaveGame` 요청 전송
-        socket.emit("leaveGame", { userId, gameId: Number(gameId) });
+        newSocket.emit("leaveGame", { userId, gameId: Number(gameId) });
         console.log("🚪 페이지 떠날 때 leaveGame 요청 보냄:", {
           userId,
           gameId,
         });
-        socket.emit("leaveGame", { userId, gameId: Number(gameId) });
+        newSocket.emit("leaveGame", { userId, gameId: Number(gameId) });
         console.log("🚪 페이지 떠날 때 leaveGame 요청 보냄:", {
           userId,
           gameId,
         });
 
-        socket.off("updateGameInfo");
-        socket.off("startGame");
-        socket.off("nextTurn");
-        socket.off("endRound");
+        newSocket.off("updateGameInfo");
+        newSocket.off("startGame");
+        newSocket.off("nextTurn");
+        newSocket.off("endRound");
       }
     };
   }, [gameId]);
