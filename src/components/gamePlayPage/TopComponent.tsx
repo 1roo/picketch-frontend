@@ -40,6 +40,13 @@ const RoomTitle = styled.span`
   text-overflow: ellipsis;
 `;
 
+const Timer = styled.span`\
+font-size: 1.1em;
+font-weight: bold;
+color: white;
+min-width: 50px;
+`;
+
 const ReadyButton = styled.button<{ $isReady: boolean }>`
   width: 90px;
   height: 32px;
@@ -77,9 +84,21 @@ export default function TopComponents({
   isStartGame,
 }: TopComponentsProps) {
   const [isReady, setIsReady] = useState(false);
+  const [timer, setTimer] = useState(60);
   const navigate = useNavigate();
   const { gameId } = useParams(); // ✅ 현재 게임 ID 가져오기
   const userId = Number(localStorage.getItem("userId"));
+
+  useEffect(() => {
+    if (!isStartGame) {
+      setTimer(60); // 게임이 시작되지 않았을 경우 타이머를 60초로 설정
+      const countdown = setInterval(() => {
+        setTimer((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+
+      return () => clearInterval(countdown);
+    }
+  }, [isStartGame]);
 
   const handleReady = () => {
     const newReadyState = !isReady;
@@ -121,6 +140,7 @@ export default function TopComponents({
       {keyword && userId === currentTurnUserId
         ? `정답 키워드는 ${keyword ? keyword : ""}`
         : ""}
+      {isStartGame && <Timer>⏳ {timer} s</Timer>}
       {!isStartGame && (
         <ReadyButton
           $isReady={isReady}
