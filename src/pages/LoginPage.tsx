@@ -50,10 +50,10 @@ function LoginPageContent() {
         console.log("백엔드 응답: ", data);
 
         if (data.code === "SU") {
-          setAccessToken(data.data.data.accessToken);
-          setRefreshToken(data.data.data.refreshToken);
-          setUserId(data.data.data.userId);
-          console.log(data.data.data);
+          setAccessToken(data.data.accessToken);
+          setRefreshToken(data.data.refreshToken);
+          setUserId(data.data.userId);
+          console.log(data.data);
 
           setLogin();
 

@@ -1,19 +1,23 @@
+
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import socket from '../../socket/gameSocket'; // ✅ 소켓 추가
 import api from '../../utils/axios';
 
+
 interface MakeNewGameProps {
   onClose: () => void;
 }
 
 export default function MakeNewGame({ onClose }: MakeNewGameProps) {
+
   const [isLocked, setIsLocked] = useState(false);
   const [roomName, setRoomName] = useState('');
   const [turns, setTurns] = useState<number>(1);
   const [password, setPassword] = useState('');
   const [newGameId, setNewGameId] = useState();
+
   const navigate = useNavigate();
 
   const handleLockChange = () => {
@@ -22,21 +26,23 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
   };
 
   const handleCreateGame = async () => {
+
     const userId = localStorage.getItem('userId');
+
 
     if (!userId) {
       alert('로그인이 필요합니다.');
       return;
     }
-
+    // 백엔드에서 요구하는 필드명으로 수정 (예: gameName, is_lock, password, round)
     const gameData = {
       roomName,
       round: turns,
-      isLock: isLocked,
-      pw: isLocked ? password : null,
+      is_lock: isLocked,
+      password: isLocked ? password : null,
     };
-
     try {
+
       // ✅ 방 생성 요청
       const response = await api.post(`/api/game-room`, gameData, {
         headers: {
@@ -67,6 +73,7 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
 
       // ✅ 게임 페이지로 이동
       // navigate(`/game-page/${newGameId}`);
+
     } catch (error) {
       console.error('❌ 방 생성 오류:', error);
       alert('방 생성에 실패했습니다.');

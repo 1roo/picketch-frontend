@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
-import ChatBox from '../components/gamePlayPage/ChatBox';
-import GameDrawing from '../components/gamePlayPage/GameDrawing';
-import TopComponents from '../components/gamePlayPage/TopComponent';
-import UserList from '../components/gamePlayPage/UserList';
-import {
-  PageContainer,
-  CenterComponents,
-} from '../styles/gameplayPage/gameplayPageStyle';
-import socket from '../socket/gameSocket';
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { io, Socket } from "socket.io-client";
+import ChatBox from "../components/gamePlayPage/ChatBox";
+import GameDrawing from "../components/gamePlayPage/GameDrawing";
+import TopComponents from "../components/gamePlayPage/TopComponent";
+import UserList from "../components/gamePlayPage/UserList";
+import { PageContainer, CenterComponents } from "../styles/gameplayPage/gameplayPageStyle";
 
 export default function GamePlayPage() {
   const { gameId } = useParams();
-  const location = useLocation();
   const [users, setUsers] = useState([]);
+
   const [gameTitle, setGameTitle] = useState(
     location.state?.gameName || '게임 제목 없음'
   );
@@ -49,11 +46,16 @@ export default function GamePlayPage() {
         setMaxRound(response.data.maxRound);
         setCurrentTurnUserId(response.data.currentTurnUserId);
         setIsGameEnd(response.data.isGameEnd);
+
       }
     });
-    socket.on('endRound', (response) => {
-      console.log('🔥 서버에서 받은 endRound 응답:', response);
+
+    newSocket.on("connect", () => {
+      console.log("✅ 시소켓 연결 성공, 소켓 ID:", newSocket.id);
+      // joinGame 이벤트를 emit하여 방에 입장
+      newSocket.emit("joinGame", { gameId: Number(gameId), userId: Number(userId) });
     });
+
 
     socket.on('startGame', (response: any) => {
       if (response.type === 'SUCCESS') {
@@ -96,6 +98,7 @@ export default function GamePlayPage() {
 
   return (
     <PageContainer>
+
       <TopComponents
         socket={socket}
         gameTitle={gameTitle}
@@ -106,11 +109,18 @@ export default function GamePlayPage() {
         currentTurnUserId={currentTurnUserId}
         isGameEnd={isGameEnd}
       />
+
       <CenterComponents>
         <UserList users={users} />
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <GameDrawing socket={socket} />
-          <ChatBox socket={socket} />
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {socket ? (
+            <>
+              <GameDrawing socket={socket} />
+              <ChatBox socket={socket} />
+            </>
+          ) : (
+            <p>소켓 연결 중...</p>
+          )}
         </div>
       </CenterComponents>
     </PageContainer>
