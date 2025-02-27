@@ -12,6 +12,8 @@ interface TopComponentsProps {
   currentTurnUserId: number | undefined;
   isGameEnd: boolean;
   isStartGame: boolean;
+  remainingTime: number | undefined;
+  isNextRoundSettled: boolean;
 }
 
 const Container = styled.div`
@@ -82,6 +84,8 @@ export default function TopComponents({
   currentTurnUserId,
   isGameEnd,
   isStartGame,
+  remainingTime,
+  isNextRoundSettled,
 }: TopComponentsProps) {
   const [isReady, setIsReady] = useState(false);
   const navigate = useNavigate();
@@ -129,7 +133,7 @@ export default function TopComponents({
     }
     socket.emit('leaveGame', { gameId });
     socket.disconnect();
-    navigate('/');
+    navigate('/game-list-page');
   };
   console.log('유저아이디', userId);
   console.log('매니저 아이디', managerId);
@@ -137,6 +141,7 @@ export default function TopComponents({
     <Container>
       {maxRound && `${currentRound} / ${maxRound} 라운드`}
       <RoomTitle>방제: {gameTitle || '게임 제목 없음'}</RoomTitle>
+      {isNextRoundSettled && remainingTime}
       {keyword && userId === currentTurnUserId
         ? `정답 키워드는 ${keyword ? keyword : ''}`
         : ''}
