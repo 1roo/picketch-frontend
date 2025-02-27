@@ -18,18 +18,63 @@ export default function GamePlayPage() {
     location.state?.gameName || '게임 제목 없음'
   );
   const [managerId, setManagerId] = useState<number>(0);
+  const [keyword, setKeyword] = useState<string>('');
+  const [currentRound, setCurrentRound] = useState<number>(0);
+  const [maxRound, setMaxRound] = useState<number>(0);
+  const [isGameEnd, setIsGameEnd] = useState<boolean>(false);
+  const [isStartGame, setIsStartGame] = useState<boolean>(false);
+  const [currentTurnUserId, setCurrentTurnUserId] = useState<
+    number | undefined
+  >();
 
   useEffect(() => {
+    socket.emit('updateGameInfo', (response: any) => {
+      console.log('🔥 서버에서 받은 updateGameInfo 응답:', response);
+      if (response.type === 'SUCCESS') {
+        setUsers(response.data.players);
+        setGameTitle(response.data.gameName);
+        setManagerId(response.data.managerId);
+        setCurrentRound(response.data.currentRound);
+        setMaxRound(response.data.maxRound);
+        setCurrentTurnUserId(response.data.currentTurnUserId);
+        setIsGameEnd(response.data.isGameEnd);
+      }
+    });
     socket.on('updateGameInfo', (response) => {
       console.log('🔥 서버에서 받은 updateGameInfo 응답:', response);
       if (response.type === 'SUCCESS') {
         setUsers(response.data.players);
         setGameTitle(response.data.gameName);
         setManagerId(response.data.managerId);
+        setCurrentRound(response.data.currentRound);
+        setMaxRound(response.data.maxRound);
+        setCurrentTurnUserId(response.data.currentTurnUserId);
+        setIsGameEnd(response.data.isGameEnd);
       }
     });
     socket.on('endRound', (response) => {
       console.log('🔥 서버에서 받은 endRound 응답:', response);
+    });
+
+    socket.on('startGame', (response: any) => {
+      if (response.type === 'SUCCESS') {
+        setKeyword(response.data.keyword);
+        console.log('다음턴 시작시 키워드정보', response.data);
+        setIsStartGame(true);
+      }
+    });
+
+    socket.on('nextTurn', (response: any) => {
+      //다음턴 시작시 키워드 정보 받음
+      if (response.type === 'SUCCESS') {
+        setKeyword(response.data.keyword);
+        console.log('다음턴 시작시 키워드정보', response.data);
+      }
+
+      //만약 마지막 라운드일 경우에는 endGame 이벤트 emit 하기
+      if (response.type === 'ERROR') {
+        socket.emit('endGame');
+      }
     });
 
     return () => {
@@ -37,16 +82,19 @@ export default function GamePlayPage() {
         const userId = Number(localStorage.getItem('userId'));
 
         // ✅ 페이지 나갈 때 자동으로 `leaveGame` 요청 전송
-        socket.emit('leaveGame', { userId, gameId: Number(gameId) });
-        console.log('🚪 페이지 떠날 때 leaveGame 요청 보냄:', {
-          userId,
-          gameId,
-        });
+        // socket.emit('leaveGame', { userId, gameId: Number(gameId) });
+        // console.log('🚪 페이지 떠날 때 leaveGame 요청 보냄:', {
+        //   userId,
+        //   gameId,
+        // });
 
         socket.off('updateGameInfo');
+        socket.off('startGame');
+        socket.off('nextTurn');
+        socket.off('endRound');
       }
     };
-  }, [gameId]);
+  }, []);
 
   return (
     <PageContainer>
@@ -54,6 +102,12 @@ export default function GamePlayPage() {
         socket={socket}
         gameTitle={gameTitle}
         managerId={managerId}
+        keyword={keyword}
+        currentRound={currentRound}
+        maxRound={maxRound}
+        currentTurnUserId={currentTurnUserId}
+        isGameEnd={isGameEnd}
+        isStartGame={isStartGame}
       />
       <CenterComponents>
         <UserList users={users} />

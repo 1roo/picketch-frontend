@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Stage, Layer, Line, Rect } from 'react-konva';
 import * as G from '../../styles/gameplayPage/gameplayPageStyle';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 interface DrawData {
   data: { x: number; y: number; brushColor: string };
@@ -101,6 +102,7 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
     height: Math.max(306, (window.innerWidth * 0.5) / 1.5),
   });
   const [isDrawing, setIsDrawing] = useState(false); // 마우스 버튼 상태 추가
+  const navigate = useNavigate();
 
   useEffect(() => {
     // 클라이언트에서 서버로부터 그림 그리기 이벤트 수신
@@ -136,41 +138,42 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
       }
     });
 
-    socket.on('startGame', (data: any) => {
-      alert(
-        `다음 라운드 시작. ${
-          data.data.keyword ? data.data.keyword : '턴 순서가 아닙니다.'
-        }`
-      );
-      console.log('다음턴 시작시 키워드정보', data);
-    });
-
     socket.on('endRound', () => {
       // 라운드 종료시
       setLines([]); // 화면 지우기
       socket.emit('nextTurn');
     });
 
-    socket.on('nextTurn', (data: any) => {
-      //다음턴 시작시 키워드 정보 받음
-      alert(
-        `다음 라운드 시작. ${
-          data.data.keyword ? data.data.keyword : '턴 순서가 아닙니다.'
-        }`
-      );
-      console.log('다음턴 시작시 키워드정보', data);
+    // socket.on('startGame', (data: any) => {
+    //   alert(
+    //     `다음 라운드 시작. ${
+    //       data.data.keyword ? data.data.keyword : '턴 순서가 아닙니다.'
+    //     }`
+    //   );
+    //   console.log('다음턴 시작시 키워드정보', data);
+    // });
 
-      //만약 마지막 라운드일 경우에는 endGame 이벤트 emit 하기
-      if (data.type === 'ERROR') {
-        socket.emit('endGame');
-      }
-    });
+    // socket.on('nextTurn', (data: any) => {
+    //   //다음턴 시작시 키워드 정보 받음
+    //   alert(
+    //     `다음 라운드 시작. ${
+    //       data.data.keyword ? data.data.keyword : '턴 순서가 아닙니다.'
+    //     }`
+    //   );
+    //   console.log('다음턴 시작시 키워드정보', data);
+
+    //   //만약 마지막 라운드일 경우에는 endGame 이벤트 emit 하기
+    //   if (data.type === 'ERROR') {
+    //     socket.emit('endGame');
+    //   }
+    // });
 
     socket.on('endGame', (data: any) => {
       console.log('게임종료 요청의 응답', data);
       if (data.type === 'SUCCESS') {
         alert('게임종료되었습니다.');
         setLines([]); // 화면 지우기
+        navigate('/game-list-page');
         console.log('게임 종료 처리 완료');
       }
     });
