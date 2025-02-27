@@ -139,12 +139,6 @@ export default function GamePlayPage() {
         currentTurnUserId={currentTurnUserId}
         isGameEnd={isGameEnd}
         isStartGame={isStartGame}
-        keyword={keyword}
-        currentRound={currentRound}
-        maxRound={maxRound}
-        currentTurnUserId={currentTurnUserId}
-        isGameEnd={isGameEnd}
-        isStartGame={isStartGame}
       />
 
       <CenterComponents>

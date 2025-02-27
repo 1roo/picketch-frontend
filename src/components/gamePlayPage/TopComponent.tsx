@@ -12,12 +12,6 @@ interface TopComponentsProps {
   currentTurnUserId: number | undefined;
   isGameEnd: boolean;
   isStartGame: boolean;
-  keyword: string;
-  currentRound: number;
-  maxRound: number;
-  currentTurnUserId: number | undefined;
-  isGameEnd: boolean;
-  isStartGame: boolean;
 }
 
 const Container = styled.div`
