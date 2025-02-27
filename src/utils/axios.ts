@@ -30,13 +30,7 @@ api.interceptors.request.use(
     if (accessToken && !config.url?.includes("/api/auth/google")) {
       console.log("📡 요청 Authorization 헤더 추가:", `Bearer ${accessToken}`);
       config.headers.Authorization = `Bearer ${accessToken}`;
-    } else {
-      console.log(
-        "🔄 구글 로그인 요청 - Authorization 헤더 제외됨:",
-        config.url
-      );
-    }
-
+    } 
     return config;
   },
   (error) => Promise.reject(error)

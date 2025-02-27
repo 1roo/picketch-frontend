@@ -6,6 +6,12 @@ interface TopComponentsProps {
   socket: any;
   gameTitle: string;
   managerId: number;
+  keyword: string;
+  currentRound: number;
+  maxRound: number;
+  currentTurnUserId: number | undefined;
+  isGameEnd: boolean;
+  isStartGame: boolean;
 }
 
 const Container = styled.div`
@@ -62,6 +68,12 @@ export default function TopComponents({
   socket,
   gameTitle,
   managerId,
+  keyword,
+  currentRound,
+  maxRound,
+  currentTurnUserId,
+  isGameEnd,
+  isStartGame,
 }: TopComponentsProps) {
   const [isReady, setIsReady] = useState(false);
   const navigate = useNavigate();
@@ -97,26 +109,26 @@ export default function TopComponents({
       console.warn('🚨 gameId가 존재하지 않습니다!');
       return;
     }
-
-    // ✅ "leaveGame" 소켓 요청 전송
-    socket.emit('leaveGame', { userId, gameId: Number(gameId) });
-    console.log('🚪 leaveGame 요청 보냄:', { userId, gameId });
-
-    // ✅ 소켓 연결 해제 및 이전 페이지로 이동
-    socket.disconnect();
     navigate(-1);
   };
   console.log('유저아이디', userId);
   console.log('매니저 아이디', managerId);
   return (
     <Container>
+      {maxRound && `${currentRound} / ${maxRound} 라운드`}
       <RoomTitle>방제: {gameTitle || '게임 제목 없음'}</RoomTitle>
-      <ReadyButton
-        $isReady={isReady}
-        onClick={managerId === userId ? handleStart : handleReady}
-      >
-        {managerId === userId ? 'START' : 'READY'}
-      </ReadyButton>
+      {keyword && userId === currentTurnUserId
+        ? `정답 키워드는 ${keyword ? keyword : ''}`
+        : ''}
+      {!isStartGame && (
+        <ReadyButton
+          $isReady={isReady}
+          onClick={managerId === userId ? handleStart : handleReady}
+        >
+          {managerId === userId ? 'START' : 'READY'}
+        </ReadyButton>
+      )}
+      {isStartGame && isGameEnd && '모든 라운드 종료'}
       <ExitButton onClick={handleLeaveGame}>나가기</ExitButton>
     </Container>
   );
