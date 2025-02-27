@@ -31,27 +31,28 @@ export default function GamePlayPage() {
   const socketRef = useRef<Socket | null>(null); // useRef로 소켓을 관리
 
   // 새로고침, 뒤로가기 방지
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = '';
-    };
-    const handlePopState = () => {
-      if (
-        !window.confirm(
-          '진행중인 게임은 저장되지 않습니다. 게임을 나가시겠습니까?'
-        )
-      ) {
-        window.history.pushState(null, '', window.location.href);
-      }
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('popstate', handlePopState);
+  // useEffect(() => {
+  //   const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  //     event.preventDefault();
+  //     event.returnValue = '';
+  //   };
+  //   const handlePopState = () => {
+  //     if (
+  //       !window.confirm(
+  //         '진행중인 게임은 저장되지 않습니다. 게임을 나가시겠습니까?'
+  //       )
+  //     ) {
+  //       window.history.pushState(null, '', window.location.href);
+  //     }
+  //   };
+  //   window.addEventListener('beforeunload', handleBeforeUnload);
+  //   window.addEventListener('popstate', handlePopState);
 
-    window.history.pushState(null, '', window.location.href);
-  });
+  //   window.history.pushState(null, '', window.location.href);
+  // }, []);
 
   const userId = localStorage.getItem('userId');
+  // const isManager = localStorage.getItem('isManager');
   const isManager = localStorage.getItem('isManager');
 
   // 소켓 연결: useRef를 사용하여 한 번만 연결되도록 설정
@@ -64,30 +65,53 @@ export default function GamePlayPage() {
 
       socketRef.current = newSocket;
 
-      if (isManager) {
-        setManagerId(Number(userId));
-      }
+      setManagerId(Number(userId));
 
       newSocket.on('updateGameInfo', (data: any) => {
         console.log('🔥 updateGameInfo 이벤트 수신:', data);
         if (data && data.data) {
           setUsers(data.data.players || []);
-          setGameTitle(data.data.gameName || '게임 제목 없음');
+          setGameTitle(data.data.gameName);
+          setKeyword(data.data.keyword);
+          setCurrentRound(data.data.currentRound);
+          setMaxRound(data.data.maxRound);
+          setIsGameEnd(data.data.gameEnd);
+          setIsStartGame(data.data.startGame);
+          setCurrentTurnUserId(data.data.currentTurnUserId);
+          setManagerId(data.data.managerId);
         }
       });
 
       newSocket.on('connect', () => {
         console.log('✅ 시소켓 연결 성공, 소켓 ID:', newSocket.id);
-        newSocket.emit('joinGame', {
-          gameId: Number(gameId),
-          userId: Number(userId),
-        });
+        console.log('매니저인가요?', isManager);
+        console.log('유저아이디', userId);
+        if (isManager === 'true') {
+          newSocket.emit('managerJoinGame', {
+            gameId: Number(gameId),
+            userId: Number(userId),
+          });
+        } else if (isManager === 'false') {
+          newSocket.emit('joinGame', {
+            gameId: Number(gameId),
+            userId: Number(userId),
+          });
+        }
       });
 
       newSocket.on('connect_error', (err) => {
         console.error('❌ 소켓 연결 실패:', err);
       });
-
+      newSocket.on('joinGame', (response: any) => {
+        if (response.data.type === 'SUCCESS') {
+          newSocket.emit('updateGameInfo');
+        }
+      });
+      newSocket.on('managerJoinGame', (response: any) => {
+        if (response.data.type === 'SUCCESS') {
+          newSocket.emit('updateGameInfo');
+        }
+      });
       newSocket.on('startGame', (response: any) => {
         if (response.type === 'SUCCESS') {
           setKeyword(response.data.keyword);

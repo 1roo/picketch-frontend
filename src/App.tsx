@@ -55,6 +55,7 @@ const OAuthCallbackHandler: React.FC<OAuthCallbackHandlerProps> = ({
             setAccessToken(userData.accessToken);
             setRefreshToken(userData.refreshToken);
             setUserId(userData.userId);
+            localStorage.setItem("isManager", "false");
             setLogin();
 
             navigate(

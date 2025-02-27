@@ -56,6 +56,7 @@ const useAuthStore = createWithEqualityFn<AuthState>((set) => ({
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userId");
+    localStorage.removeItem("isManager");
     localStorage.setItem("isLoggedIn", "false");
     set({
       accessToken: null,

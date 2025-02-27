@@ -56,37 +56,16 @@ export default function MakeNewGame({ onClose }: MakeNewGameProps) {
       }
 
       console.log("✅ 방 생성 성공, gameId:", newGameId);
+      localStorage.setItem("isManager", "true");
       alert("방이 생성되었습니다!");
 
-      // ✅ 방 생성 후 `joinGame` 소켓 요청 보내기
-      socket.emit("managerJoinGame", {
-        userId: Number(userId),
-        gameId: newGameId,
-        inputPw: password || "",
-      });
-
       // ✅ 게임 페이지로 이동
-      // navigate(`/game-page/${newGameId}`);
+      navigate(`/game-page/${newGameId}`);
     } catch (error) {
       console.error("❌ 방 생성 오류:", error);
       alert("방 생성에 실패했습니다.");
     }
   };
-
-  useEffect(() => {
-    console.log("useeect실행");
-    socket.on("managerJoinGame", (response: any) => {
-      console.log("magager 참가 응답은", response);
-      if (response.type === "SUCCESS") {
-        // ✅ 게임 페이지로 이동
-        console.log("게임페이지 이동");
-        navigate(`/game-page/${newGameId}`);
-      }
-    });
-    return () => {
-      socket.off("managerJoinGame");
-    };
-  }, [newGameId, navigate]);
 
   return (
     <Wrapper>
