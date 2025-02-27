@@ -10,36 +10,43 @@ import { PageContainer, CenterComponents } from "../styles/gameplayPage/gameplay
 export default function GamePlayPage() {
   const { gameId } = useParams();
   const [users, setUsers] = useState([]);
-  const [gameTitle, setGameTitle] = useState("게임 제목 없음");
-  const [managerId, setManagerId] = useState(0)
-  const [socket, setSocket] = useState<Socket | null>(null);
+
+  const [gameTitle, setGameTitle] = useState(
+    location.state?.gameName || '게임 제목 없음'
+  );
+  const [managerId, setManagerId] = useState<number>(0);
+  const [keyword, setKeyword] = useState<string>('');
+  const [currentRound, setCurrentRound] = useState<number>(0);
+  const [maxRound, setMaxRound] = useState<number>(0);
+  const [isGameEnd, setIsGameEnd] = useState<boolean>(false);
+  const [currentTurnUserId, setCurrentTurnUserId] = useState<
+    number | undefined
+  >();
 
   useEffect(() => {
-    if (!gameId) return;
-    const isManager = localStorage.getItem('manager')
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      console.error("유효하지 않은 userId");
-      return;
-    }
-
-    console.log("🚀 게임 페이지 마운트, gameId:", gameId);
-
-    // 소켓 생성: 백엔드 URL, 네임스페이스, query에 gameId와 userId 포함, transports 설정
-    const newSocket = io(`${process.env.REACT_APP_API_BASE_URL}/game`, {
-      query: { gameId, userId: Number(userId) },
-      transports: ["websocket"],
+    socket.emit('updateGameInfo', (response: any) => {
+      console.log('🔥 서버에서 받은 updateGameInfo 응답:', response);
+      if (response.type === 'SUCCESS') {
+        setUsers(response.data.players);
+        setGameTitle(response.data.gameName);
+        setManagerId(response.data.managerId);
+        setCurrentRound(response.data.currentRound);
+        setMaxRound(response.data.maxRound);
+        setCurrentTurnUserId(response.data.currentTurnUserId);
+        setIsGameEnd(response.data.isGameEnd);
+      }
     });
-    if(isManager){
-      setManagerId(Number(userId));
-    }
-    // updateGameInfo 이벤트 리스너를 즉시 등록
-    newSocket.on("updateGameInfo", (data: any) => {
-      console.log("🔥 updateGameInfo 이벤트 수신:", data);
-      if (data && data.data) {
-        setUsers(data.data.players || []);
-        setGameTitle(data.data.gameName || "게임 제목 없음");
-       
+    socket.on('updateGameInfo', (response) => {
+      console.log('🔥 서버에서 받은 updateGameInfo 응답:', response);
+      if (response.type === 'SUCCESS') {
+        setUsers(response.data.players);
+        setGameTitle(response.data.gameName);
+        setManagerId(response.data.managerId);
+        setCurrentRound(response.data.currentRound);
+        setMaxRound(response.data.maxRound);
+        setCurrentTurnUserId(response.data.currentTurnUserId);
+        setIsGameEnd(response.data.isGameEnd);
+
       }
     });
 
@@ -49,22 +56,60 @@ export default function GamePlayPage() {
       newSocket.emit("joinGame", { gameId: Number(gameId), userId: Number(userId) });
     });
 
-    newSocket.on("connect_error", (err) => {
-      console.error("❌ 소켓 연결 실패:", err);
+
+    socket.on('startGame', (response: any) => {
+      if (response.type === 'SUCCESS') {
+        setKeyword(response.data.keyword);
+        console.log('다음턴 시작시 키워드정보', response.data);
+      }
     });
 
-    setSocket(newSocket);
+    socket.on('nextTurn', (response: any) => {
+      //다음턴 시작시 키워드 정보 받음
+      if (response.type === 'SUCCESS') {
+        setKeyword(response.data.keyword);
+        console.log('다음턴 시작시 키워드정보', response.data);
+      }
+
+      //만약 마지막 라운드일 경우에는 endGame 이벤트 emit 하기
+      if (response.type === 'ERROR') {
+        socket.emit('endGame');
+      }
+    });
 
     return () => {
-      console.log("🚪 게임 페이지 떠날 때 소켓 연결 해제");
-      newSocket.emit("leaveGame", { gameId });
-      newSocket.disconnect();
+      if (gameId) {
+        const userId = Number(localStorage.getItem('userId'));
+
+        // ✅ 페이지 나갈 때 자동으로 `leaveGame` 요청 전송
+        // socket.emit('leaveGame', { userId, gameId: Number(gameId) });
+        // console.log('🚪 페이지 떠날 때 leaveGame 요청 보냄:', {
+        //   userId,
+        //   gameId,
+        // });
+
+        socket.off('updateGameInfo');
+        socket.off('startGame');
+        socket.off('nextTurn');
+        socket.off('endRound');
+      }
     };
-  }, [gameId]);
+  }, []);
 
   return (
     <PageContainer>
-      <TopComponents socket={socket} gameTitle={gameTitle} managerId={managerId} />
+
+      <TopComponents
+        socket={socket}
+        gameTitle={gameTitle}
+        managerId={managerId}
+        keyword={keyword}
+        currentRound={currentRound}
+        maxRound={maxRound}
+        currentTurnUserId={currentTurnUserId}
+        isGameEnd={isGameEnd}
+      />
+
       <CenterComponents>
         <UserList users={users} />
         <div style={{ display: "flex", flexDirection: "column" }}>
