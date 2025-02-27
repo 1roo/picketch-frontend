@@ -22,31 +22,35 @@ const GameList: React.FC = () => {
   const [showMakeRoomModal, setShowMakeRoomModal] = useState(false);
   const navigate = useNavigate();
 
-  const fetchGameRooms = async () => {
-    try {
-      const response = await api.get(`/api/game-room`);
-      console.log('📡 서버에서 받은 게임방 목록:', response.data);
+  useEffect(() => {
+    const fetchGameRooms = async () => {
+      try {
+        const response = await api.get(`/api/game-room`);
+        console.log('📡 서버에서 받은 게임방 목록:', response.data);
 
-      if (!response.data?.data?.waitingRooms) {
-        console.error('❌ 서버에서 게임방 데이터를 받지 못했습니다.');
-        return;
+        if (!response.data?.data?.waitingRooms) {
+          console.error('❌ 서버에서 게임방 데이터를 받지 못했습니다.');
+          return;
+        }
+
+        const fetchedRooms = response.data.data.waitingRooms.map(
+          (room: any) => ({
+            roomId: room.roomId,
+            roomName: room.roomName,
+            isLock: room.is_lock,
+            playerCount: room.playerCount || 1,
+          })
+        );
+
+        console.log('✅ 변환된 게임방 목록:', fetchedRooms);
+        setGameRooms(fetchedRooms);
+      } catch (error) {
+        console.error('Error fetching game rooms:', error);
       }
+    };
 
-      const fetchedRooms = response.data.data.waitingRooms.map((room: any) => ({
-        roomId: room.roomId,
-        roomName: room.roomName,
-        isLock: room.is_lock,
-        playerCount: room.playerCount || 1,
-      }));
-
-      console.log('✅ 변환된 게임방 목록:', fetchedRooms);
-      setGameRooms(fetchedRooms);
-    } catch (error) {
-      console.error('Error fetching game rooms:', error);
-    }
-  };
-
-  fetchGameRooms();
+    fetchGameRooms();
+  }, []);
 
   const handleRoomSelect = async (
     gameId: number,
