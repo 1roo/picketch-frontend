@@ -84,8 +84,8 @@ export default function TopComponents({
   currentTurnUserId,
   isGameEnd,
   isGameStart,
-  remainingTime,
   isNextRoundSettled,
+  remainingTime,
 }: TopComponentsProps) {
   const [isReady, setIsReady] = useState(false);
   const navigate = useNavigate();
@@ -134,7 +134,7 @@ export default function TopComponents({
       {isNextRoundSettled && remainingTime}
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       {keyword && userId === currentTurnUserId
-        ? `키워드는       ' ${keyword ? keyword : ''}`
+        ? `키워드는        ${keyword ? keyword : ''}`
         : ''}
       {!isGameStart && (
         <ReadyButton
