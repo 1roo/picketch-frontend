@@ -6,6 +6,12 @@ import DmChat from "./DmChat";
 import Friends from "./Friends";
 import Rank from "./Rank";
 import socket from "../../socket/dmChatSocket";
+import Alert from "./Alert";
+
+interface AlertProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
 export default function Sidebar() {
   const [isDmOpen, setIsDmOpen] = useState<{ [key: number]: boolean }>({});
@@ -42,23 +48,6 @@ export default function Sidebar() {
     console.log(isDmOpen);
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        alertRef.current &&
-        !alertRef.current.contains(event.target as Node)
-      ) {
-        setIsAlertOpen(false);
-      }
-    };
-    if (isAlertOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isAlertOpen]);
   return (
     <S.Container>
       <div
@@ -76,25 +65,9 @@ export default function Sidebar() {
           onClick={toggleAlerts}
         />
       </div>
-      {isAlertOpen && (
-        <S.AlertDiv ref={alertRef}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: "10px",
-            }}
-          >
-            <FontAwesomeIcon
-              icon={faX}
-              style={{ cursor: "pointer" }}
-              onClick={toggleAlerts}
-            />
-          </div>
-          <p>닉네임: 야야 접속중</p>
-          <p>초 대: 홍길동님의 초대</p>
-        </S.AlertDiv>
-      )}
+
+      <Alert isOpen={isAlertOpen} onClose={toggleAlerts} />
+
       <Friends toggleDmChat={toggleDmChat} />
       <S.Line>
 
