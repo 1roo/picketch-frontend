@@ -8,10 +8,7 @@ const FooterContainer = styled.footer`
   display: flex;
   align-items: center;
   justify-content: center;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  z-index: 100;
+  margin-top: auto;
 `;
 
 export default function Footer() {

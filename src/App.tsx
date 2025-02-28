@@ -89,7 +89,7 @@ const PrivateRoute = () => {
 };
 
 const PageContainer = styled.div`
-  padding-top: 45px;
+  padding-top: 60px;
 `;
 
 function App() {
