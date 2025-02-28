@@ -2,6 +2,7 @@ export interface ChatMessage {
   senderNick: string;
   message: string;
   timestamp?: string;
+  isRead: boolean;
 }
 export interface FriendNick {
   friendNick: string;
@@ -11,6 +12,7 @@ export interface reciveMsgData {
   from: string;
   message: string;
   timestamp: string;
+  isRead: boolean;
 }
 export interface UserInfo {
   [key: number]: {
@@ -22,6 +24,7 @@ export interface Msg {
   message: string;
   sender_id: number;
   timestamp: string;
+  isRead: boolean;
 }
 export interface DmData {
   dmRoomId: number;

@@ -7,7 +7,7 @@ import { io } from 'socket.io-client';
 import type { Socket } from 'socket.io-client';
 
 interface FriendsProps {
-  toggleDmChat: (friendId: number, friendNickname: string) => void;
+  toggleDmChat: (friendNickname: string) => void;
 }
 
 interface Friend {
@@ -311,7 +311,7 @@ export default function Friends({ toggleDmChat }: FriendsProps) {
               <button
                 type="button"
                 onClick={() => {
-                  toggleDmChat(friend.friendId, friend.friendNickname);
+                  toggleDmChat(friend.friendNickname);
                 }}
               >
                 DM

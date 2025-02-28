@@ -1,5 +1,4 @@
-import styled from "styled-components";
-
+import styled from 'styled-components';
 const FooterContainer = styled.footer`
   width: 100%;
   height: 60px;
@@ -12,7 +11,5 @@ const FooterContainer = styled.footer`
 `;
 
 export default function Footer() {
-  return (
-    <FooterContainer>© 2025 Picketch. All rights reserved.</FooterContainer>
-  );
+  return <FooterContainer>© 2025 Picketch. All rights reserved.</FooterContainer>;
 }

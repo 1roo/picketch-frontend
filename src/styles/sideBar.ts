@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 export const Container = styled.div`
   position: relative;
@@ -35,7 +35,7 @@ export const AlertDiv = styled.div`
   z-index: 9999;
 
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     top: 18px;
     right: 99%;
@@ -48,7 +48,7 @@ export const AlertDiv = styled.div`
   }
 
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     top: 18px;
     right: 99%;
@@ -284,36 +284,42 @@ export const ChatContainer = styled.div`
   }
 `;
 
-export const ChatMessageWrapper = styled("div").withConfig({
-  shouldForwardProp: (prop) => prop !== "isMyMessage",
+export const ChatMessageWrapper = styled('div').withConfig({
+  shouldForwardProp: (prop) => prop !== 'isMyMessage',
 })<{ isMyMessage: boolean }>`
   display: flex;
   align-items: center;
-  justify-content: ${({ isMyMessage }) =>
-    isMyMessage ? "flex-end" : "flex-start"};
+  justify-content: ${({ isMyMessage }) => (isMyMessage ? 'flex-end' : 'flex-start')};
   margin: 5px 0;
 `;
 
-export const ChatBubble = styled("div").withConfig({
-  shouldForwardProp: (prop) => prop !== "isMyMessage",
+export const ChatBubble = styled('div').withConfig({
+  shouldForwardProp: (prop) => prop !== 'isMyMessage',
 })<{ isMyMessage: boolean }>`
   max-width: 60%;
   padding: 5px;
   border-radius: 10px;
-  color: ${({ isMyMessage }) => (isMyMessage ? "#101010" : "#d8ff91")};
-  border: ${({ isMyMessage }) => (isMyMessage ? "none" : "1px solid #d8ff91")};
-  background-color: ${({ isMyMessage }) =>
-    isMyMessage ? "#d8ff91" : "#101010"};
-  text-align: ${({ isMyMessage }) => (isMyMessage ? "right" : "left")};
+  color: ${({ isMyMessage }) => (isMyMessage ? '#101010' : '#d8ff91')};
+  border: ${({ isMyMessage }) => (isMyMessage ? 'none' : '1px solid #d8ff91')};
+  background-color: ${({ isMyMessage }) => (isMyMessage ? '#d8ff91' : '#101010')};
+  text-align: ${({ isMyMessage }) => (isMyMessage ? 'right' : 'left')};
 `;
 
-export const Timestamp = styled("span").withConfig({
-  shouldForwardProp: (prop) => prop !== "isMyMessage",
+export const Timestamp = styled('span').withConfig({
+  shouldForwardProp: (prop) => prop !== 'isMyMessage',
 })<{ isMyMessage: boolean }>`
   font-size: 12px;
   color: #aaa;
   margin: 0 10px;
-  order: ${({ isMyMessage }) => (isMyMessage ? "-1" : "1")};
+  order: ${({ isMyMessage }) => (isMyMessage ? '-1' : '1')};
+`;
+export const IsRead = styled('span').withConfig({
+  shouldForwardProp: (prop) => prop !== 'isMyMessage',
+})<{ isMyMessage: boolean }>`
+  font-size: 10px;
+  color: #d8ff91;
+  margin: 0 10px;
+  order: ${({ isMyMessage }) => (isMyMessage ? '-1' : '1')};
 `;
 
 export const ChatInput = styled.input`
