@@ -3,10 +3,9 @@ import * as S from '../../styles/sideBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, useEffect } from 'react';
 import api from '../../utils/axios';
-import DmChat from './DmChat';
 
 interface FriendsProps {
-  toggleDmChat: (friendId: number, friendNickname: string) => void;
+  toggleDmChat: (friendNickname: string) => void;
 }
 
 interface Friend {
@@ -15,8 +14,6 @@ interface Friend {
 }
 export default function Friends({ toggleDmChat }: FriendsProps) {
   const [friends, setFriends] = useState<Friend[]>([]); // 친구 목록을 저장할 상태
-
-  const [selectedFriend, setSelectedFriend] = useState<string | null>(null); // DM할 친구 저장
 
   // 컴포넌트가 마운트될 때 친구 목록을 가져오는 함수
   useEffect(() => {
@@ -42,10 +39,10 @@ export default function Friends({ toggleDmChat }: FriendsProps) {
             <span>{friend.friendNickname}</span>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <button
-                type='button'
+                type="button"
                 key={friend.friendId}
                 onClick={() => {
-                  toggleDmChat(friend.friendId, friend.friendNickname);
+                  toggleDmChat(friend.friendNickname);
                 }}
               >
                 DM
