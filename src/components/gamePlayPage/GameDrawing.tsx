@@ -102,8 +102,8 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
   const [currentLine, setCurrentLine] = useState<LineData | null>(null); // 현재 그리려는 선
   const [isNewLine, setIsNewLine] = useState(true);
   const navigate = useNavigate();
+  const isManager = localStorage.getItem('isManager');
   useEffect(() => {
-    // 클라이언트에서 서버로부터 그림 그리기 이벤트 수신
     // 클라이언트에서 서버로부터 그림 그리기 이벤트 수신
     socket.on('drawCanvas', (data: DrawData) => {
       console.log('drawCanvas응답은', data);
@@ -142,31 +142,24 @@ const GameDrawing: React.FC<GameDrawingProps> = ({ socket }) => {
       }
     });
 
-    // socket.on('startGame', (data: any) => {
-    //   // alert(
-    //   //   `다음 라운드 시작. ${
-    //   //     data.data.keyword ? data.data.keyword : "턴 순서가 아닙니다."
-    //   //   }`
-    //   // );
-    // });
-
     socket.on('endRound', (response: any) => {
       setLines([]); // 화면 지우기
       if (response.type === 'SUCCESS') {
-        socket.emit('nextTurn');
+        if (isManager === 'true') {
+          console.log('클라에서 엔드라운드 요청');
+          socket.emit('endTimer');
+          // socket.emit('nextTurn');
+        }
       }
     });
-
-    // socket.on('nextTurn', (data: any) => {
-    //   // alert(
-    //   //   `다음 라운드 시작. ${
-    //   //     data.data.keyword ? data.data.keyword : "턴 순서가 아닙니다."
-    //   //   }`
-    //   // );
-    //   if (data.type === 'ERROR') {
-    //     socket.emit('endGame');
-    //   }
-    // });
+    socket.on('endTimer', (response: any) => {
+      if (response?.type === 'SUCCESS') {
+        console.log('✅ endTimer:', response);
+        if (isManager === 'true') {
+          socket.emit('nextTurn');
+        }
+      }
+    });
 
     socket.on('endGame', (data: any) => {
       if (data.type === 'SUCCESS') {

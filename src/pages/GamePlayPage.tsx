@@ -23,33 +23,37 @@ export default function GamePlayPage() {
   const [currentRound, setCurrentRound] = useState<number>(0);
   const [maxRound, setMaxRound] = useState<number>(0);
   const [isGameEnd, setIsGameEnd] = useState<boolean>(false);
-  const [isStartGame, setIsStartGame] = useState<boolean>(false);
+  const [isGameStart, setIsGameStart] = useState<boolean>(false);
+  const [isNextRoundSettled, setIsNextRoundSettled] = useState<boolean>(false);
   const [currentTurnUserId, setCurrentTurnUserId] = useState<
     number | undefined
   >();
+  const [remainingTime, setRemainingTime] = useState<number | undefined>(
+    undefined
+  );
 
   const socketRef = useRef<Socket | null>(null); // useRef로 소켓을 관리
 
   // 새로고침, 뒤로가기 방지
-  // useEffect(() => {
-  //   const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-  //     event.preventDefault();
-  //     event.returnValue = '';
-  //   };
-  //   const handlePopState = () => {
-  //     if (
-  //       !window.confirm(
-  //         '진행중인 게임은 저장되지 않습니다. 게임을 나가시겠습니까?'
-  //       )
-  //     ) {
-  //       window.history.pushState(null, '', window.location.href);
-  //     }
-  //   };
-  //   window.addEventListener('beforeunload', handleBeforeUnload);
-  //   window.addEventListener('popstate', handlePopState);
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    const handlePopState = () => {
+      if (
+        !window.confirm(
+          '진행중인 게임은 저장되지 않습니다. 게임을 나가시겠습니까?'
+        )
+      ) {
+        window.history.pushState(null, '', window.location.href);
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
 
-  //   window.history.pushState(null, '', window.location.href);
-  // }, []);
+    window.history.pushState(null, '', window.location.href);
+  }, []);
 
   const userId = localStorage.getItem('userId');
   // const isManager = localStorage.getItem('isManager');
@@ -76,9 +80,10 @@ export default function GamePlayPage() {
           setCurrentRound(data.data.currentRound);
           setMaxRound(data.data.maxRound);
           setIsGameEnd(data.data.gameEnd);
-          setIsStartGame(data.data.startGame);
+          setIsGameStart(data.data.isGameStart);
           setCurrentTurnUserId(data.data.currentTurnUserId);
           setManagerId(data.data.managerId);
+          setIsNextRoundSettled(data.data.isNextRoundSettled);
         }
       });
 
@@ -117,7 +122,7 @@ export default function GamePlayPage() {
       newSocket.on('startGame', (response: any) => {
         if (response.type === 'SUCCESS') {
           setKeyword(response.data.keyword);
-          setIsStartGame(true);
+          setIsGameStart(true);
           if (isManager === 'true') {
             console.log('넥스트턴 실행');
             newSocket.emit('nextTurn');
@@ -139,7 +144,8 @@ export default function GamePlayPage() {
       });
 
       newSocket.on('updateTimer', (response: any) => {
-        console.log('🔥 updateTimer 응답', response);
+        console.log('🔥 updateTimer 응답', response.data.remainingTime);
+        setRemainingTime(response.data.remainingTime);
       });
 
       return () => {
@@ -151,10 +157,20 @@ export default function GamePlayPage() {
         newSocket.off('managerJoinGame');
         newSocket.off('startGame');
         newSocket.off('nextTurn');
+        newSocket.off('updateTimer');
       };
     }
-  }, [gameId]);
-
+  }, []);
+  useEffect(() => {
+    console.log('🔥🔥🔥 현재 시간 🔥🔥🔥,', remainingTime);
+    if (remainingTime !== undefined && remainingTime <= 0) {
+      console.log('🔥🔥🔥 시간 초과 🔥🔥🔥');
+      if (isManager === 'true') {
+        console.log('🔥🔥🔥 시간 만료 엔드라운드 요청 🔥🔥🔥');
+        socketRef.current?.emit('endRound');
+      }
+    }
+  }, [remainingTime]);
   return (
     <PageContainer>
       <TopComponents
@@ -166,7 +182,9 @@ export default function GamePlayPage() {
         maxRound={maxRound}
         currentTurnUserId={currentTurnUserId}
         isGameEnd={isGameEnd}
-        isStartGame={isStartGame}
+        isGameStart={isGameStart}
+        remainingTime={remainingTime}
+        isNextRoundSettled={isNextRoundSettled}
       />
 
       <CenterComponents>
