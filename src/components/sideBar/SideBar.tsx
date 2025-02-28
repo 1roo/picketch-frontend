@@ -5,48 +5,49 @@ import { useEffect, useRef, useState } from "react";
 import DmChat from "./DmChat";
 import Friends from "./Friends";
 import Rank from "./Rank";
+import socket from "../../socket/dmChatSocket";
+import Alert from "./Alert";
+
+interface AlertProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
 export default function Sidebar() {
-  const [isDmOpen, setIsDmOpen] = useState(false);
+  const [isDmOpen, setIsDmOpen] = useState<{ [key: number]: boolean }>({});
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  //////
-  const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
+
+  const [isRankOpen, setIsRankOpen] = useState(false);
+  const [chatFriendNick, setChatFriendNick] = useState("");
+
 
   const alertRef = useRef<HTMLDivElement>(null);
   const toggleAlerts = () => {
     setIsAlertOpen(!isAlertOpen);
   };
 
-  const toggleDmChat = (friendNickname: string) => {
-    if (isDmOpen && selectedFriend === friendNickname) {
-      // 현재 열려 있는 채팅이 동일한 친구라면 닫기
-      setIsDmOpen(false);
-      setSelectedFriend(null);
-    } else {
-      // 다른 친구라면 새로운 채팅 열기
-      setIsDmOpen(true);
-      setSelectedFriend(friendNickname);
-    }
+  const toggleDmChat = (friendId: number, friendNick: string) => {
+    // { "1": true, "2": false, "3": false }
+    setIsDmOpen((prev) => {
+      const isCurrentlyOpen: boolean = prev[friendId]; // 현재 상태 확인
+      return {
+        ...Object.keys(prev).reduce((acc, key) => {
+          acc[key] = false; // 모든 버튼을 false로 초기화
+          return acc;
+        }, {} as { [key: string]: boolean }),
+        [String(friendId)]: !isCurrentlyOpen, // 클릭한 버튼만 true로 설정
+      };
+    });
+    setChatFriendNick(friendNick);
+    socket.emit("joinDm", friendNick);
+    setChatFriendNick(friendNick);
+    socket.emit("joinDm", friendNick);
+
   };
-
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        alertRef.current &&
-        !alertRef.current.contains(event.target as Node)
-      ) {
-        setIsAlertOpen(false);
-      }
-    };
+    console.log(isDmOpen);
+  }, []);
 
-    if (isAlertOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isAlertOpen]);
   return (
     <S.Container>
       <div
@@ -64,32 +65,20 @@ export default function Sidebar() {
           onClick={toggleAlerts}
         />
       </div>
-      {isAlertOpen && (
-        <S.AlertDiv ref={alertRef}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: "10px",
-            }}
-          >
-            <FontAwesomeIcon
-              icon={faX}
-              style={{ cursor: "pointer" }}
-              onClick={toggleAlerts}
-            />
-          </div>
-          <p>닉네임: 야야 접속중</p>
-          <p>초 대: 홍길동님의 초대</p>
-        </S.AlertDiv>
-      )}
+
+      <Alert isOpen={isAlertOpen} onClose={toggleAlerts} />
+
       <Friends toggleDmChat={toggleDmChat} />
       <S.Line>
-        {isDmOpen && selectedFriend ? (
-          <DmChat otherNick={selectedFriend} />
+
+        {/* {isDmOpen && <DmChat friendNick={chatFriendNick} />} */}
+        {Object.values(isDmOpen).some((isOpen) => isOpen) ? (
+          <DmChat friendNick={chatFriendNick} />
         ) : (
           <Rank />
         )}
+        {/* {!isDmOpen && <Rank />} */}
+
       </S.Line>
     </S.Container>
   );

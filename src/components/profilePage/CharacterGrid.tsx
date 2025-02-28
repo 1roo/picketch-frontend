@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   CharacterGridContainer,
   CharacterImage,
@@ -27,6 +27,13 @@ const CharacterGrid: React.FC<Props> = ({
     "/images/snake.png",
     "/images/tiger.png",
   ];
+
+  // 기본 캐릭터 설정 (선택된 캐릭터가 없을 경우)
+  useEffect(() => {
+    if (!selectedCharacter) {
+      onSelectCharacter("/images/chicken.png");
+    }
+  }, [selectedCharacter, onSelectCharacter]);
 
   return (
     <CharacterGridContainer>

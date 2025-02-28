@@ -333,3 +333,81 @@ export const ChatInputBox = styled.div`
   align-items: center;
   justify-content: space-between;
 `;
+// --------------- Alert ----------------
+
+export const NoticeAlert = styled.p`
+  text-align: center;
+  font-size: 25px;
+  height: 15%;
+  font-weight: 100;
+  /* color: black;
+  background-color: #d8ff91; */
+`;
+
+export const NoneRead = styled.p`
+  text-align: center;
+  font-size: 13px;
+  height: 8%;
+  background-color: gray;
+`;
+
+export const AlertContainer = styled.div`
+  width: 100%;
+  height: 40%;
+  border: 1px solid #d8ff91;
+  margin-top: 10px;
+  /* background-color: rgb(133, 117, 117); */
+`;
+export const TypeBox = styled.div`
+  display: flex;
+  width: 100%;
+  height: 30%;
+`;
+export const GameType = styled.p`
+  text-align: center;
+  font-size: 13px;
+  width: 70%;
+  height: 8%;
+  text-align: start;
+  padding: 3px 0 0 8px;
+`;
+
+export const SendTime = styled.p`
+  text-align: center;
+  font-size: 13px;
+  width: 30%;
+  height: 8%;
+  font-size: 10px;
+  text-align: end;
+  padding: 5px 8px 0 0;
+`;
+
+export const RequestContent = styled.p`
+  text-align: center;
+  font-size: 20px;
+  width: 100%;
+  height: 40%;
+`;
+
+export const ButtonBox = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+  height: 20%;
+`;
+
+export const AcceptButton = styled.button`
+  width: 25%;
+  height: 100%;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 13px;
+  background-color: blue;
+`;
+export const RejectButton = styled.button`
+  width: 25%;
+  height: 100%;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 13px;
+  background-color: red;
+`;

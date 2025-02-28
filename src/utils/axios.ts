@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL =
   process.env.REACT_APP_API_BASE_URL || "http://localhost:8080"; // 기본값 설정
@@ -30,13 +31,7 @@ api.interceptors.request.use(
     if (accessToken && !config.url?.includes("/api/auth/google")) {
       console.log("📡 요청 Authorization 헤더 추가:", `Bearer ${accessToken}`);
       config.headers.Authorization = `Bearer ${accessToken}`;
-    } else {
-      console.log(
-        "🔄 구글 로그인 요청 - Authorization 헤더 제외됨:",
-        config.url
-      );
     }
-
     return config;
   },
   (error) => Promise.reject(error)
@@ -88,15 +83,24 @@ api.interceptors.response.use(
   }
 );
 
-// ✅ 로그아웃 처리 함수
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  event.preventDefault();
+  event.returnValue = "";
+};
+
 const handleLogout = () => {
   console.warn("👋 자동 로그아웃 실행");
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
-  window.location.href = "/"; // 로그인 페이지로 리디렉트
+  sessionStorage.clear();
+
+  // ✅ 새로고침 방지 이벤트 제거 (로그아웃할 때는 새로고침 가능해야 함)
+  window.removeEventListener("beforeunload", handleBeforeUnload);
+
+  // ✅ 강제 이동 (useNavigate 대신 사용)
+  window.location.href = "/";
 };
 
 // ✅ `isAxiosError` 추가 방식 개선
 Object.assign(api, { isAxiosError: axios.isAxiosError });
-
 export default api;
